@@ -8,7 +8,7 @@ if [ $# -lt 6 ]; then
 fi
 
 pushd `dirname $0` > /dev/null
-SCRIPT_DIR=`pwd`
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 popd > /dev/null
 
 if [ ! -d "$AFL_DIR" ]; then
@@ -16,7 +16,7 @@ if [ ! -d "$AFL_DIR" ]; then
   exit 2
 fi
 
-JQF_DIR="$SCRIPT_DIR/.."
+JQF_DIR="$SCRIPT_DIR/../.."
 JQF_EI="$JQF_DIR/bin/jqf-ei"
 JQF_AFL="$JQF_DIR/bin/jqf-afl-fuzz"
 NAME=$1
