@@ -90,7 +90,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected Map<Integer, Integer> coverageHashToSavedInputIdx = new HashMap<>();
 
     /** Mean number of mutations to perform in each round. */
-    protected final double MEAN_MUTATION_COUNT = 2.0;
+    protected final double MEAN_MUTATION_COUNT = 8.0;
 
     /** Mean number of contiguous bytes to mutate in each mutation. */
     protected final double MEAN_MUTATION_SIZE = 4.0; // Bytes
