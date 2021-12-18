@@ -40,6 +40,6 @@ SNAME="$NAME-$e"
 screen -S "$SNAME" -dm -t ei_$e
 #screen -S "$SNAME" -X screen -t jqf_$e
 screen -S "$SNAME" -X screen -t zest_$e
-screen -S "$SNAME" -p ei_$e -X stuff "timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR"
-screen -S "$SNAME" -p zest_$e -X stuff "timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_OUT_DIR"
+screen -S "$SNAME" -p ei_$e -X stuff "timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR^M"
+screen -S "$SNAME" -p zest_$e -X stuff "timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_OUT_DIR^M"
 
