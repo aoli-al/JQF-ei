@@ -8,7 +8,7 @@ if [ $# -lt 6 ]; then
 fi
 
 pushd `dirname $0` > /dev/null
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( dirname "$0" )
 popd > /dev/null
 
 JQF_DIR="$SCRIPT_DIR/../.."
