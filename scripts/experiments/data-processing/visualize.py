@@ -2,7 +2,6 @@ import sys
 import os
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 def p2f(value: str) -> float:
@@ -17,12 +16,15 @@ def process_data(path: str) -> pd.DataFrame:
 
     algorithm = os.path.basename(path).split('-')[1]
     data['algorithm'] = [algorithm] * data.shape[0]
+    data['total_inputs'] = data['valid_inputs'] + data['invalid_inputs']
     return data
 
 def generate_valid_cov_fig(path: str, data: pd.DataFrame):
-    axis = sns.lineplot(x="# unix_time", y="valid_cov", hue='algorithm', data=data)
+    axis = sns.lineplot(x="total_inputs", y="valid_cov", hue='algorithm', 
+                        hue_order=sorted(data['algorithm'].unique()), data=data)
     fig = axis.get_figure()
     fig.savefig(path)
+    fig.clf()
 
 def main():
     path = sys.argv[1]
