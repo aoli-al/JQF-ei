@@ -20,7 +20,7 @@ RUNS="$3"
 
 export JVM_OPTS="$JVM_OPTS -Djqf.repro.logUniqueBranches=true"
 
-for e in $(seq $RUNS); do
+for e in $(seq 0 $RUNS); do
   ZEST_OUT_DIR="$NAME-zest-results-$e"
   EI_OUT_DIR="$NAME-ei-results-$e"
 
@@ -30,7 +30,7 @@ done
 
 export JVM_OPTS="$JVM_OPTS -Djqf.repro.ignoreInvalidCoverage=true"
 
-for e in $(seq $RUNS); do
+for e in $(seq 0 $RUNS); do
   ZEST_OUT_DIR="$NAME-zest-results-$e"
   EI_OUT_DIR="$NAME-ei-results-$e"
 
