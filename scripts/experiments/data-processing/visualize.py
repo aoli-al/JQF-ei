@@ -32,7 +32,7 @@ def generate_plot_data_fig(path: str, data: pd.DataFrame, step=1):
     fig.clf()
 
 def generate_cov_fig(path: str, data: Dict[str, List[Any]]):
-    axis = sns.barplot(x="algo", y="value", hue="type", data=data)
+    axis = sns.barplot(x="type", y="value", hue="algo", data=data)
     fig = axis.get_figure()
     fig.savefig(path)
     fig.clf()
