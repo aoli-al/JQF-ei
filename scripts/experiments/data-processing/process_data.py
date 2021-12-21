@@ -23,7 +23,7 @@ def generate(base_path: str):
                 print(f"processing: {os.path.basename(path)}")
                 data = process_data(path)
                 algo_results.append(data)
-                generate_valid_cov_fig(os.path.join(path, "valid_cov.pdf"), data, data.shape[0] // 1000)
+                # generate_valid_cov_fig(os.path.join(path, "valid_cov.pdf"), data, data.shape[0] // 1000)
             min_length = min([d.shape[0] for d in algo_results])
             results.extend([d[:min_length:min_length // 1000] for d in algo_results])
         if not results:

@@ -13,7 +13,7 @@ def process_data(path: str) -> pd.DataFrame:
     data['# unix_time'] -= data["# unix_time"][0]
     data['total_inputs'] = data['valid_inputs'] + data['invalid_inputs']
     data = data.set_index("total_inputs").reindex(
-        range(1, data.total_inputs.max())).interpolate().reset_index()
+        range(1, data.total_inputs.max(), 50)).interpolate().reset_index()
     algorithm = os.path.basename(path).split('-')[1]
     data['algorithm'] = [algorithm] * data.shape[0]
     return data
