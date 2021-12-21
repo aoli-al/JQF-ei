@@ -733,6 +733,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                                 Prefix sourcePrefix = sourceEi.getPrefixOfSuffix(suffix);
                                 Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
                                 assert (sourcePrefix.size() == targetPrefix.size());
+                                demandDrivenSpliceMap.add(
+                                        new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
 
                                 // OK, this looks good. Let's splice!
                                 int srcIdx = sourceOffset;
