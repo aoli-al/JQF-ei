@@ -103,7 +103,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final int MAX_SPLICE_SIZE = 64; // Bytes
 
     /** Whether to splice only in the same sub-tree */
-    protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
+    protected final boolean SPLICE_SUBTREE = true;
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
     protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
