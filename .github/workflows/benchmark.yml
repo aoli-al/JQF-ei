@@ -1,6 +1,6 @@
 name: Execute and report a JQF performance evaluation campaign
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       trials:
         description: Number of trials to conduct of each fuzzing target
