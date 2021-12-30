@@ -8,12 +8,12 @@ on:
         default: 5
         type: number
       duration:
-        description: Duration of each fuzzing campaign, e.g. 5m, 24h
+        description: Duration of each fuzzing campaign in hours
         required: false
-        default: 5m
-        type: string
+        default: 3
+        type: number
 jobs:
-  clone_cloudlab_repo:
+  clone-cloudlab-repo:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
@@ -22,3 +22,5 @@ jobs:
           repository: aoli-al/cloudlab
           token: ${{ secrets.ACCESS_TOKEN }}
           ref: master
+      - name: start experiment
+        run: python3 python3 src/experiments/jqf_ei/setup.py ${{ github.sha }} ${{ inputs.trials }} ${{ inputs.duration }}
