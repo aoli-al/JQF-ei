@@ -1,0 +1,22 @@
+name: Execute and report a JQF performance evaluation campaign
+on:
+  workflow_call:
+    inputs:
+      trials:
+        description: Number of trials to conduct of each fuzzing target
+        required: false
+        default: 5
+        type: number
+      duration:
+        description: Duration of each fuzzing campaign, e.g. 5m, 24h
+        required: false
+        default: 5m
+        type: string
+jobs:
+  clone_cloudlab_repo:
+    runs_on: self-hosted
+    steps:
+      - uses: actions/checkout@v1  
+        with:
+          repository: aoli-al/cloudlab
+          token: ${{ secrets.ACCESS_TOKEN }}
