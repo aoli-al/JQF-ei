@@ -14,7 +14,7 @@ on:
         type: string
 jobs:
   clone_cloudlab_repo:
-    runs_on: self-hosted
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v1  
         with:
