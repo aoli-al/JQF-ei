@@ -72,7 +72,7 @@ public class FastCoverageMethodAdapter extends MethodVisitor implements Opcodes 
     int iid = instrumentationState.incAndGetFastCoverageId();
     addBipushInsn(mv, iid);
     mv.visitInsn(ICONST_0);
-    mv.visitMethodInsn(INVOKESTATIC, Config.instance.analysisClass, "LOGJUMP", "(II)V", false);
+    mv.visitMethodInsn(INVOKESTATIC, Config.instance.analysisClass, "LOGMETHODBEGIN", "(II)V", false);
   }
 
   private void addConditionalJumpInstrumentation(int opcode, Label finalBranchTarget,
