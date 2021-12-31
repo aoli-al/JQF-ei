@@ -3,15 +3,15 @@ package edu.berkeley.cs.jqf.instrument.tracing;
 import janala.instrument.FastCoverageListener;
 
 public class FastCoverageSnoop {
-    static FastCoverageListener coverageListener = FastCoverageListener.DEFAULT;
+    static FastCoverageListener coverageListener = new FastCoverageListener.Default();
 
     @SuppressWarnings("unused") //Invoked by instrumentation
     public static void LOGMETHODBEGIN(int iid) {
         coverageListener.logMethodBegin(iid);
     }
 
-    public static void LOGRETURN(int iid) {
-        coverageListener.logReturn(iid);
+    public static void LOGMETHODEND(int iid) {
+        coverageListener.logMethodEnd(iid);
     }
 
     @SuppressWarnings("unused") //Invoked by instrumentation
