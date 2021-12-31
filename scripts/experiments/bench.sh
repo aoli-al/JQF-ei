@@ -8,17 +8,12 @@ if [ $# -lt 6 ]; then
 fi
 
 pushd `dirname $0` > /dev/null
-SCRIPT_DIR=`pwd`
+SCRIPT_DIR=$( dirname "$0" )
 popd > /dev/null
 
-if [ ! -d "$AFL_DIR" ]; then
-  echo "AFL_DIR is not set!"
-  exit 2
-fi
-
-JQF_DIR="$SCRIPT_DIR/.."
+JQF_DIR="$SCRIPT_DIR/../.."
 JQF_EI="$JQF_DIR/bin/jqf-ei"
-JQF_AFL="$JQF_DIR/bin/jqf-afl-fuzz"
+JQF_ZEST="$JQF_DIR/bin/jqf-zest"
 NAME=$1
 TEST_CLASS="edu.berkeley.cs.jqf.examples.$2"
 IDX=$3
@@ -29,28 +24,31 @@ SEEDS_DIR=$(dirname "$SEEDS")
 
 e=$IDX
 
-JQF_OUT_DIR="$NAME-jqf-results-$e"
-AFL_OUT_DIR="$NAME-afl-results-$e"
-RND_OUT_DIR="$NAME-rnd-results-$e"
-SEQ_OUT_DIR="$NAME-seq-results-$e"
+EI_OUT_DIR="$NAME-ei-results-$e"
+EI_FAST_OUT_DIR="$NAME-ei-fast-results-$e"
+ZEST_OUT_DIR="$NAME-zest-results-$e"
+ZEST_FAST_OUT_DIR="$NAME-zest-fast-results-$e"
 
 if [ -d "$JQF_OUT_DIR" ]; then
-  echo "Error! There is already a directory by the name of $JQF_OUT_DIR"
+  echo "Error! There is already a directory by the name of $EI_OUT_DIR"
   exit 3
 fi
 
 # Do not let GC mess with fuzzing
 export JVM_OPTS="$JVM_OPTS -XX:-UseGCOverheadLimit"
 
+OPTS=$JVM_OPTS
+
 SNAME="$NAME-$e"
 
-screen -S "$SNAME" -dm -t jqf_$e
-#screen -S "$SNAME" -X screen -t jqf_$e
-screen -S "$SNAME" -X screen -t afl_$e
-screen -S "$SNAME" -X screen -t rnd_$e
-screen -S "$SNAME" -X screen -t seq_$e
-screen -S "$SNAME" -p jqf_$e -X stuff "timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $JQF_OUT_DIR ^M"
-screen -S "$SNAME" -p rnd_$e -X stuff "JVM_OPTS=\"\$JVM_OPTS -Djqf.ei.TOTALLY_RANDOM=true\" timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $RND_OUT_DIR ^M"
-screen -S "$SNAME" -p afl_$e -X stuff "timeout $TIME $JQF_AFL -t 10000 -c \$($JQF_DIR/scripts/examples_classpath.sh) -x $DICT -o $AFL_OUT_DIR -T $NAME-seq -i $SEEDS_DIR -v $TEST_CLASS testWithInputStream ^M"
-screen -S "$SNAME" -p seq_$e -X stuff "JVM_OPTS=\"\$JVM_OPTS -Djqf.ei.MAX_INPUT_SIZE=10240 -Djqf.ei.GENERATE_EOF_WHEN_OUT=true\" timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithInputStream $SEQ_OUT_DIR $SEEDS ^M"
+screen -S "$SNAME" -dm -t ei_$e
+screen -S "$SNAME" -X screen -t zest_$e
+screen -S "$SNAME" -X screen -t zest_fast_$e
+screen -S "$SNAME" -X screen -t ei_fast_$e
+screen -S "$SNAME" -p ei_$e -X stuff "timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR^M"
+screen -S "$SNAME" -p zest_$e -X stuff "timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_OUT_DIR^M"
+export JVM_OPTS="$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true"
+screen -S "$SNAME" -p ei_fast_$e -X stuff "timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) -D-DuseFastNonCollidingCoverageInstrumentation=true $TEST_CLASS testWithGenerator $EI_FAST_OUT_DIR^M"
+screen -S "$SNAME" -p zest_fast_$e -X stuff "timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_FAST_OUT_DIR^M"
+export JVM_OPTS="$OPTS"
 
