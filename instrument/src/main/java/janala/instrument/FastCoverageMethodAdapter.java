@@ -26,7 +26,6 @@ public class FastCoverageMethodAdapter extends MethodVisitor implements Opcodes 
 
     this.instrumentationState = instrumentationState;
     this.methodIID = instrumentationState.incAndGetFastCoverageId();
-    System.out.println("METHOD " + methodIID + ": " + this.className + " " + methodName);
   }
 
   /** Push a value onto the stack. */
