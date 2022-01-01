@@ -69,7 +69,7 @@ public abstract class AbstractExecutionIndexingState {
         // the current return function. This is a lazy
         // way to handle exceptions. We only need
         // to do this for FastExecutionIndexingState.
-        while (this instanceof JanalaExecutionIndexingState &&
+        while (this instanceof FastExecutionIndexingState &&
                 (rollingIndex[2 * (depth - 1)] != iid)) {
             // Clear the top-of-stack
             stackOfCounters.get(depth).clear();

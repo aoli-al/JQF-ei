@@ -34,6 +34,7 @@ import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.generator.InRange;
 import com.pholser.junit.quickcheck.generator.Size;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import edu.berkeley.cs.jqf.fuzz.ei.state.FastExecutionIndexingState;
 import edu.berkeley.cs.jqf.fuzz.ei.state.JanalaExecutionIndexingState;
 import edu.berkeley.cs.jqf.instrument.tracing.events.CallEvent;
 import edu.berkeley.cs.jqf.instrument.tracing.events.ReadEvent;
@@ -147,7 +148,7 @@ public class ExecutionIndexingTest {
 
     @Test
     public void testCallReturnMismatch() {
-        JanalaExecutionIndexingState e = new JanalaExecutionIndexingState();
+        FastExecutionIndexingState e = new FastExecutionIndexingState();
         int[] ei;
         e.pushCall(4);
         e.popReturn(4);
