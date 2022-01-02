@@ -1,0 +1,26 @@
+name: Execute and report a JQF performance evaluation campaign
+on:
+  workflow_dispatch:
+    inputs:
+      trials:
+        description: Number of trials to conduct of each fuzzing target
+        required: false
+        default: 5
+        type: number
+      duration:
+        description: Duration of each fuzzing campaign in hours
+        required: false
+        default: 3
+        type: number
+jobs:
+  clone-cloudlab-repo:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          repository: aoli-al/cloudlab
+          token: ${{ secrets.ACCESS_TOKEN }}
+          ref: master
+      - name: start experiment
+        run: python3 src/experiments/jqf_ei/setup.py ${{ github.sha }} ${{ github.event.inputs.trials }} ${{ github.event.inputs.duration }}
