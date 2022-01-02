@@ -9,7 +9,7 @@ from visualize import process_plot_data, generate_plot_data_fig, process_cov_dat
 
 DATASET = {"ant", "maven", "bcel", "rhino", "closure"}
 
-ALGORITHM = {"zest", "ei"}
+ALGORITHM = {"zest", "ei", "zest-fast", "ei-fast"}
 
 def generate(base_path: str):
     for dataset in DATASET:

@@ -16,6 +16,8 @@ def process_plot_data(path: str) -> pd.DataFrame:
     data = data.set_index("total_inputs").reindex(
         range(1, data.total_inputs.max(), 50)).interpolate().reset_index()
     algorithm = os.path.basename(path).split('-')[1]
+    if "fast" in os.path.basename(path):
+        algorithm += "-fast"
     data['algorithm'] = [algorithm] * data.shape[0]
     return data
 
