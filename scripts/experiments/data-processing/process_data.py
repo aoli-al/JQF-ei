@@ -41,7 +41,7 @@ def generate(base_path: str):
                 cov_data["value"].append(len(cov_valid))
 
             min_length = min([d.shape[0] for d in plot_data_per_algo])
-            plot_data.extend([d[:min_length:min_length // 1000] for d in plot_data_per_algo])
+            plot_data.extend([d[::min_length // 1000] for d in plot_data_per_algo])
         if not plot_data:
             continue
         out_folder = os.path.join(base_path, "figs")
