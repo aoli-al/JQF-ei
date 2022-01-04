@@ -48,8 +48,8 @@ def generate(base_path: str):
         if not os.path.exists(out_folder):
             os.mkdir(out_folder)
         merged_data = pd.concat(plot_data, ignore_index=True, sort=False)
-        generate_plot_data_fig(os.path.join(out_folder,
-                                            f"{dataset}-plot_data.pdf"), merged_data)
+        # generate_plot_data_fig(os.path.join(out_folder,
+        #                                     f"{dataset}-plot_data.pdf"), merged_data)
         generate_cov_fig(os.path.join(out_folder,
                                       f"{dataset}-cov.pdf"), cov_data)
 

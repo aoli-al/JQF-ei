@@ -1,6 +1,7 @@
 import sys
 import os
 from typing import Dict, List, Any
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -33,8 +34,23 @@ def generate_plot_data_fig(path: str, data: pd.DataFrame, step=1):
     fig.savefig(path)
     fig.clf()
 
+def show_values_on_bars(axs):
+    def _show_on_single_plot(ax):
+        for p in ax.patches:
+            _x = p.get_x() + p.get_width() / 2
+            _y = p.get_y() + p.get_height()
+            value = '{:.2f}'.format(p.get_height())
+            ax.text(_x, _y, value, ha="center")
+
+    if isinstance(axs, np.ndarray):
+        for idx, ax in np.ndenumerate(axs):
+            _show_on_single_plot(ax)
+    else:
+        _show_on_single_plot(axs)
+
 def generate_cov_fig(path: str, data: Dict[str, List[Any]]):
     axis = sns.barplot(x="type", y="value", hue="algo", data=data)
+    show_values_on_bars(axis)
     fig = axis.get_figure()
     fig.savefig(path)
     fig.clf()
