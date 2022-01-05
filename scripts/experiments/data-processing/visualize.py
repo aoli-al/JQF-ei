@@ -14,24 +14,32 @@ def process_plot_data(path: str) -> pd.DataFrame:
                        converters={"valid_cov": p2f, "map_size": p2f})
     data['# unix_time'] -= data["# unix_time"][0]
     data['total_inputs'] = data['valid_inputs'] + data['invalid_inputs']
-    data = data.set_index("total_inputs").reindex(
-        range(1, data.total_inputs.max(), 50)).interpolate().reset_index()
+    data = data.drop_duplicates(keep ='first', subset=["# unix_time"])
+    data = data.set_index("# unix_time").reindex(
+        range(1, data["# unix_time"].max(), 50)).interpolate().reset_index()
     algorithm = os.path.basename(path).split('-')[1]
     if "fast" in os.path.basename(path):
         algorithm += "-fast"
     data['algorithm'] = [algorithm] * data.shape[0]
+    print(data.shape)
+    print(data)
     return data
 
 def process_cov_data(path: str) -> List[str]:
     with open(path) as f:
         return f.readlines()
 
-def generate_plot_data_fig(path: str, data: pd.DataFrame, step=1):
+def generate_plot_data_fig(path: str, dataset: str, data: pd.DataFrame, step=1):
     data = data[::step]
-    axis = sns.lineplot(x="total_inputs", y="valid_cov", hue='algorithm',
+    # axis = sns.lineplot(x="total_inputs", y="valid_cov", hue='algorithm',
+    #                     hue_order=sorted(data['algorithm'].unique()), data=data)
+    # fig = axis.get_figure()
+    # fig.savefig(os.path.join(path, f"{dataset}-valid_cov.pdf"))
+    # fig.clf()
+    axis = sns.lineplot(x="# unix_time", y="total_inputs", hue='algorithm',
                         hue_order=sorted(data['algorithm'].unique()), data=data)
     fig = axis.get_figure()
-    fig.savefig(path)
+    fig.savefig(os.path.join(path, f"{dataset}-total_inputs.pdf"))
     fig.clf()
 
 def show_values_on_bars(axs):
