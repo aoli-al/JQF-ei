@@ -28,18 +28,12 @@
  */
 package edu.berkeley.cs.jqf.fuzz.util;
 
-import edu.berkeley.cs.jqf.instrument.tracing.events.BranchEvent;
-import edu.berkeley.cs.jqf.instrument.tracing.events.CallEvent;
-import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import janala.instrument.FastCoverageListener;
 import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.tuple.primitive.IntIntPair;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -47,7 +41,7 @@ import java.util.Iterator;
  *
  * @author Jonathan Bell
  */
-public class FastNonCollidingCoverage extends FastCoverageListener.Default implements ICoverage<FastNonCollidingCounter> {
+public class FastNonCollidingCoverage extends FastCoverageListener.Default implements Metric {
 
     /** The starting size of the coverage map. */
     private final int COVERAGE_MAP_SIZE = (1 << 8);
@@ -102,7 +96,7 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
      * @param baseline the baseline coverage
      * @return the set of edges that do not exist in {@code baseline}
      */
-    public IntList computeNewCoverage(ICoverage baseline) {
+    public IntList computeNewCoverage(Metric baseline) {
         IntArrayList newCoverage = new IntArrayList();
 
         IntList baseNonZero = this.counter.getNonZeroKeys();
@@ -164,7 +158,7 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
      * @return <code>true</code> iff <code>that</code> is not a subset
      *         of <code>this</code>, causing <code>this</code> to change.
      */
-    public boolean updateBits(ICoverage that) {
+    public boolean updateBits(Metric that) {
         boolean changed = false;
         synchronized (this.counter){
             synchronized (that.getCounter()){

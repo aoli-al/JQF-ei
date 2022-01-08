@@ -2,7 +2,7 @@ package edu.berkeley.cs.jqf.fuzz.util;
 
 import org.eclipse.collections.api.list.primitive.IntList;
 
-public interface ICoverage<T extends Counter> {
+public interface Metric {
     /**
      * Returns the size of the coverage map.
      *
@@ -30,7 +30,7 @@ public interface ICoverage<T extends Counter> {
      * @param baseline the baseline coverage
      * @return the set of edges that do not exist in {@code baseline}
      */
-    IntList computeNewCoverage(ICoverage baseline);
+    IntList computeNewCoverage(Metric baseline);
 
     /**
      * Clears the coverage map.
@@ -45,7 +45,7 @@ public interface ICoverage<T extends Counter> {
      * @return <code>true</code> iff <code>that</code> is not a subset
      *         of <code>this</code>, causing <code>this</code> to change.
      */
-    boolean updateBits(ICoverage that);
+    boolean updateBits(Metric that);
 
     /**
      * Returns a hash code of the list of edges that have been covered at least once.
@@ -56,5 +56,5 @@ public interface ICoverage<T extends Counter> {
 
     Counter getCounter();
 
-    ICoverage<T> copy();
+    Metric copy();
 }

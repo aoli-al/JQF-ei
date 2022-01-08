@@ -28,10 +28,7 @@
  */
 package edu.berkeley.cs.jqf.fuzz.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 import edu.berkeley.cs.jqf.instrument.tracing.events.BranchEvent;
 import edu.berkeley.cs.jqf.instrument.tracing.events.CallEvent;
@@ -46,7 +43,7 @@ import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
  *
  * @author Rohan Padhye
  */
-public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
+public class Coverage implements TraceEventVisitor, Metric {
 
     /** The size of the coverage map. */
     private final int COVERAGE_MAP_SIZE = (1 << 16) - 1; // Minus one to reduce collisions
@@ -130,7 +127,7 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
      * @return the set of edges that do not exist in {@code baseline}
      */
     @Override
-    public IntList computeNewCoverage(ICoverage baseline) {
+    public IntList computeNewCoverage(Metric baseline) {
         IntArrayList newCoverage = new IntArrayList();
 
         IntList baseNonZero = this.counter.getNonZeroIndices();
@@ -194,7 +191,7 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
      *         of <code>this</code>, causing <code>this</code> to change.
      */
     @Override
-    public boolean updateBits(ICoverage that) {
+    public boolean updateBits(Metric that) {
         boolean changed = false;
         if (that.getCounter().hasNonZeros()) {
             for (int idx = 0; idx < COVERAGE_MAP_SIZE; idx++) {

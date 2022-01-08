@@ -27,7 +27,7 @@ public class CoverageFactory {
         FAST_NON_COLLIDING_COVERAGE_ENABLED = Boolean.parseBoolean(properties.getProperty("useFastNonCollidingCoverageInstrumentation", "false"));
     }
 
-    public static ICoverage newInstance() {
+    public static Metric newInstance() {
         if (FAST_NON_COLLIDING_COVERAGE_ENABLED) {
             return new FastNonCollidingCoverage();
         } else {

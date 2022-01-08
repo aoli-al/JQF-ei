@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import edu.berkeley.cs.jqf.fuzz.ei.ExecutionIndex.Prefix;
 import edu.berkeley.cs.jqf.fuzz.ei.ExecutionIndex.Suffix;
+import edu.berkeley.cs.jqf.fuzz.ei.input.Input;
 import edu.berkeley.cs.jqf.fuzz.ei.state.AbstractExecutionIndexingState;
 import edu.berkeley.cs.jqf.fuzz.ei.state.FastExecutionIndexingState;
 import edu.berkeley.cs.jqf.fuzz.ei.state.JanalaExecutionIndexingState;
