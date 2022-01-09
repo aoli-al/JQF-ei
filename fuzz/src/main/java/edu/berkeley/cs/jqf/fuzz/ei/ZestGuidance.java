@@ -69,7 +69,6 @@ import edu.berkeley.cs.jqf.instrument.tracing.FastCoverageSnoop;
 import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import janala.instrument.FastCoverageListener;
 import org.eclipse.collections.api.iterator.IntIterator;
-import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 
 import static java.lang.Math.ceil;
@@ -153,16 +152,13 @@ public class ZestGuidance implements Guidance {
     protected ICoverage runCoverage = CoverageFactory.newInstance();
 
     /** Cumulative coverage statistics. */
-    protected ICoverage totalCoverage = CoverageFactory.newInstance();
-
-    /** Cumulative coverage for valid inputs. */
-    protected ICoverage validCoverage = CoverageFactory.newInstance();
+    protected ICoverage maxBranchExecutionCounter = CoverageFactory.newInstance();
 
     /** The maximum number of keys covered by any single input found so far. */
     protected int maxCoverage = 0;
 
     /** A mapping of coverage keys to inputs that are responsible for them. */
-    protected Map<Object, Input> responsibleInputs = new HashMap<>(totalCoverage.size());
+    protected Map<Object, Input> responsibleInputs = new HashMap<>(maxBranchExecutionCounter.size());
 
     /** The set of unique failures found so far. */
     protected Set<List<StackTraceElement>> uniqueFailures = new HashSet<>();
@@ -261,6 +257,8 @@ public class ZestGuidance implements Guidance {
 
     /** Whether to steal responsibility from old inputs (this increases computation cost). */
     protected final boolean STEAL_RESPONSIBILITY = Boolean.getBoolean("jqf.ei.STEAL_RESPONSIBILITY");
+
+    protected  int maxTotalExecution = 0;
 
     /**
      * Creates a new Zest guidance instance with optional duration,
@@ -489,14 +487,13 @@ public class ZestGuidance implements Guidance {
                     "/" + getTargetChildrenForParent(currentParentInput) + " mutations}";
         }
 
-        int nonZeroCount = totalCoverage.getNonZeroCount();
-        double nonZeroFraction = nonZeroCount * 100.0 / totalCoverage.size();
-        int nonZeroValidCount = validCoverage.getNonZeroCount();
-        double nonZeroValidFraction = nonZeroValidCount * 100.0 / validCoverage.size();
+        int nonZeroCount = maxBranchExecutionCounter.getNonZeroCount();
+        double nonZeroFraction = nonZeroCount * 100.0 / maxBranchExecutionCounter.size();
 
         if (console != null) {
             if (LIBFUZZER_COMPAT_OUTPUT) {
-                console.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, nonZeroValidCount, intervalExecsPerSec, currentInput.size());
+                console.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, 0, intervalExecsPerSec,
+                        currentInput.size());
             } else if (!QUIET_MODE) {
                 console.printf("\033[2J");
                 console.printf("\033[H");
@@ -522,14 +519,14 @@ public class ZestGuidance implements Guidance {
                 console.printf("Current parent input: %s\n", currentParentInputDesc);
                 console.printf("Execution speed:      %,d/sec now | %,d/sec overall\n", intervalExecsPerSec, execsPerSec);
                 console.printf("Total coverage:       %,d branches (%.2f%% of map)\n", nonZeroCount, nonZeroFraction);
-                console.printf("Valid coverage:       %,d branches (%.2f%% of map)\n", nonZeroValidCount, nonZeroValidFraction);
+                console.printf("Max execution:        %,d branches\n", maxTotalExecution);
             }
         }
 
-        String plotData = String.format("%d, %d, %d, %d, %d, %d, %.2f%%, %d, %d, %d, %.2f, %d, %d, %.2f%%",
+        String plotData = String.format("%d, %d, %d, %d, %d, %d, %.2f%%, %d, %d, %d, %.2f, %d, %d, %d %d %%",
                 TimeUnit.MILLISECONDS.toSeconds(now.getTime()), cyclesCompleted, currentParentInputIdx,
                 numSavedInputs, 0, 0, nonZeroFraction, uniqueFailures.size(), 0, 0, intervalExecsPerSecDouble,
-                numValid, numTrials-numValid, nonZeroValidFraction);
+                numValid, numTrials-numValid, maxTotalExecution, nonZeroCount);
         appendLineToFile(statsFile, plotData);
     }
 
@@ -537,8 +534,8 @@ public class ZestGuidance implements Guidance {
     protected void updateCoverageFile() {
         try {
             PrintWriter pw = new PrintWriter(coverageFile);
-            pw.println(getTotalCoverage().toString());
-            pw.println("Hash code: " + getTotalCoverage().hashCode());
+            pw.println(maxBranchExecutionCounter.toString());
+            pw.println("Hash code: " + maxBranchExecutionCounter.hashCode());
             pw.close();
         } catch (FileNotFoundException ignore) {
             throw new GuidanceException(ignore);
@@ -595,7 +592,7 @@ public class ZestGuidance implements Guidance {
                 numFavoredLastCycle++;
             }
         }
-        int totalCoverageCount = totalCoverage.getNonZeroCount();
+        int totalCoverageCount = maxBranchExecutionCounter.getNonZeroCount();
         infoLog("Total %d branches covered", totalCoverageCount);
         if (sumResponsibilities != totalCoverageCount) {
             if (multiThreaded) {
@@ -740,15 +737,20 @@ public class ZestGuidance implements Guidance {
             }
 
             if (result == Result.SUCCESS || (result == Result.INVALID && !SAVE_ONLY_VALID)) {
+                // Coverage before
+                int prevMaxTotalExecution = maxTotalExecution;
+                maxTotalExecution = Integer.max(maxTotalExecution, runCoverage.getTotalExecution());
+                boolean maxTotalExecutionUpdated = prevMaxTotalExecution != maxTotalExecution;
+                IntHashSet responsibilities = computeResponsibilities(maxTotalExecutionUpdated);
 
-                // Compute a list of keys for which this input can assume responsibility.
-                // Newly covered branches are always included.
-                // Existing branches *may* be included, depending on the heuristics used.
-                // A valid input will steal responsibility from invalid inputs
-                IntHashSet responsibilities = computeResponsibilities(valid);
+                // Possibly save input
+                List<String> savingCriteriaSatisfied = new ArrayList<>();
 
-                // Determine if this input should be saved
-                List<String> savingCriteriaSatisfied = checkSavingCriteriaSatisfied(result);
+
+                if (responsibilities.size() > 0) {
+                    savingCriteriaSatisfied.add("+count");
+                }
+
                 boolean toSave = savingCriteriaSatisfied.size() > 0;
 
                 if (toSave) {
@@ -780,6 +782,10 @@ public class ZestGuidance implements Guidance {
 
                     // Update coverage information
                     updateCoverageFile();
+                }
+                if (savedInputs.removeIf(it -> it.responsibilities.isEmpty())) {
+                    currentParentInputIdx = 0;
+                    numChildrenGeneratedForCurrentParentInput = 0;
                 }
             } else if (result == Result.FAILURE || result == Result.TIMEOUT) {
                 String msg = error.getMessage();
@@ -836,108 +842,23 @@ public class ZestGuidance implements Guidance {
         });
     }
 
-    // Return a list of saving criteria that have been satisfied for a non-failure input
-    protected List<String> checkSavingCriteriaSatisfied(Result result) {
-        // Coverage before
-        int nonZeroBefore = totalCoverage.getNonZeroCount();
-        int validNonZeroBefore = validCoverage.getNonZeroCount();
 
-        // Update total coverage
-        boolean coverageBitsUpdated = totalCoverage.updateBits(runCoverage);
-        if (result == Result.SUCCESS) {
-            validCoverage.updateBits(runCoverage);
-        }
-
-        // Coverage after
-        int nonZeroAfter = totalCoverage.getNonZeroCount();
-        if (nonZeroAfter > maxCoverage) {
-            maxCoverage = nonZeroAfter;
-        }
-        int validNonZeroAfter = validCoverage.getNonZeroCount();
-
-        // Possibly save input
-        List<String> reasonsToSave = new ArrayList<>();
-
-
-        if (!DISABLE_SAVE_NEW_COUNTS && coverageBitsUpdated) {
-            reasonsToSave.add("+count");
-        }
-
-        // Save if new total coverage found
-        if (nonZeroAfter > nonZeroBefore) {
-            reasonsToSave.add("+cov");
-        }
-
-        // Save if new valid coverage is found
-        if (this.validityFuzzing && validNonZeroAfter > validNonZeroBefore) {
-            reasonsToSave.add("+valid");
-        }
-
-        return reasonsToSave;
-    }
-
-
-    // Compute a set of branches for which the current input may assume responsibility
-    protected IntHashSet computeResponsibilities(boolean valid) {
-        IntHashSet result = new IntHashSet();
-
+    private IntHashSet computeResponsibilities(boolean maxTotalUpdated) {
         // This input is responsible for all new coverage
-        IntList newCoverage = runCoverage.computeNewCoverage(totalCoverage);
-        if (newCoverage.size() > 0) {
-            result.addAll(newCoverage);
-        }
+        IntHashSet newCoverage = maxBranchExecutionCounter.computeAndUpdateMaxCoverage(runCoverage, maxTotalUpdated);
+        for (Input candidate : savedInputs) {
+            IntHashSet responsibilities = candidate.responsibilities;
 
-        // If valid, this input is responsible for all new valid coverage
-        if (valid) {
-            IntList newValidCoverage = runCoverage.computeNewCoverage(validCoverage);
-            if (newValidCoverage.size() > 0) {
-                result.addAll(newValidCoverage);
+            // Candidates with no responsibility are not interesting
+            if (responsibilities.isEmpty()) {
+                continue;
             }
+
+            responsibilities.removeAll(newCoverage);
         }
 
-        // Perhaps it can also steal responsibility from other inputs
-        if (STEAL_RESPONSIBILITY) {
-            int currentNonZeroCoverage = runCoverage.getNonZeroCount();
-            int currentInputSize = currentInput.size();
-            IntHashSet covered = new IntHashSet();
-            covered.addAll(runCoverage.getCovered());
 
-            // Search for a candidate to steal responsibility from
-            candidate_search:
-            for (Input candidate : savedInputs) {
-                IntHashSet responsibilities = candidate.responsibilities;
-
-                // Candidates with no responsibility are not interesting
-                if (responsibilities.isEmpty()) {
-                    continue candidate_search;
-                }
-
-                // To avoid thrashing, only consider candidates with either
-                // (1) strictly smaller total coverage or
-                // (2) same total coverage but strictly larger size
-                if (candidate.nonZeroCoverage < currentNonZeroCoverage ||
-                        (candidate.nonZeroCoverage == currentNonZeroCoverage &&
-                                currentInputSize < candidate.size())) {
-
-                    // Check if we can steal all responsibilities from candidate
-                    IntIterator iter = responsibilities.intIterator();
-                    while(iter.hasNext()){
-                        int b = iter.next();
-                        if (covered.contains(b) == false) {
-                            // Cannot steal if this input does not cover something
-                            // that the candidate is responsible for
-                            continue candidate_search;
-                        }
-                    }
-                    // If all of candidate's responsibilities are covered by the
-                    // current input, then it can completely subsume the candidate
-                    result.addAll(responsibilities);
-                }
-
-            }
-        }
-
-        return result;
+        return newCoverage;
     }
 
     protected void writeCurrentInputToFile(File saveFile) throws IOException {
@@ -1028,14 +949,6 @@ public class ZestGuidance implements Guidance {
                 }
             }
         });
-    }
-
-    /**
-     * Returns a reference to the coverage statistics.
-     * @return a reference to the coverage statistics
-     */
-    public ICoverage getTotalCoverage() {
-        return totalCoverage;
     }
 
     /**

@@ -156,10 +156,6 @@ public class ZestCLI implements Runnable{
             guidance.setBlind(blindFuzzing);
             // Run the Junit test
             Result res = GuidedFuzzing.run(testClassName, testMethodName, loader, guidance, System.out);
-            if (Boolean.getBoolean("jqf.logCoverage")) {
-                System.out.println(String.format("Covered %d edges.",
-                        guidance.getTotalCoverage().getNonZeroCount()));
-            }
             if (Boolean.getBoolean("jqf.ei.EXIT_ON_CRASH") && !res.wasSuccessful()) {
                 System.exit(3);
             }

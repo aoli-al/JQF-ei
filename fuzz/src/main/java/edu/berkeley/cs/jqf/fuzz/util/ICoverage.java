@@ -1,6 +1,9 @@
 package edu.berkeley.cs.jqf.fuzz.util;
 
 import org.eclipse.collections.api.list.primitive.IntList;
+import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
+
+import java.util.Collection;
 
 public interface ICoverage<T extends Counter> {
     /**
@@ -54,7 +57,15 @@ public interface ICoverage<T extends Counter> {
      */
     int nonZeroHashCode();
 
-    Counter getCounter();
+    void updateMax(ICoverage<T> that);
+
+    IntHashSet computeAndUpdateMaxCoverage(ICoverage<T> baseline, boolean allowNoMaxUpdate);
+
+    int getTotalExecution();
+
+
+
+    T getCounter();
 
     ICoverage<T> copy();
 }

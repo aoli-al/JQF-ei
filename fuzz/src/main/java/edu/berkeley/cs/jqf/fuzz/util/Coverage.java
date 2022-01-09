@@ -40,6 +40,7 @@ import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEventVisitor;
 import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
+import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 
 /**
  * Utility class to collect branch and function coverage
@@ -52,7 +53,7 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
     private final int COVERAGE_MAP_SIZE = (1 << 16) - 1; // Minus one to reduce collisions
 
     /** The coverage counts for each edge. */
-    private final Counter counter = new NonZeroCachingCounter(COVERAGE_MAP_SIZE);
+    private final NonZeroCachingCounter counter = new NonZeroCachingCounter(COVERAGE_MAP_SIZE);
 
     /** Creates a new coverage map. */
     public Coverage() {
@@ -225,6 +226,22 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
         return counter.getNonZeroIndices().hashCode();
     }
 
+    @Override
+    public void updateMax(ICoverage<Counter> that) {
+        for (int idx = 0; idx < COVERAGE_MAP_SIZE; idx++) {
+            int before = this.counter.getAtIndex(idx);
+            int after = Integer.max(before, that.getCounter().getAtIndex(idx));
+            if (after != before) {
+                this.counter.setAtIndex(idx, after);
+            }
+        }
+    }
+
+    @Override
+    public int getTotalExecution() {
+        return Arrays.stream(counter.counts).sum();
+    }
+
     /**
      * @return a string representing the counter
      */
@@ -243,6 +260,30 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
         }
         return sb.toString();
     }
+
+
+    @Override
+    public IntHashSet computeAndUpdateMaxCoverage(ICoverage<Counter> runCoverage, boolean allowNoMaxUpdate) {
+        IntHashSet newCoverage = new IntHashSet();
+        boolean updated = false;
+        IntIterator iterator = runCoverage.getCounter().getNonZeroIndices().intIterator();
+        while (iterator.hasNext()) {
+            int idx = iterator.next();
+            if (this.getCounter().getAtIndex(idx) <= runCoverage.getCounter().getAtIndex(idx)) {
+                newCoverage.add(idx);
+                if (this.getCounter().getAtIndex(idx) < runCoverage.getCounter().getAtIndex(idx)) {
+                    this.getCounter().setAtIndex(idx, runCoverage.getCounter().getAtIndex(idx));
+                    updated = true;
+                }
+            }
+        }
+        if (updated || allowNoMaxUpdate) {
+            return newCoverage;
+        } else {
+            return new IntHashSet();
+        }
+    }
+
 
     @Override
     public Counter getCounter() {

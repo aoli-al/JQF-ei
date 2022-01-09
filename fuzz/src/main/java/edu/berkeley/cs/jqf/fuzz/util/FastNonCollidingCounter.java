@@ -90,12 +90,16 @@ public class FastNonCollidingCounter extends Counter {
 
     @Override
     public void setAtIndex(int idx, int value) {
-        throw new UnsupportedOperationException("This coverage is already non-colliding, please just use setAtIndex");
+        int oldValue = this.counts.get(idx);
+        this.counts.put(idx, value);
+        if (oldValue != value) {
+            nonZeroKeys.add(idx);
+        }
     }
 
     @Override
     public int getAtIndex(int idx) {
-        throw new UnsupportedOperationException("This coverage is already non-colliding, please just use set");
+        return this.counts.get(idx);
     }
 
     /**

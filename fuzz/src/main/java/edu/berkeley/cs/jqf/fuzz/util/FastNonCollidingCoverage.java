@@ -28,19 +28,17 @@
  */
 package edu.berkeley.cs.jqf.fuzz.util;
 
-import edu.berkeley.cs.jqf.instrument.tracing.events.BranchEvent;
-import edu.berkeley.cs.jqf.instrument.tracing.events.CallEvent;
-import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import janala.instrument.FastCoverageListener;
 import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.tuple.primitive.IntIntPair;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
+import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Utility class to collect branch and function coverage
@@ -204,7 +202,47 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
     }
 
     @Override
-    public Counter getCounter() {
+    public void updateMax(ICoverage<FastNonCollidingCounter> that) {
+        that.getCovered().forEach(it -> {
+            if (that.getCounter().get(it) > this.getCounter().get(it)) {
+                this.getCounter().setAtIndex(it, that.getCounter().get(it));
+            }
+        });
+    }
+
+    @Override
+    public IntHashSet computeAndUpdateMaxCoverage(ICoverage<FastNonCollidingCounter> runCoverage, boolean allowNoMaxUpdate) {
+        IntHashSet newCoverage = new IntHashSet();
+        boolean updated = false;
+        IntIterator iterator = runCoverage.getCounter().getNonZeroIndices().intIterator();
+        while (iterator.hasNext()) {
+            int idx = iterator.next();
+            if (this.getCounter().getAtIndex(idx) <= runCoverage.getCounter().getAtIndex(idx)) {
+                newCoverage.add(idx);
+                if (this.getCounter().getAtIndex(idx) < runCoverage.getCounter().getAtIndex(idx)) {
+                    this.getCounter().setAtIndex(idx, runCoverage.getCounter().getAtIndex(idx));
+                    updated = true;
+                }
+            }
+        }
+        if (updated || allowNoMaxUpdate) {
+            return newCoverage;
+        } else {
+            return new IntHashSet();
+        }
+    }
+
+    @Override
+    public int getTotalExecution() {
+        AtomicInteger sum = new AtomicInteger();
+        this.getCovered().forEach(it -> {
+            sum.addAndGet(this.getCounter().get(it));
+        });
+        return sum.get();
+    }
+
+    @Override
+    public FastNonCollidingCounter getCounter() {
         return this.counter;
     }
 

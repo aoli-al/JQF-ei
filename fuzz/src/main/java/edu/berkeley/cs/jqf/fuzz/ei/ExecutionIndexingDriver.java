@@ -70,10 +70,6 @@ public class ExecutionIndexingDriver {
 
             // Run the Junit test
             GuidedFuzzing.run(testClassName, testMethodName, guidance, System.out);
-            if (Boolean.getBoolean("jqf.logCoverage")) {
-                System.out.println(String.format("Covered %d edges.",
-                        guidance.getTotalCoverage().getNonZeroCount()));
-            }
 
         } catch (Exception e) {
             e.printStackTrace();
