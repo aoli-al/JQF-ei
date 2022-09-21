@@ -3,21 +3,32 @@
 
 import sys
 import os
+from typing import Dict, Set
 import pandas as pd
 from visualize import *
 from pytablewriter import MarkdownTableWriter
+from configs import *
 
 
-DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+def write_cov_data(data: Set[str], path: str):
+    with open(path, "w") as f:
+        for item in data:
+            f.write(item)
 
-ALGORITHM = ["zest-fast", "ei-fast", "zest-no-count", "ei-no-count"]
 
 def generate_cov_table(base_path: str):
     cov_all_data = []
     cov_valid_data = []
+    cov_all_unique = []
+    cov_valid_unique = []
+    out_folder = os.path.join(base_path, "processed")
+    if not os.path.exists(out_folder):
+        os.mkdir(out_folder)
     for dataset in DATASET:
-        cov_all_algo_data = []
-        cov_valid_algo_data = []
+        cov_all = {}
+        cov_valid= {}
+        cov_all_data.append([dataset])
+        cov_valid_data.append([dataset])
         for algorithm in ALGORITHM:
             for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
@@ -25,13 +36,37 @@ def generate_cov_table(base_path: str):
                     break
                 print(f"processing: {os.path.basename(path)}")
 
+                result = set(process_cov_data(os.path.join(path, "cov-all.log")))
+                if algorithm not in cov_all:
+                    cov_all[algorithm] = set()
+                cov_all[algorithm] |= result
 
-                cov_all = process_cov_data(os.path.join(path, "cov-all.log"))
-                cov_valid = process_cov_data(os.path.join(path, "cov-valid.log"))
-                cov_all_algo_data.append(len(cov_all))
-                cov_valid_algo_data.append(len(cov_valid))
-        cov_all_data.append([dataset, *cov_all_algo_data])
-        cov_valid_data.append([dataset, *cov_valid_algo_data])
+                result = set(process_cov_data(os.path.join(path, "cov-valid.log")))
+                if algorithm not in cov_valid:
+                    cov_valid[algorithm] = set()
+                cov_valid[algorithm] |= result
+            cov_all_data[-1].append(len(cov_all[algorithm]))
+            cov_valid_data[-1].append(len(cov_valid[algorithm]))
+
+        dataset_all_data = [dataset]
+        dataset_valid_data = [dataset]
+        for algorithm in ALGORITHM:
+            other_all = set()
+            other_valid = set()
+            for other in ALGORITHM:
+                if other == algorithm:
+                    continue
+                other_all |= cov_all[other]
+                other_valid |= cov_valid[other]
+            only_all = cov_all[algorithm] - other_all
+            only_valid = cov_valid[algorithm] - other_valid
+            path = os.path.join(base_path, f"{dataset}-{algorithm}-results-0")
+            write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
+            write_cov_data(only_valid, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-valid.txt"))
+            dataset_all_data.append(len(only_all))
+            dataset_valid_data.append(len(only_valid))
+        cov_all_unique.append(dataset_all_data)
+        cov_valid_unique.append(dataset_all_data)
     writer = MarkdownTableWriter(
         headers = ["Dataset", *ALGORITHM],
         value_matrix = cov_all_data
@@ -41,6 +76,18 @@ def generate_cov_table(base_path: str):
     writer = MarkdownTableWriter(
         headers = ["Dataset", *ALGORITHM],
         value_matrix = cov_valid_data
+    )
+    writer.write_table()
+
+    writer = MarkdownTableWriter(
+        headers = ["Dataset", *ALGORITHM],
+        value_matrix = cov_all_unique
+    )
+    writer.write_table()
+
+    writer = MarkdownTableWriter(
+        headers = ["Dataset", *ALGORITHM],
+        value_matrix = cov_valid_unique
     )
     writer.write_table()
 
@@ -95,8 +142,8 @@ def generate_graph(base_path: str):
 
 def main():
     path = sys.argv[1]
-    # generate_cov_table(path)
-    generate_graph(path)
+    generate_cov_table(path)
+    # generate_graph(path)
 
 if __name__ == "__main__":
     main()

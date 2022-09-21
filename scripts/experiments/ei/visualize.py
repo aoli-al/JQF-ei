@@ -1,7 +1,6 @@
-from pyexpat.errors import XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF
 import sys
 import os
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Set
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -38,9 +37,9 @@ def process_plot_data(path: str) -> pd.DataFrame:
 
     return time_based_data, count_based_data
 
-def process_cov_data(path: str) -> List[str]:
+def process_cov_data(path: str) -> Set[str]:
     with open(path) as f:
-        return f.readlines()
+        return set(f.readlines())
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1):
     print(x_axis, y_axis)
