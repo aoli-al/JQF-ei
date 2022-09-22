@@ -1,7 +1,7 @@
 # DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
 DATASET = ["closure"]
 ALGORITHM = ["zest-fast", "ei-fast"]
-ALGORITHM = ["ei-fast"]
+#  ALGORITHM = ["ei-fast"]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
 DATASET_TEST_CLASS_MAPPING = {

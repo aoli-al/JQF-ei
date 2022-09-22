@@ -16,7 +16,7 @@ def call(args: List[str]):
     subprocess.call(args, cwd=EXAMPLES_DIR)
 
 def run(path: str):
-    with Pool(10) as pool:
+    with Pool(20) as pool:
         pool.map(call, generate_tasks(path))
 
 
