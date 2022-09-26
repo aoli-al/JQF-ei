@@ -107,6 +107,9 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     /** Max number of contiguous bytes to splice in from another input during the splicing stage. */
     protected final int MAX_SPLICE_SIZE = 64; // Bytes
 
+    /** Probability to perform havoc mutation similar to Zest. */
+    protected final double HAVOC_PROBABILITY = Double.parseDouble(System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
+
     /** Whether to splice only in the same sub-tree */
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
@@ -686,7 +689,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             boolean splicingDone = false;
 
             // Only splice if we have been provided the ecToInputLoc
-            if (ecToInputLoc != null) {
+            if (ecToInputLoc != null && random.nextDouble() < 1 - HAVOC_PROBABILITY) {
 
                 if (random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
                     final int MIN_TARGET_ATTEMPTS = 3;
@@ -800,47 +803,32 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             }
 
             // Maybe do random mutations
-            if (splicingDone == false || random.nextBoolean()) {
-
+            if (!splicingDone) {
                 // Stack a bunch of mutations
                 int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
                 newInput.desc += ",havoc:"+numMutations;
 
-                for (int mutation = 1; mutation <= numMutations; mutation++) {
+                // Select a random offset and size
+                int offset = random.nextInt(newInput.valuesMap.size());
+                // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
 
-                    // Select a random offset and size
-                    int offset = random.nextInt(newInput.valuesMap.size());
-                    int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
-                    // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
+                newInput.desc += String.format("(%d)", offset);
 
-                    newInput.desc += String.format("(%d@%d)", mutationSize, offset);
+                boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
+                if (setToZero) {
+                    newInput.desc += "=0";
+                }
 
-                    boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
-                    if (setToZero) {
-                        newInput.desc += "=0";
-                    }
-
-                    // Iterate over all entries in the value map
-                    Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
-                            = newInput.valuesMap.entrySet().iterator();
-                    ExecutionContext ecToMutate = null;
-                    for (int i = 0; entryIterator.hasNext(); i++) {
-                        Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
-                        // Only mutate `mutationSize` contiguous entries from
-                        // the randomly selected `idx`.
-                        if (i >= offset && i < (offset + mutationSize)) {
-                            ExecutionContext currentEc = new ExecutionContext(e.getKey());
-                            if (ecToMutate == null) {
-                                ecToMutate = currentEc;
-                            } else if (!ecToMutate.equals(currentEc)) {
-                                break;
-                            }
-                            // infoLog("Mutating: %s", e.getKey());
-                            // Apply a random mutation
-                            int mutatedValue = setToZero ? 0 : random.nextInt(256);
-                            e.setValue(mutatedValue);
-
-                        }
+                // Iterate over all entries in the value map
+                Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
+                        = newInput.valuesMap.entrySet().iterator();
+                for (int i = 0; entryIterator.hasNext(); i++) {
+                    Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
+                    if (i >= offset) {
+                        // infoLog("Mutating: %s", e.getKey());
+                        // Apply a random mutation
+                        int mutatedValue = setToZero ? 0 : random.nextInt(256);
+                        e.setValue(mutatedValue);
                     }
                 }
             }

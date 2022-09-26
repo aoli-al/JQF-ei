@@ -860,8 +860,8 @@ public class ZestGuidance implements Guidance {
         // Possibly save input
         List<String> reasonsToSave = new ArrayList<>();
 
-
-        if (!DISABLE_SAVE_NEW_COUNTS && coverageBitsUpdated) {
+        // Only save +count for havoc input.
+        if (!DISABLE_SAVE_NEW_COUNTS && coverageBitsUpdated && currentInput.desc.contains("havoc")) {
             reasonsToSave.add("+count");
         }
 
