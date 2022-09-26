@@ -685,13 +685,12 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Derive new input from this object as source
             MappedInput newInput = new MappedInput(this);
 
-            // Maybe try splicing
-            boolean splicingDone = false;
+            if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
+                // Maybe try splicing
+                boolean splicingDone = false;
 
-            // Only splice if we have been provided the ecToInputLoc
-            if (ecToInputLoc != null && random.nextDouble() < 1 - HAVOC_PROBABILITY) {
-
-                if (random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
+                // Only splice if we have been provided the ecToInputLoc
+                if (ecToInputLoc != null && random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
                     final int MIN_TARGET_ATTEMPTS = 3;
                     final int MAX_TARGET_ATTEMPTS = 6;
 
@@ -800,13 +799,55 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                         }
                     }
                 }
-            }
 
-            // Maybe do random mutations
-            if (!splicingDone) {
+                // Maybe do random mutations
+                if (splicingDone == false || random.nextBoolean()) {
+
+                    // Stack a bunch of mutations
+                    int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+                    newInput.desc += ",random:"+numMutations;
+
+                    for (int mutation = 1; mutation <= numMutations; mutation++) {
+
+                        // Select a random offset and size
+                        int offset = random.nextInt(newInput.valuesMap.size());
+                        int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
+                        // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
+
+                        newInput.desc += String.format("(%d@%d)", mutationSize, offset);
+
+                        boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
+                        if (setToZero) {
+                            newInput.desc += "=0";
+                        }
+
+                        // Iterate over all entries in the value map
+                        Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
+                                = newInput.valuesMap.entrySet().iterator();
+                        ExecutionContext ecToMutate = null;
+                        for (int i = 0; entryIterator.hasNext(); i++) {
+                            Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
+                            // Only mutate `mutationSize` contiguous entries from
+                            // the randomly selected `idx`.
+                            if (i >= offset && i < (offset + mutationSize)) {
+                                ExecutionContext currentEc = new ExecutionContext(e.getKey());
+                                if (ecToMutate == null) {
+                                    ecToMutate = currentEc;
+                                } else if (!ecToMutate.equals(currentEc)) {
+                                    break;
+                                }
+                                // infoLog("Mutating: %s", e.getKey());
+                                // Apply a random mutation
+                                int mutatedValue = setToZero ? 0 : random.nextInt(256);
+                                e.setValue(mutatedValue);
+
+                            }
+                        }
+                    }
+                }
+            } else {
                 // Stack a bunch of mutations
-                int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
-                newInput.desc += ",havoc:"+numMutations;
+                newInput.desc += ",havoc";
 
                 // Select a random offset and size
                 int offset = random.nextInt(newInput.valuesMap.size());
