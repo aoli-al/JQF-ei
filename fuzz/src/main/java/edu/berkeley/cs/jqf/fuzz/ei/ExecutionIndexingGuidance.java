@@ -691,169 +691,62 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
                 // Only splice if we have been provided the ecToInputLoc
                 if (ecToInputLoc != null && random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
-                    final int MIN_TARGET_ATTEMPTS = 3;
-                    final int MAX_TARGET_ATTEMPTS = 6;
-
-                    int targetAttempts = MIN_TARGET_ATTEMPTS;
-
-                    outer: for (int targetAttempt = 1; targetAttempt < targetAttempts; targetAttempt++) {
-
-                        // Choose an execution context at which to splice at
-                        // Note: We get EI and value from `this` rather than `newInput`
-                        // because `this` has already been executed
-                        int targetOffset = random.nextInt(newInput.valuesMap.size());
-                        ExecutionIndex targetEi = this.getKeyAtOffset(targetOffset);
-
-                        ExecutionContext targetEc = new ExecutionContext(targetEi);
-                        int valueAtTarget = this.getValueAtOffset(targetOffset);
-
-                        // Find a suitable input location to splice from and ignore locations from the same source
-                        List<InputLocation> inputLocations = ecToInputLoc
-                                .get(targetEc).stream().filter(it -> it.input != this).collect(Collectors.toList());
-
-
-                        // If this was a bad choice of target, try again without penalty if possible
-                        if (inputLocations.size() == 0) {
-                            // Try to increase the loop bound a little bit to get another chance
-                            targetAttempts = Math.min(targetAttempts+1, MAX_TARGET_ATTEMPTS);
-                            continue;
-                        }
-
-                        InputLocation inputLocation;
-
-                        // Try a bunch of times
-                        for (int attempt = 1; attempt <= 10; attempt++) {
-
-                            // Get a candidate source location with the same execution context
-                            inputLocation = inputLocations.get(random.nextInt(inputLocations.size()));
-                            MappedInput sourceInput = inputLocation.input;
-                            int sourceOffset = inputLocation.offset;
-
-
-                            // Do not splice with ourselves
-                            if (sourceInput == this) {
-                                continue;
-                            }
-
-                            // Do not splice if the first value is the same in source and target
-                            if (sourceInput.getValueAtOffset(sourceOffset) == valueAtTarget) {
-                                continue;
-                            }
-
-                            int splicedBytes = 0;
-                            if (SPLICE_SUBTREE) {
-                                // Do not splice if there is no common suffix between EI of source and target
-                                ExecutionIndex sourceEi = sourceInput.getKeyAtOffset(sourceOffset);
-                                Suffix suffix = targetEi.getCommonSuffix(sourceEi);
-                                if (suffix.size() == 0) {
-                                    continue;
-                                }
-
-                                // Extract the source and target prefixes
-                                Prefix sourcePrefix = sourceEi.getPrefixOfSuffix(suffix);
-                                Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
-                                assert (sourcePrefix.size() == targetPrefix.size());
-                                demandDrivenSpliceMap.add(
-                                        new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
-
-                                // OK, this looks good. Let's splice!
-                                int srcIdx = sourceOffset;
-                                while (srcIdx < sourceInput.size()) {
-                                    ExecutionIndex candidateEi = sourceInput.getKeyAtOffset(srcIdx);
-                                    if (candidateEi.hasPrefix(sourcePrefix) == false) {
-                                        // We are no more in the same sub-tree as sourceEi
-                                        break;
-                                    }
-                                    Suffix spliceSuffix = candidateEi.getSuffixOfPrefix(sourcePrefix);
-                                    ExecutionIndex spliceEi = new ExecutionIndex(targetPrefix, spliceSuffix);
-                                    newInput.valuesMap.put(spliceEi, sourceInput.valuesMap.get(candidateEi));
-
-                                    srcIdx++;
-                                }
-                                splicedBytes = srcIdx - sourceOffset;
-                            } else {
-
-                                int spliceSize = 1 + random.nextInt(MAX_SPLICE_SIZE);
-                                int src = sourceOffset;
-                                int tgt = targetOffset;
-                                int srcSize = sourceInput.size();
-                                int tgtSize = newInput.size();
-                                while (splicedBytes < spliceSize && src < srcSize && tgt < tgtSize) {
-                                    int val = sourceInput.getValueAtOffset(src);
-                                    ExecutionIndex key = this.getKeyAtOffset(tgt);
-                                    newInput.setValueAtKey(key, val);
-
-                                    splicedBytes++;
-                                    src++;
-                                    tgt++;
-                                }
-                            }
-
-                            // Complete splicing
-                            splicingDone = true;
-                            newInput.desc += String.format(",splice:%06d:%d@%d->%d", sourceInput.id, splicedBytes,
-                                    sourceOffset, targetOffset);
-
-                            break outer; // Stop more splicing attempts!
-
-                        }
-                    }
+                    splicingDone = fuzzInputSplice(newInput);
                 }
 
                 // Maybe do random mutations
                 if (splicingDone == false || random.nextBoolean()) {
-
-                    // Stack a bunch of mutations
-                    int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
-                    newInput.desc += ",random:"+numMutations;
-
-                    for (int mutation = 1; mutation <= numMutations; mutation++) {
-
-                        // Select a random offset and size
-                        int offset = random.nextInt(newInput.valuesMap.size());
-                        int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
-                        // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
-
-                        newInput.desc += String.format("(%d@%d)", mutationSize, offset);
-
-                        boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
-                        if (setToZero) {
-                            newInput.desc += "=0";
-                        }
-
-                        // Iterate over all entries in the value map
-                        Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
-                                = newInput.valuesMap.entrySet().iterator();
-                        ExecutionContext ecToMutate = null;
-                        for (int i = 0; entryIterator.hasNext(); i++) {
-                            Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
-                            // Only mutate `mutationSize` contiguous entries from
-                            // the randomly selected `idx`.
-                            if (i >= offset && i < (offset + mutationSize)) {
-                                ExecutionContext currentEc = new ExecutionContext(e.getKey());
-                                if (ecToMutate == null) {
-                                    ecToMutate = currentEc;
-                                } else if (!ecToMutate.equals(currentEc)) {
-                                    break;
-                                }
-                                // infoLog("Mutating: %s", e.getKey());
-                                // Apply a random mutation
-                                int mutatedValue = setToZero ? 0 : random.nextInt(256);
-                                e.setValue(mutatedValue);
-
-                            }
-                        }
-                    }
+                    fuzzInputRandom(newInput);
                 }
             } else {
-                // Stack a bunch of mutations
-                newInput.desc += ",havoc";
+                fuzzInputHavoc(newInput);
+            }
+
+            return newInput;
+
+        }
+
+        private void fuzzInputHavoc(MappedInput newInput) {
+            newInput.desc += ",havoc";
+
+            // Select a random offset and size
+            int offset = random.nextInt(newInput.valuesMap.size());
+            // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
+
+            newInput.desc += String.format("(%d)", offset);
+
+            boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
+            if (setToZero) {
+                newInput.desc += "=0";
+            }
+
+            // Iterate over all entries in the value map
+            Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
+                    = newInput.valuesMap.entrySet().iterator();
+            for (int i = 0; entryIterator.hasNext(); i++) {
+                Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
+                if (i >= offset) {
+                    // infoLog("Mutating: %s", e.getKey());
+                    // Apply a random mutation
+                    int mutatedValue = setToZero ? 0 : random.nextInt(256);
+                    e.setValue(mutatedValue);
+                }
+            }
+        }
+
+        private void fuzzInputRandom(MappedInput newInput) {
+            // Stack a bunch of mutations
+            int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            newInput.desc += ",random:"+numMutations;
+
+            for (int mutation = 1; mutation <= numMutations; mutation++) {
 
                 // Select a random offset and size
                 int offset = random.nextInt(newInput.valuesMap.size());
+                int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
                 // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
 
-                newInput.desc += String.format("(%d)", offset);
+                newInput.desc += String.format("(%d@%d)", mutationSize, offset);
 
                 boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
                 if (setToZero) {
@@ -863,19 +756,138 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 // Iterate over all entries in the value map
                 Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
                         = newInput.valuesMap.entrySet().iterator();
+                ExecutionContext ecToMutate = null;
                 for (int i = 0; entryIterator.hasNext(); i++) {
                     Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
-                    if (i >= offset) {
+                    // Only mutate `mutationSize` contiguous entries from
+                    // the randomly selected `idx`.
+                    if (i >= offset && i < (offset + mutationSize)) {
+                        ExecutionContext currentEc = new ExecutionContext(e.getKey());
+                        if (ecToMutate == null) {
+                            ecToMutate = currentEc;
+                        } else if (!ecToMutate.equals(currentEc)) {
+                            break;
+                        }
                         // infoLog("Mutating: %s", e.getKey());
                         // Apply a random mutation
                         int mutatedValue = setToZero ? 0 : random.nextInt(256);
                         e.setValue(mutatedValue);
+
                     }
                 }
             }
+        }
 
-            return newInput;
+        private boolean fuzzInputSplice(MappedInput newInput) {
+            final int MIN_TARGET_ATTEMPTS = 3;
+            final int MAX_TARGET_ATTEMPTS = 6;
 
+            boolean splicingDone = false;
+            int targetAttempts = MIN_TARGET_ATTEMPTS;
+
+            outer: for (int targetAttempt = 1; targetAttempt < targetAttempts; targetAttempt++) {
+
+                // Choose an execution context at which to splice at
+                // Note: We get EI and value from `this` rather than `newInput`
+                // because `this` has already been executed
+                int targetOffset = random.nextInt(newInput.valuesMap.size());
+                ExecutionIndex targetEi = this.getKeyAtOffset(targetOffset);
+
+                ExecutionContext targetEc = new ExecutionContext(targetEi);
+                int valueAtTarget = this.getValueAtOffset(targetOffset);
+
+                // Find a suitable input location to splice from and ignore locations from the same source
+                List<InputLocation> inputLocations = ecToInputLoc
+                        .get(targetEc).stream().filter(it -> it.input != this).collect(Collectors.toList());
+
+
+                // If this was a bad choice of target, try again without penalty if possible
+                if (inputLocations.size() == 0) {
+                    // Try to increase the loop bound a little bit to get another chance
+                    targetAttempts = Math.min(targetAttempts+1, MAX_TARGET_ATTEMPTS);
+                    continue;
+                }
+
+                InputLocation inputLocation;
+
+                // Try a bunch of times
+                for (int attempt = 1; attempt <= 10; attempt++) {
+
+                    // Get a candidate source location with the same execution context
+                    inputLocation = inputLocations.get(random.nextInt(inputLocations.size()));
+                    MappedInput sourceInput = inputLocation.input;
+                    int sourceOffset = inputLocation.offset;
+
+
+                    // Do not splice with ourselves
+                    if (sourceInput == this) {
+                        continue;
+                    }
+
+                    // Do not splice if the first value is the same in source and target
+                    if (sourceInput.getValueAtOffset(sourceOffset) == valueAtTarget) {
+                        continue;
+                    }
+
+                    int splicedBytes = 0;
+                    if (SPLICE_SUBTREE) {
+                        // Do not splice if there is no common suffix between EI of source and target
+                        ExecutionIndex sourceEi = sourceInput.getKeyAtOffset(sourceOffset);
+                        Suffix suffix = targetEi.getCommonSuffix(sourceEi);
+                        if (suffix.size() == 0) {
+                            continue;
+                        }
+
+                        // Extract the source and target prefixes
+                        Prefix sourcePrefix = sourceEi.getPrefixOfSuffix(suffix);
+                        Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
+                        assert (sourcePrefix.size() == targetPrefix.size());
+                        demandDrivenSpliceMap.add(
+                                new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
+
+                        // OK, this looks good. Let's splice!
+                        int srcIdx = sourceOffset;
+                        while (srcIdx < sourceInput.size()) {
+                            ExecutionIndex candidateEi = sourceInput.getKeyAtOffset(srcIdx);
+                            if (candidateEi.hasPrefix(sourcePrefix) == false) {
+                                // We are no more in the same sub-tree as sourceEi
+                                break;
+                            }
+                            Suffix spliceSuffix = candidateEi.getSuffixOfPrefix(sourcePrefix);
+                            ExecutionIndex spliceEi = new ExecutionIndex(targetPrefix, spliceSuffix);
+                            newInput.valuesMap.put(spliceEi, sourceInput.valuesMap.get(candidateEi));
+
+                            srcIdx++;
+                        }
+                        splicedBytes = srcIdx - sourceOffset;
+                    } else {
+
+                        int spliceSize = 1 + random.nextInt(MAX_SPLICE_SIZE);
+                        int src = sourceOffset;
+                        int tgt = targetOffset;
+                        int srcSize = sourceInput.size();
+                        int tgtSize = newInput.size();
+                        while (splicedBytes < spliceSize && src < srcSize && tgt < tgtSize) {
+                            int val = sourceInput.getValueAtOffset(src);
+                            ExecutionIndex key = this.getKeyAtOffset(tgt);
+                            newInput.setValueAtKey(key, val);
+
+                            splicedBytes++;
+                            src++;
+                            tgt++;
+                        }
+                    }
+
+                    // Complete splicing
+                    splicingDone = true;
+                    newInput.desc += String.format(",splice:%06d:%d@%d->%d", sourceInput.id, splicedBytes,
+                            sourceOffset, targetOffset);
+
+                    break outer; // Stop more splicing attempts!
+
+                }
+            }
+            return splicingDone;
         }
 
         @Override
