@@ -324,6 +324,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 reasons.remove("+count");
             }
         }
+        return reasons;
     }
 
     /** Saves an interesting input to the queue. */
