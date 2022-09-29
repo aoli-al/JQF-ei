@@ -16,7 +16,7 @@ def write_cov_data(data: Set[str], path: str):
             f.write(item)
 
 
-def generate_cov_table(base_path: str):
+def generate_cov_table(base_path: str, algorithms: Set[str]):
     cov_all_data = []
     cov_valid_data = []
     cov_all_unique = []
@@ -29,7 +29,7 @@ def generate_cov_table(base_path: str):
         cov_valid= {}
         cov_all_data.append([dataset])
         cov_valid_data.append([dataset])
-        for algorithm in ALGORITHM:
+        for algorithm in algorithms:
             for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
@@ -50,10 +50,10 @@ def generate_cov_table(base_path: str):
 
         dataset_all_data = [dataset]
         dataset_valid_data = [dataset]
-        for algorithm in ALGORITHM:
+        for algorithm in algorithms:
             other_all = set()
             other_valid = set()
-            for other in ALGORITHM:
+            for other in algorithms:
                 if other == algorithm:
                     continue
                 other_all |= cov_all[other]
@@ -68,30 +68,30 @@ def generate_cov_table(base_path: str):
         cov_all_unique.append(dataset_all_data)
         cov_valid_unique.append(dataset_all_data)
     writer = MarkdownTableWriter(
-        headers = ["Dataset", *ALGORITHM],
+        headers = ["Dataset", *algorithms],
         value_matrix = cov_all_data
     )
     writer.write_table()
 
     writer = MarkdownTableWriter(
-        headers = ["Dataset", *ALGORITHM],
+        headers = ["Dataset", *algorithms],
         value_matrix = cov_valid_data
     )
     writer.write_table()
 
     writer = MarkdownTableWriter(
-        headers = ["Dataset", *ALGORITHM],
+        headers = ["Dataset", *algorithms],
         value_matrix = cov_all_unique
     )
     writer.write_table()
 
     writer = MarkdownTableWriter(
-        headers = ["Dataset", *ALGORITHM],
+        headers = ["Dataset", *algorithms],
         value_matrix = cov_valid_unique
     )
     writer.write_table()
 
-def generate_graph(base_path: str):
+def generate_graph(base_path: str, algorithms: Set[str]):
     for dataset in DATASET:
         time_based_plot_data = []
         count_based_plot_data = []
@@ -100,7 +100,7 @@ def generate_graph(base_path: str):
             "type": [],
             "value": []
         }
-        for algorithm in ALGORITHM:
+        for algorithm in algorithms:
             time_based_data_per_algo = []
             count_based_data_per_algo = []
             for idx in range(0, 10):
@@ -140,10 +140,23 @@ def generate_graph(base_path: str):
         generate_all_coverage_over_total_inputs(os.path.join(out_folder, f"{dataset}-all-cov-input.pdf"), count_based_plot_data)
 
 
+def identify_algorithms(path: str) -> List[str]:
+    algorithms = set()
+    for subdir in os.listdir(path):
+        dir_path = os.path.join(path, subdir)
+        if os.path.isdir(dir_path):
+            algorithm = "-".join(subdir.split("-")[1:-2])
+            if algorithm:
+                algorithms.add(algorithm)
+    print(algorithms)
+    return algorithms
+
+
 def main():
     path = sys.argv[1]
-    generate_cov_table(path)
-    # generate_graph(path)
+    algorithms = identify_algorithms(path)
+    generate_cov_table(path, algorithms)
+    generate_graph(path, algorithms)
 
 if __name__ == "__main__":
     main()

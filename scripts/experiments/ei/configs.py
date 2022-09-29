@@ -1,5 +1,5 @@
-# DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
-DATASET = ["closure"]
+DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+#  DATASET = ["closure"]
 ALGORITHM = ["zest-fast", "ei-fast"]
 #  ALGORITHM = ["ei-fast"]
 
