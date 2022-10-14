@@ -103,7 +103,7 @@ def generate_graph(base_path: str, algorithms: Set[str]):
         for algorithm in algorithms:
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 10):
+            for idx in range(0, 1):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
