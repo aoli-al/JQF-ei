@@ -16,10 +16,11 @@ def process(items: List[str]):
         for subdir in os.listdir(item):
             dir_path = os.path.join(item, subdir)
             if os.path.isdir(dir_path):
-                base_name = "-".join(dir_path.split("-")[:-2])
+                base_name = "-".join(subdir.split("-")[:-1])
                 if base_name not in base_index:
                     base_index[base_name] = 0
                 new_path = os.path.join(merged_path, base_name + "-" + str(base_index[base_name]))
+                print(f"mapping from {dir_path} to {new_path}")
                 shutil.copytree(dir_path, new_path)
                 base_index[base_name] += 1
 
