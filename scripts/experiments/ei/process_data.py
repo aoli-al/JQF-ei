@@ -19,6 +19,7 @@ def write_cov_data(data: Set[str], path: str):
 def generate_cov_table(base_path: str, algorithms: Set[str]):
     cov_all_data = []
     cov_valid_data = []
+    cov_all_avg = []
     cov_all_unique = []
     cov_valid_unique = []
     out_folder = os.path.join(base_path, "processed")
@@ -28,15 +29,19 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
         cov_all = {}
         cov_valid= {}
         cov_all_data.append([dataset])
+        cov_all_avg.append([dataset])
         cov_valid_data.append([dataset])
         for algorithm in algorithms:
-            for idx in range(0, 10):
+            all_avg = []
+            valid_avg = []
+            for idx in range(0, 9):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
-                print(f"processing: {os.path.basename(path)}")
+                # print(f"processing: {os.path.basename(path)}")
 
                 result = set(process_cov_data(os.path.join(path, "cov-all.log")))
+                all_avg.append(len(result))
                 if algorithm not in cov_all:
                     cov_all[algorithm] = set()
                 cov_all[algorithm] |= result
@@ -45,7 +50,11 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
                 if algorithm not in cov_valid:
                     cov_valid[algorithm] = set()
                 cov_valid[algorithm] |= result
+            if "ant" in dataset:
+                print(algorithm)
+                print(all_avg)
             cov_all_data[-1].append(len(cov_all[algorithm]))
+            cov_all_avg[-1].append(int(sum(all_avg) / len(all_avg)))
             cov_valid_data[-1].append(len(cov_valid[algorithm]))
 
         dataset_all_data = [dataset]
@@ -70,6 +79,12 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
         value_matrix = cov_all_data
+    )
+    writer.write_table()
+
+    writer = MarkdownTableWriter(
+        headers = ["Dataset", *algorithms],
+        value_matrix = cov_all_avg
     )
     writer.write_table()
 
@@ -107,7 +122,7 @@ def generate_graph(base_path: str, algorithms: Set[str]):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
-                print(f"processing: {os.path.basename(path)}")
+                # print(f"processing: {os.path.basename(path)}")
 
                 time_based_data, count_based_data = process_plot_data(path)
                 time_based_data_per_algo.append(time_based_data)
@@ -156,7 +171,7 @@ def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
     generate_cov_table(path, algorithms)
-    generate_graph(path, algorithms)
+    #  generate_graph(path, algorithms)
 
 if __name__ == "__main__":
     main()
