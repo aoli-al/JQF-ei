@@ -440,7 +440,7 @@ public class ZestGuidance implements Guidance {
     /* Writes a line of text to the log file. */
     protected void infoLog(String str, Object... args) {
         if (verbose) {
-            String line = String.format(str, args);
+            String line = "[" + System.currentTimeMillis() + "] " + String.format(str, args);
             if (logFile != null) {
                 appendLineToFile(logFile, line);
 

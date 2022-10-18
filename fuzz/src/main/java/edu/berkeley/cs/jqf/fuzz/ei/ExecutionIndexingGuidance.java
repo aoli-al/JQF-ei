@@ -105,16 +105,17 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final double MUTATION_ZERO_PROBABILITY = 0.05;
 
     /** Max number of contiguous bytes to splice in from another input during the splicing stage. */
-    protected final int MAX_SPLICE_SIZE = 32; // Bytes
+    protected final int MAX_SPLICE_SIZE = 64; // Bytes
 
     /** Probability to perform havoc mutation similar to Zest. */
-    protected final double HAVOC_PROBABILITY = Double.parseDouble(System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
+    protected final double HAVOC_PROBABILITY = Double.parseDouble(
+            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.8"));
 
     /** Whether to splice only in the same sub-tree */
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
