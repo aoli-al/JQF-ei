@@ -63,7 +63,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             other_all = set()
             other_valid = set()
             for other in algorithms:
-                if other == algorithm:
+                if ("zest" in algorithm and "ei-fast" not in other) or ("ei" in algorithm and "zest" not in other):
                     continue
                 other_all |= cov_all[other]
                 other_valid |= cov_valid[other]
@@ -75,7 +75,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             dataset_all_data.append(len(only_all))
             dataset_valid_data.append(len(only_valid))
         cov_all_unique.append(dataset_all_data)
-        cov_valid_unique.append(dataset_all_data)
+        cov_valid_unique.append(dataset_valid_data)
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
         value_matrix = cov_all_data
@@ -88,11 +88,11 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
     )
     writer.write_table()
 
-    writer = MarkdownTableWriter(
-        headers = ["Dataset", *algorithms],
-        value_matrix = cov_valid_data
-    )
-    writer.write_table()
+    #  writer = MarkdownTableWriter(
+        #  headers = ["Dataset", *algorithms],
+        #  value_matrix = cov_valid_data
+    #  )
+    #  writer.write_table()
 
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
@@ -100,12 +100,12 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
     )
     writer.write_table()
 
-    writer = MarkdownTableWriter(
-        headers = ["Dataset", *algorithms],
-        value_matrix = cov_valid_unique
-    )
-    writer.write_table()
-
+    #  writer = MarkdownTableWriter(
+        #  headers = ["Dataset", *algorithms],
+        #  value_matrix = cov_valid_unique
+    #  )
+    #  writer.write_table()
+#
 def generate_graph(base_path: str, algorithms: Set[str]):
     for dataset in DATASET:
         time_based_plot_data = []
