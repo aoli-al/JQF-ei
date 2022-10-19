@@ -36,6 +36,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             valid_avg = []
             for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                print(path)
                 if not os.path.exists(path):
                     break
                 # print(f"processing: {os.path.basename(path)}")
