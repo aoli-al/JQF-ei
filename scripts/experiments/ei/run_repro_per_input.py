@@ -12,15 +12,25 @@ EXAMPLES_DIR = os.path.join(Path(__file__).resolve().parent, "../../../examples"
 
 
 
-def call(args: List[str]):
+def call_cov(args: List[str]):
     subprocess.call(args, cwd=EXAMPLES_DIR)
+
+def call_perf(out_path: str):
+    def call(args: List[str]):
+        with open(out_path, "w") as outfile:
+            subprocess.check_call(args, stdout=outfile)
+    return lambda args: call(args)
+
+
+
 
 def run(path: str):
     with Pool(20) as pool:
-        pool.map(call, generate_tasks(path))
+        method, args = generate_tasks(path, "perf")
+        pool.map(method, args)
 
 
-def generate_tasks(base_path: str):
+def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
             for idx in range(0, 10):
@@ -29,16 +39,24 @@ def generate_tasks(base_path: str):
                 if not os.path.exists(path):
                     break
                 corpus_dir = os.path.join(path, "corpus")
-                output_dir = os.path.join(path, "corpus_coverage")
+                if mode == "perf":
+                    output_dir = os.path.join(path, "corpus_coverage")
+                else:
+                    output_dir = os.path.join(path, "corpus_perf")
                 if not os.path.exists(output_dir):
                     os.mkdir(output_dir)
                 for file_name in sorted(os.listdir(corpus_dir)):
                     input_path = os.path.realpath(os.path.join(corpus_dir, file_name))
                     output_path = os.path.realpath(os.path.join(output_dir, file_name + '.txt'))
-                    yield ["mvn", "jqf:repro", "-Dengine=repro",
-                           f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
-                           "-Dmethod=testWithGenerator", f"-Dinput={input_path}",
-                           f"-DlogCoverage={output_path}"]
+                    if mode == "perf":
+                        yield call_perf(os.path.join(output_dir, output_path)), ["mvn", "jqf:repro", "-Dengine=repro",
+                                                                        f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
+                                                                        "-Dmethod=testWithGenerator", f"-Dinput={input_path}"]
+                    else:
+                        yield call_cov, ["mvn", "jqf:repro", "-Dengine=repro",
+                            f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
+                            "-Dmethod=testWithGenerator", f"-Dinput={input_path}",
+                            f"-DlogCoverage={output_path}"]
 
 
 if __name__ == "__main__":
