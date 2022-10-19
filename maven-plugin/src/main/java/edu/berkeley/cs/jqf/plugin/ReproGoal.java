@@ -187,19 +187,21 @@ public class ReproGoal extends AbstractMojo {
             System.setProperty("janala.includes", includes);
         }
 
-        try {
-            List<String> classpathElements = project.getTestClasspathElements();
-
-            loader = new InstrumentingClassLoader(
-                    classpathElements.toArray(new String[0]),
-                    getClass().getClassLoader());
-        } catch (DependencyResolutionRequiredException|MalformedURLException e) {
-            throw new MojoExecutionException("Could not get project classpath", e);
-        }
 
         // If a coverage dump file was provided, enable logging via system property
         if (logCoverage != null) {
             System.setProperty("jqf.repro.logUniqueBranches", "true");
+            try {
+                List<String> classpathElements = project.getTestClasspathElements();
+
+                loader = new InstrumentingClassLoader(
+                        classpathElements.toArray(new String[0]),
+                        getClass().getClassLoader());
+            } catch (DependencyResolutionRequiredException|MalformedURLException e) {
+                throw new MojoExecutionException("Could not get project classpath", e);
+            }
+        } else {
+            loader = getClass().getClassLoader();
         }
 
         // If args should be printed, set system property

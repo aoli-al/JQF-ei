@@ -19,6 +19,7 @@ def write_cov_data(data: Set[str], path: str):
 def generate_cov_table(base_path: str, algorithms: Set[str]):
     cov_all_data = []
     cov_valid_data = []
+    cov_all_avg = []
     cov_all_unique = []
     cov_valid_unique = []
     out_folder = os.path.join(base_path, "processed")
@@ -28,15 +29,19 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
         cov_all = {}
         cov_valid= {}
         cov_all_data.append([dataset])
+        cov_all_avg.append([dataset])
         cov_valid_data.append([dataset])
         for algorithm in algorithms:
-            for idx in range(0, 10):
+            all_avg = []
+            valid_avg = []
+            for idx in range(0, 9):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
-                print(f"processing: {os.path.basename(path)}")
+                # print(f"processing: {os.path.basename(path)}")
 
                 result = set(process_cov_data(os.path.join(path, "cov-all.log")))
+                all_avg.append(len(result))
                 if algorithm not in cov_all:
                     cov_all[algorithm] = set()
                 cov_all[algorithm] |= result
@@ -45,7 +50,11 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
                 if algorithm not in cov_valid:
                     cov_valid[algorithm] = set()
                 cov_valid[algorithm] |= result
+            if "ant" in dataset:
+                print(algorithm)
+                print(all_avg)
             cov_all_data[-1].append(len(cov_all[algorithm]))
+            cov_all_avg[-1].append(int(sum(all_avg) / len(all_avg)))
             cov_valid_data[-1].append(len(cov_valid[algorithm]))
 
         dataset_all_data = [dataset]
@@ -54,7 +63,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             other_all = set()
             other_valid = set()
             for other in algorithms:
-                if other == algorithm:
+                if ("zest" in algorithm and "ei-fast" not in other) or ("ei" in algorithm and "zest" not in other):
                     continue
                 other_all |= cov_all[other]
                 other_valid |= cov_valid[other]
@@ -66,7 +75,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             dataset_all_data.append(len(only_all))
             dataset_valid_data.append(len(only_valid))
         cov_all_unique.append(dataset_all_data)
-        cov_valid_unique.append(dataset_all_data)
+        cov_valid_unique.append(dataset_valid_data)
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
         value_matrix = cov_all_data
@@ -75,9 +84,15 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
 
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
-        value_matrix = cov_valid_data
+        value_matrix = cov_all_avg
     )
     writer.write_table()
+
+    #  writer = MarkdownTableWriter(
+        #  headers = ["Dataset", *algorithms],
+        #  value_matrix = cov_valid_data
+    #  )
+    #  writer.write_table()
 
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
@@ -85,59 +100,45 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
     )
     writer.write_table()
 
-    writer = MarkdownTableWriter(
-        headers = ["Dataset", *algorithms],
-        value_matrix = cov_valid_unique
-    )
-    writer.write_table()
-
+    #  writer = MarkdownTableWriter(
+        #  headers = ["Dataset", *algorithms],
+        #  value_matrix = cov_valid_unique
+    #  )
+    #  writer.write_table()
+#
 def generate_graph(base_path: str, algorithms: Set[str]):
     for dataset in DATASET:
         time_based_plot_data = []
         count_based_plot_data = []
-        cov_data = {
-            "algo": [],
-            "type": [],
-            "value": []
-        }
         for algorithm in algorithms:
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 1):
+            for idx in range(0, 9):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
-                print(f"processing: {os.path.basename(path)}")
+                # print(f"processing: {os.path.basename(path)}")
 
                 time_based_data, count_based_data = process_plot_data(path)
                 time_based_data_per_algo.append(time_based_data)
                 count_based_data_per_algo.append(count_based_data)
 
-                cov_all = process_cov_data(os.path.join(path, "cov-all.log"))
-                cov_valid = process_cov_data(os.path.join(path, "cov-valid.log"))
-
-                cov_data["algo"].append(algorithm)
-                cov_data["type"].append("all")
-                cov_data["value"].append(len(cov_all))
-                cov_data["algo"].append(algorithm)
-                cov_data["type"].append("valid")
-                cov_data["value"].append(len(cov_valid))
-
-            time_based_plot_data.extend([d for d in time_based_data_per_algo])
-            count_based_plot_data.extend([d for d in time_based_data_per_algo])
+            time_based_plot_data.extend(time_based_data_per_algo)
+            count_based_plot_data.extend(count_based_data_per_algo)
         if not time_based_plot_data:
             continue
         out_folder = os.path.join(base_path, "figs")
         if not os.path.exists(out_folder):
             os.mkdir(out_folder)
         time_based_plot_data = pd.concat(time_based_plot_data, ignore_index=True, sort=False)
-        count_based_plot_data = pd.concat(count_based_plot_data, ignore_index=True, sort=False)
-        generate_total_coverage_bar(os.path.join(out_folder, f"{dataset}-cov.pdf"), cov_data)
+        time_based_plot_data.to_csv("save_tmp.csv")
+        print(time_based_plot_data)
+        # count_based_plot_data = pd.concat(count_based_plot_data, ignore_index=True, sort=False)
         generate_total_inputs_over_time(os.path.join(out_folder, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
-        generate_valid_coverage_over_time(os.path.join(out_folder, f"{dataset}-valid-cov-time.pdf"), time_based_plot_data)
+        #  generate_valid_coverage_over_time(os.path.join(out_folder, f"{dataset}-valid-cov-time.pdf"), time_based_plot_data)
         generate_all_coverage_over_time(os.path.join(out_folder, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
-        generate_valid_coverage_over_total_inputs(os.path.join(out_folder, f"{dataset}-valid-cov-input.pdf"), count_based_plot_data)
-        generate_all_coverage_over_total_inputs(os.path.join(out_folder, f"{dataset}-all-cov-input.pdf"), count_based_plot_data)
+        #  generate_valid_coverage_over_total_inputs(os.path.join(out_folder, f"{dataset}-valid-cov-input.pdf"), count_based_plot_data)
+        #  generate_all_coverage_over_total_inputs(os.path.join(out_folder, f"{dataset}-all-cov-input.pdf"), count_based_plot_data)
 
 
 def identify_algorithms(path: str) -> List[str]:
@@ -155,7 +156,7 @@ def identify_algorithms(path: str) -> List[str]:
 def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
-    generate_cov_table(path, algorithms)
+    # generate_cov_table(path, algorithms)
     generate_graph(path, algorithms)
 
 if __name__ == "__main__":

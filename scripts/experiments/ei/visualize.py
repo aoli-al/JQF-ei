@@ -1,6 +1,6 @@
 import sys
 import os
-from typing import Dict, List, Any, Set
+from typing import Dict, Iterator, List, Any, Set
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -8,6 +8,15 @@ import seaborn as sns
 
 def p2f(value: str) -> float:
     return float(value.strip('%'))
+
+def log_scale_index(max: int) -> Iterator[int]:
+    idx = 1
+    while idx < max:
+        yield idx
+        if idx > 500:
+            idx += 1000
+        else:
+            idx *= 2
 
 def process_plot_data(path: str) -> pd.DataFrame:
     data = pd.read_csv(os.path.join(path, "plot_data"), sep=",", skipinitialspace=True,
@@ -23,19 +32,19 @@ def process_plot_data(path: str) -> pd.DataFrame:
     time_based_data = data.copy().drop_duplicates(
         keep='first', subset=[x_axis])
     time_based_data = time_based_data.set_index(x_axis).reindex(
-        range(1, time_based_data[x_axis].max(), 50)).interpolate().reset_index()
+        log_scale_index(time_based_data[x_axis].max())).interpolate().reset_index()
     time_based_data['algorithm'] = [algorithm] * time_based_data.shape[0]
 
 
     x_axis = "total_inputs"
-    count_based_data = data.copy().drop_duplicates(
-        keep='first', subset=[x_axis])
-    count_based_data = count_based_data.set_index(x_axis).reindex(
-        range(0, count_based_data[x_axis].max(), 50)).interpolate().reset_index()
-    count_based_data['algorithm'] = [algorithm] * count_based_data.shape[0]
+    # count_based_data = data.copy().drop_duplicates(
+    #     keep='first', subset=[x_axis])
+    # count_based_data = count_based_data.set_index(x_axis).reindex(
+    #     range(0, count_based_data[x_axis].max(), 50)).interpolate().reset_index()
+    # count_based_data['algorithm'] = [algorithm] * count_based_data.shape[0]
 
 
-    return time_based_data, count_based_data
+    return time_based_data, None
 
 def process_cov_data(path: str) -> Set[str]:
     with open(path) as f:
@@ -43,7 +52,7 @@ def process_cov_data(path: str) -> Set[str]:
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1):
     print(x_axis, y_axis)
-    axis = sns.lineplot(x=x_axis, y=y_axis, hue='algorithm', errorbar=("sd", 95),
+    axis = sns.lineplot(x=x_axis, y=y_axis, hue='algorithm',
                         hue_order=sorted(data['algorithm'].unique()), data=data)
     fig = axis.get_figure()
     fig.savefig(path)
