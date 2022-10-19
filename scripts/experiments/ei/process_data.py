@@ -89,24 +89,24 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
     )
     writer.write_table()
 
-    #  writer = MarkdownTableWriter(
-        #  headers = ["Dataset", *algorithms],
-        #  value_matrix = cov_valid_data
-    #  )
-    #  writer.write_table()
-
     writer = MarkdownTableWriter(
         headers = ["Dataset", *algorithms],
         value_matrix = cov_all_unique
     )
     writer.write_table()
-
-    #  writer = MarkdownTableWriter(
-        #  headers = ["Dataset", *algorithms],
-        #  value_matrix = cov_valid_unique
-    #  )
-    #  writer.write_table()
 #
+
+
+def generate_perf_graph(base_path: str, algorithms: Set[str]):
+    for dataset in DATASET:
+        corpus_based_plot_data = []
+        for algorithm in algorithms:
+            corpus_based_data_per_algo = []
+            for idx in range(0, 9):
+                path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                if not os.path.exists(path):
+                    break
+
 def generate_graph(base_path: str, algorithms: Set[str]):
     for dataset in DATASET:
         time_based_plot_data = []

@@ -60,6 +60,8 @@ import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.csv.CSVFormatter;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
 
 /**
  * A front-end that provides a specified set of inputs for test
@@ -83,6 +85,8 @@ public class ReproGuidance implements Guidance {
     private boolean ignoreInvalidCoverage;
     private boolean printArgs;
     private String dumpArgsDir;
+
+    private long elapsed;
 
     HashMap<Integer, String> branchDescCache = new HashMap<>();
 
@@ -121,13 +125,16 @@ public class ReproGuidance implements Guidance {
      * events may be logged.
      *
      * @param inputFile an input file or directory of input files
-     * @param traceDir an optional directory, which if non-null will
+     * @param traceDirName, an optional directory, which if non-null will
      *                 be the destination for log files containing event
      *                 traces
      * @throws FileNotFoundException if `inputFile` is not a valid file or directory
      */
-    public ReproGuidance(File inputFile, File traceDir) throws IOException {
-        this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDir);
+//    public ReproGuidance(File inputFile, File traceDir) throws IOException {
+//        this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDir);
+//    }
+    public ReproGuidance(File inputFile, String traceDirName) throws IOException {
+        this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDirName != null ? new File(traceDirName) : null);
     }
 
     /**
@@ -213,6 +220,14 @@ public class ReproGuidance implements Guidance {
         return inputFiles[nextFileIdx];
     }
 
+    @Override
+    public void run(TestClass testClass, FrameworkMethod method, Object[] args) throws Throwable {
+        long start = System.currentTimeMillis();
+        Guidance.super.run(testClass, method, args);
+        elapsed = System.currentTimeMillis() - start;
+
+    }
+
     /**
      * Logs the end of run in the log files, if any.
      *
@@ -252,7 +267,7 @@ public class ReproGuidance implements Guidance {
             try (PrintStream out = new PrintStream(new FileOutputStream(resultsCsv, append))) {
                 String inputName = getCurrentInputFile().toString();
                 String exception = result == Result.FAILURE ? error.getClass().getName() : "";
-                out.printf("%s,%s,%s\n", inputName, result, exception);
+                out.printf("%s,%s,%s,%d\n", inputName, result, exception, elapsed);
             } catch (IOException e) {
                 throw new GuidanceException(e);
             }

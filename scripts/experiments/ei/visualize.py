@@ -4,6 +4,7 @@ from typing import Dict, Iterator, List, Any, Set
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import re
 
 
 def p2f(value: str) -> float:
@@ -17,6 +18,17 @@ def log_scale_index(max: int) -> Iterator[int]:
             idx += 1000
         else:
             idx *= 2
+
+
+def load_processing_time_data(path: str) -> pd.DataFrame:
+    result = {}
+    processing_time_folder = os.path.join(path, "corpus_perf")
+    for item in sorted(os.listdir(processing_time_folder)):
+        idx = item.split(".")[0]
+        data = open(os.path.join(processing_time_folder, item)).read()
+        result = re.findall("Time: [0-9]*[.][0-9]*", data)
+
+
 
 def process_plot_data(path: str) -> pd.DataFrame:
     data = pd.read_csv(os.path.join(path, "plot_data"), sep=",", skipinitialspace=True,
