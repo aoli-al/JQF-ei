@@ -223,8 +223,11 @@ public class ReproGuidance implements Guidance {
     @Override
     public void run(TestClass testClass, FrameworkMethod method, Object[] args) throws Throwable {
         long start = System.currentTimeMillis();
-        Guidance.super.run(testClass, method, args);
-        elapsed = System.currentTimeMillis() - start;
+        try {
+            Guidance.super.run(testClass, method, args);
+        } finally {
+            elapsed = System.currentTimeMillis() - start;
+        }
 
     }
 
