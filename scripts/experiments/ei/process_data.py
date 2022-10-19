@@ -34,7 +34,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
         for algorithm in algorithms:
             all_avg = []
             valid_avg = []
-            for idx in range(0, 9):
+            for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
@@ -131,7 +131,6 @@ def generate_graph(base_path: str, algorithms: Set[str]):
         if not os.path.exists(out_folder):
             os.mkdir(out_folder)
         time_based_plot_data = pd.concat(time_based_plot_data, ignore_index=True, sort=False)
-        time_based_plot_data.to_csv("save_tmp.csv")
         print(time_based_plot_data)
         # count_based_plot_data = pd.concat(count_based_plot_data, ignore_index=True, sort=False)
         generate_total_inputs_over_time(os.path.join(out_folder, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
@@ -156,7 +155,7 @@ def identify_algorithms(path: str) -> List[str]:
 def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
-    # generate_cov_table(path, algorithms)
+    generate_cov_table(path, algorithms)
     generate_graph(path, algorithms)
 
 if __name__ == "__main__":
