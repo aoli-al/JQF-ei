@@ -1,6 +1,6 @@
-DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
-#  DATASET = ["closure"]
-ALGORITHM = ["zest-fast", "ei-fast"]
+#  DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+DATASET = ["rhino", "closure"]
+ALGORITHM = ["zest-fast", "ei-fast", "ei-no-havoc"]
 #  ALGORITHM = ["ei-fast"]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
@@ -11,4 +11,3 @@ DATASET_TEST_CLASS_MAPPING = {
     "closure": TEST_CLASS_PREFIX + "closure.CompilerTest",
     "rhino": TEST_CLASS_PREFIX + "rhino.CompilerTest"
 }
-# ALGORITHM = ["zest-fast", "ei-fast", "zest-no-count", "ei-no-count"]

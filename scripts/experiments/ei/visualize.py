@@ -19,15 +19,19 @@ def log_scale_index(max: int) -> Iterator[int]:
         else:
             idx *= 2
 
+def name_converter(value: str) -> int:
+    return int(value.split("_")[1])
+
 
 def load_processing_time_data(path: str) -> pd.DataFrame:
-    result = {}
-    processing_time_folder = os.path.join(path, "corpus_perf")
-    for item in sorted(os.listdir(processing_time_folder)):
-        idx = item.split(".")[0]
-        data = open(os.path.join(processing_time_folder, item)).read()
-        result = re.findall("Time: [0-9]*[.][0-9]*", data)
-
+    print(path)
+    data = pd.read_csv(os.path.join(path, "results.csv"), sep=",", names=["case", "result", "class", 'time'],
+                       converters={"case": name_converter}, skiprows=10)
+    experiment_name = os.path.basename(path)
+    algorithm = "-".join(experiment_name.split('-')[1:-2])
+    data['algorithm'] = [algorithm] * data.shape[0]
+    data
+    return data
 
 
 def process_plot_data(path: str) -> pd.DataFrame:
@@ -84,6 +88,9 @@ def generate_valid_coverage_over_total_inputs(path: str, data: pd.DataFrame, ste
 
 def generate_all_coverage_over_total_inputs(path: str, data: pd.DataFrame, step=1):
     generate_plot_data_base(path, data, "total_inputs", "all_covered_probes", step)
+
+def generate_corpus_exec_time(path: str, data: pd.DataFrame):
+    generate_plot_data_base(path, data, "case", "time", 1)
 
 def show_values_on_bars(axs):
     def _show_on_single_plot(ax):

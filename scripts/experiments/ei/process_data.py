@@ -98,14 +98,20 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
 
 
 def generate_perf_graph(base_path: str, algorithms: Set[str]):
+    out_folder = os.path.join(base_path, "figs")
     for dataset in DATASET:
         corpus_based_plot_data = []
         for algorithm in algorithms:
-            corpus_based_data_per_algo = []
-            for idx in range(0, 9):
+            for idx in range(0, 1):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
+                execution_time_data = load_processing_time_data(path)
+                corpus_based_plot_data.append(execution_time_data)
+        corpus_based_plot_data = pd.concat(corpus_based_plot_data, ignore_index=True, sort=False)
+        print(corpus_based_plot_data)
+        generate_corpus_exec_time(os.path.join(out_folder, f"{dataset}-exec_time.pdf"), corpus_based_plot_data)
+
 
 def generate_graph(base_path: str, algorithms: Set[str]):
     for dataset in DATASET:
@@ -156,8 +162,9 @@ def identify_algorithms(path: str) -> List[str]:
 def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
-    generate_cov_table(path, algorithms)
-    generate_graph(path, algorithms)
+    # generate_cov_table(path, algorithms)
+    # generate_graph(path, algorithms)
+    generate_perf_graph(path, algorithms)
 
 if __name__ == "__main__":
     main()
