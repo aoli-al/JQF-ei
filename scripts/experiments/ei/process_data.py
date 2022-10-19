@@ -36,6 +36,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str]):
             valid_avg = []
             for idx in range(0, 9):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                print(path)
                 if not os.path.exists(path):
                     break
                 # print(f"processing: {os.path.basename(path)}")
@@ -156,8 +157,8 @@ def identify_algorithms(path: str) -> List[str]:
 def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
-    # generate_cov_table(path, algorithms)
-    generate_graph(path, algorithms)
+    generate_cov_table(path, algorithms)
+    #  generate_graph(path, algorithms)
 
 if __name__ == "__main__":
     main()
