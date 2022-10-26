@@ -195,7 +195,7 @@ public class ReproGoal extends AbstractMojo {
 
             loader = new InstrumentingClassLoader(
                     classpathElements.toArray(new String[0]),
-                    getClass().getClassLoader(), logCoverage == null);
+                    getClass().getClassLoader(), logCoverage != null);
         } catch (DependencyResolutionRequiredException|MalformedURLException e) {
             throw new MojoExecutionException("Could not get project classpath", e);
         }

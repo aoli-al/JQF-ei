@@ -26,15 +26,15 @@ def process(data):
 
 
 
-def run(path: str):
-    with Pool(3) as pool:
-        pool.map(call, generate_tasks(path, "perf"))
+def run(path: str, task: str):
+    with Pool(10) as pool:
+        pool.map(call, generate_tasks(path, task))
 
 
 def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
-            for idx in range(0, 1):
+            for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 print(path)
                 if not os.path.exists(path):
@@ -59,4 +59,4 @@ def generate_tasks(base_path: str, mode: str):
 
 
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run(sys.argv[1], sys.argv[2])
