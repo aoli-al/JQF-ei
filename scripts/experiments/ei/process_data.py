@@ -5,6 +5,7 @@ import sys
 import os
 from typing import Dict, Set
 import pandas as pd
+from table_wriper import TableWriter
 from visualize import *
 from pytablewriter import LatexTableWriter
 from configs import *
@@ -74,7 +75,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
             write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
             dataset_all_data.append(len(only_all))
         cov_all_unique.append(dataset_all_data)
-    writer = LatexTableWriter(
+    writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
         value_matrix = cov_all_data
     )
