@@ -153,7 +153,7 @@ def identify_algorithms(path: str) -> List[str]:
 def main():
     path = sys.argv[1]
     algorithms = identify_algorithms(path)
-    generate_cov_table(path, algorithms)
+    # generate_cov_table(path, algorithms)
     # generate_graph(path, algorithms)
     #  generate_perf_graph(path, algorithms)
 
