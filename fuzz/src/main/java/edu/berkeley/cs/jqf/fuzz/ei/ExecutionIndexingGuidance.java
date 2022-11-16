@@ -51,7 +51,6 @@ import edu.berkeley.cs.jqf.fuzz.ei.state.FastExecutionIndexingState;
 import edu.berkeley.cs.jqf.fuzz.ei.state.JanalaExecutionIndexingState;
 import edu.berkeley.cs.jqf.fuzz.guidance.GuidanceException;
 import edu.berkeley.cs.jqf.fuzz.guidance.Result;
-import edu.berkeley.cs.jqf.fuzz.junit.quickcheck.FuzzStatement;
 import edu.berkeley.cs.jqf.fuzz.util.CoverageFactory;
 import edu.berkeley.cs.jqf.fuzz.util.ProducerHashMap;
 import edu.berkeley.cs.jqf.instrument.tracing.FastCoverageSnoop;
@@ -109,7 +108,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
     /** Probability to perform havoc mutation similar to Zest. */
     protected final double HAVOC_PROBABILITY = Double.parseDouble(
-            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.8"));
+            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
 
     /** Whether to splice only in the same sub-tree */
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
@@ -166,7 +165,12 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
      * @throws IOException if the output directory could not be prepared
      */
     public ExecutionIndexingGuidance(String testName, Duration duration, File outputDirectory, File[] seedFiles) throws IOException {
-        super(testName, duration, outputDirectory, seedFiles);
+        super(testName, duration, outputDirectory);
+        if (seedFiles != null) {
+            for (File seedInputFile : seedFiles) {
+                seedInputs.add(new MappedSeedInput(seedInputFile));
+            }
+        }
     }
 
     /** Returns the banner to be displayed on the status screen */
@@ -355,15 +359,14 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
 
     private void mapEcToInputLoc(Input input) {
-        if (input instanceof MappedInput) {
-            MappedInput mappedInput = (MappedInput) input;
-            for (int offset = 0; offset < mappedInput.size(); offset++) {
-                ExecutionIndex ei = mappedInput.orderedKeys.get(offset);
-                ExecutionContext ec = new ExecutionContext(ei);
-                ecToInputLoc.get(ec).add(new InputLocation(mappedInput, offset));
-            }
-        }
-
+//        if (input instanceof MappedInput) {
+//            MappedInput mappedInput = (MappedInput) input;
+//            for (int offset = 0; offset < mappedInput.size(); offset++) {
+//                ExecutionIndex ei = mappedInput.orderedKeys.get(offset);
+//                ExecutionContext ec = new ExecutionContext(ei);
+//                ecToInputLoc.get(ec).add(new InputLocation(mappedInput, offset));
+//            }
+//        }
     }
 
 
@@ -767,23 +770,16 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 // Iterate over all entries in the value map
                 Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
                         = newInput.valuesMap.entrySet().iterator();
-                ExecutionContext ecToMutate = null;
                 for (int i = 0; entryIterator.hasNext(); i++) {
                     Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
-                    // Only mutate `mutationSize` contiguous entries from
-                    // the randomly selected `idx`.
                     if (i >= offset && i < (offset + mutationSize)) {
-                        ExecutionContext currentEc = new ExecutionContext(e.getKey());
-                        if (ecToMutate == null) {
-                            ecToMutate = currentEc;
-                        } else if (!ecToMutate.equals(currentEc)) {
-                            break;
-                        }
-                        // infoLog("Mutating: %s", e.getKey());
                         // Apply a random mutation
                         int mutatedValue = setToZero ? 0 : random.nextInt(256);
                         e.setValue(mutatedValue);
 
+                    }
+                    if (i >= (offset + mutationSize)) {
+                        break;
                     }
                 }
             }
