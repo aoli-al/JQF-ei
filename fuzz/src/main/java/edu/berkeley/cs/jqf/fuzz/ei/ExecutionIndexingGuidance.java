@@ -178,8 +178,13 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         if (blind) {
             return super.getTitle();
         } else {
-            return  "Semantic Fuzzing with Execution Indexes\n" +
-                    "---------------------------------------\n";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Semantic Fuzzing with Execution Indexing");
+            if (PERFORMANCE_GUIDANCE) {
+                sb.append(" (PerfFuzz)");
+            }
+            sb.append("\n--------------------------\n");
+            return sb.toString();
         }
     }
 
@@ -324,7 +329,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     @Override
     protected List<String> checkSavingCriteriaSatisfied(Result result) {
         List<String> reasons = super.checkSavingCriteriaSatisfied(result);
-        if (HAVOC_PROBABILITY > 0) {
+        if (HAVOC_PROBABILITY > 0 && !PERFORMANCE_GUIDANCE) {
             if (!currentInput.desc.contains("havoc")) {
                 reasons.remove("+count");
             }

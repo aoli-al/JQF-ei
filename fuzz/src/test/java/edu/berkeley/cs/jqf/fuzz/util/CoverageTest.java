@@ -96,8 +96,8 @@ public class CoverageTest {
             c2.handleEvent(e);
         }
 
-        total.updateBits(c1);
-        boolean changed = total.updateBits(c2);
+        total.updateBits(c1, true);
+        boolean changed = total.updateBits(c2, true);
 
         Assert.assertTrue(changed);
         Assert.assertEquals(c2.getNonZeroCount(), total.getNonZeroCount());
@@ -120,8 +120,8 @@ public class CoverageTest {
             c2.handleEvent(e);
         }
 
-        total.updateBits(c1);
-        boolean changed = total.updateBits(c2);
+        total.updateBits(c1, true);
+        boolean changed = total.updateBits(c2, true);
 
         Assert.assertFalse(changed); // Because hob(2) and hob(3) are the same
         Assert.assertEquals(c2.getNonZeroCount(), total.getNonZeroCount());
@@ -145,8 +145,8 @@ public class CoverageTest {
             c2.handleEvent(e);
         }
 
-        total.updateBits(c1);
-        boolean changed = total.updateBits(c2);
+        total.updateBits(c1, true);
+        boolean changed = total.updateBits(c2, true);
 
         Assert.assertFalse(changed);
         Assert.assertEquals(c2.getNonZeroCount(), total.getNonZeroCount());
@@ -171,10 +171,34 @@ public class CoverageTest {
             c2.handleEvent(e);
         }
 
-        total.updateBits(c2);
-        boolean changed = total.updateBits(c1);
+        total.updateBits(c2, true);
+        boolean changed = total.updateBits(c1, true);
 
         Assert.assertTrue(changed); // Because hob(3) and hob(1) are different
+        Assert.assertEquals(c2.getNonZeroCount(), total.getNonZeroCount());
+    }
+
+    @Test
+    public void testCoverageUpdateBits5() {
+        Coverage c1 = new Coverage();
+        Coverage c2 = new Coverage();
+        Coverage total = new Coverage();
+        TraceEvent[] baseEvents = { callEvent(1), callEvent(1), callEvent(2), branchEvent(3, 1) };
+        TraceEvent[] newEvents = { callEvent(1) };
+
+        for (TraceEvent e : baseEvents) {
+            c1.handleEvent(e);
+            c2.handleEvent(e);
+        }
+
+        for (TraceEvent e : newEvents) {
+            c2.handleEvent(e);
+        }
+
+        total.updateBits(c1, false);
+        boolean changed = total.updateBits(c2, false);
+
+        Assert.assertTrue(changed);
         Assert.assertEquals(c2.getNonZeroCount(), total.getNonZeroCount());
     }
 }
