@@ -41,11 +41,13 @@ public interface ICoverage<T extends Counter> {
      * Updates this coverage with bits from the parameter.
      *
      * @param that the run coverage whose bits to OR
+     * @param useHop use AFL style hit count bucket.
      *
      * @return <code>true</code> iff <code>that</code> is not a subset
      *         of <code>this</code>, causing <code>this</code> to change.
      */
-    boolean updateBits(ICoverage that);
+    boolean updateBits(ICoverage that, boolean useHop);
+
 
     /**
      * Returns a hash code of the list of edges that have been covered at least once.

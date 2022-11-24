@@ -107,7 +107,7 @@ public class CompilerTest {
         testWithString(code);
     }
 
-    @Fuzz
+    @Fuzz(repro = "/Users/aoli/repos/JQF-ei/exp-results/ei-48h-10-20/rhino-zest-fast-results-4/corpus/id_002616")
     public void debugWithGenerator(@From(JavaScriptCodeGenerator.class) String code) {
         debugWithString(code);
     }

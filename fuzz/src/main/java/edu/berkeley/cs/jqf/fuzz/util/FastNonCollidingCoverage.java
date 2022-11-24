@@ -160,11 +160,12 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
      * Updates this coverage with bits from the parameter.
      *
      * @param that the run coverage whose bits to OR
+     * @param useHop use AFL style hit count bucket.
      *
      * @return <code>true</code> iff <code>that</code> is not a subset
      *         of <code>this</code>, causing <code>this</code> to change.
      */
-    public boolean updateBits(ICoverage that) {
+    public boolean updateBits(ICoverage that, boolean useHop) {
         boolean changed = false;
         synchronized (this.counter){
             synchronized (that.getCounter()){
@@ -174,9 +175,18 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
                 while(thatIter.hasNext()){
                     IntIntPair coverageEntry = thatIter.next();
                     int before = this.counter.counts.get(coverageEntry.getOne());
-                    int after = before | hob(coverageEntry.getTwo());
-                    if(after != before){
-                        this.counter.counts.put(coverageEntry.getOne(), after);
+                    int after = coverageEntry.getTwo();
+                    if (useHop) {
+                        after = before | hob(after);
+                        if (after != before) {
+                            this.counter.counts.put(coverageEntry.getOne(),
+                                    after);
+                        }
+                        changed = true;
+                    }
+                    else if (!useHop && (before != after)) {
+                        this.counter.counts.put(coverageEntry.getOne(),
+                                after);
                         changed = true;
                     }
                     if(before == 0){
