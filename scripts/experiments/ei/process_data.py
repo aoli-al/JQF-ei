@@ -9,6 +9,7 @@ from table_wriper import TableWriter
 from visualize import *
 from pytablewriter import LatexTableWriter
 from configs import *
+import json
 
 
 def write_cov_data(data: Set[str], path: str):
@@ -56,25 +57,19 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
                 cov_all_data[-1][i + 1] = "\\cellgreen{" + str(cov_all_data[-1][i + 1]) + "}"
 
         dataset_all_data = [dataset]
-        dataset_valid_data = [dataset]
         for algorithm in algorithms:
             other_all = set()
-            other_valid = set()
             if "ei" in algorithm:
                 other_all = cov_all["zest-fast"]
             else:
                 other_all = cov_all["ei-fast"]
-            # for other in algorithms:
-            #     # if other == algorithm:
-            #     #     continue
-            #     if ("zest" in algorithm and "ei-fast" not in other) or ("ei" in algorithm and "zest" not in other):
-            #         continue
-            #     other_all |= cov_all[other]
             only_all = cov_all[algorithm] - other_all
             path = os.path.join(base_path, f"{dataset}-{algorithm}-results-0")
             write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
             dataset_all_data.append(len(only_all))
         cov_all_unique.append(dataset_all_data)
+
+
     writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
         value_matrix = cov_all_data
@@ -91,11 +86,11 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
     # )
     # writer.write_table()
 
-    # writer = MarkdownTableWriter(
-    #     headers = ["Dataset", *algorithms],
-    #     value_matrix = cov_all_unique
-    # )
-    # writer.write_table()
+    writer = TableWriter(
+        headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
+        value_matrix = cov_all_unique
+    )
+    writer.write_table()
 #
 
 
