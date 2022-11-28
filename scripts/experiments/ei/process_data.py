@@ -94,7 +94,7 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
 #
 
 
-def generate_perf_graph(base_path: str, algorithms: Set[str], out_folder):
+def generate_perf_graph(base_path: str, algorithms: Set[str], out_folder: str, out_name: str):
     for dataset in DATASET:
         corpus_based_plot_data = []
         for algorithm in algorithms:
@@ -105,7 +105,7 @@ def generate_perf_graph(base_path: str, algorithms: Set[str], out_folder):
                 execution_time_data = load_processing_time_data(path)
                 corpus_based_plot_data.append(execution_time_data)
         corpus_based_plot_data = pd.concat(corpus_based_plot_data, ignore_index=True, sort=False)
-        generate_corpus_exec_time(os.path.join(out_folder, f"{dataset}-exec_time.pdf"), corpus_based_plot_data)
+        generate_corpus_exec_time(os.path.join(out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
 
 
 def generate_graph(base_path: str, algorithms: Set[str], output_dir: str):

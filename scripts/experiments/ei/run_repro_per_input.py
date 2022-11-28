@@ -16,7 +16,8 @@ def call_cov(args: List[str]):
     subprocess.call(args, cwd=EXAMPLES_DIR)
 
 def call(args: List[str]):
-    subprocess.check_call(args, cwd=EXAMPLES_DIR)
+    print(args)
+    subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def process(data):
@@ -27,7 +28,8 @@ def process(data):
 
 
 def run(path: str, task: str):
-    with Pool(10) as pool:
+    cpu = 1 if task == "perf" else 10
+    with Pool(2) as pool:
         pool.map(call, generate_tasks(path, task))
 
 
@@ -36,7 +38,6 @@ def generate_tasks(base_path: str, mode: str):
         for algorithm in ALGORITHM:
             for idx in range(0, 10):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
-                print(path)
                 if not os.path.exists(path):
                     break
                 corpus_dir = os.path.join(path, "corpus")
