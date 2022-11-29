@@ -10,22 +10,9 @@ from multiprocessing import Pool
 
 EXAMPLES_DIR = os.path.join(Path(__file__).resolve().parent, "../../../examples")
 
-
-
-def call_cov(args: List[str]):
-    subprocess.call(args, cwd=EXAMPLES_DIR)
-
 def call(args: List[str]):
     print(args)
     subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def process(data):
-    data[0](data[1:])
-    #  method(data)
-
-
-
 
 def run(path: str, task: str):
     cpu = 1 if task == "perf" else 10
@@ -42,6 +29,8 @@ def generate_tasks(base_path: str, mode: str):
                     break
                 corpus_dir = os.path.join(path, "corpus")
                 if mode == "perf":
+                    if os.path.exists(os.path.join(path, "results.csv")):
+                        continue
                     yield ["mvn", "jqf:repro", "-Dengine=repro",
                             f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
                             "-Dmethod=testWithGenerator", f"-Dinput={corpus_dir}",
