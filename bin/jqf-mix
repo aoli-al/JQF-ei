@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+
+OUT_DIR=$5 
+
+timeout 24h $SCRIPT_DIR/jqf-zest $@
+mv $OUT_DIR $OUT_DIR-tmp
+$SCRIPT_DIR/jqf-ei $@ $OUT_DIR-tmp/corpus/*
+
