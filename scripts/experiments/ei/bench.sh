@@ -50,7 +50,7 @@ screen -S "$SNAME" -X screen -t mix_$e
 screen -S "$SNAME" -X screen -t mix_no_havoc_$e
 # screen -S "$SNAME" -p ei_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_FAST_OUT_DIR^M"
 screen -S "$SNAME" -p zest_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_FAST_OUT_DIR^M"
-screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_MIX -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
+screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_MIX -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
 NO_HAVOC_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true -Djqf.ei.HAVOC_PROBABILITY=0.0\""
 screen -S "$SNAME" -p mix_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_MIX -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_NO_HAVOC_OUT_DIR^M"
 
