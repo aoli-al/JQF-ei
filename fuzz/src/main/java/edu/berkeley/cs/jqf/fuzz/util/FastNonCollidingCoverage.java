@@ -181,8 +181,8 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
                         if (after != before) {
                             this.counter.counts.put(coverageEntry.getOne(),
                                     after);
+                            changed = true;
                         }
-                        changed = true;
                     }
                     else if (!useHop && (before != after)) {
                         this.counter.counts.put(coverageEntry.getOne(),
