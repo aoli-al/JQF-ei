@@ -32,6 +32,7 @@ package edu.berkeley.cs.jqf.fuzz.ei;
 import java.io.File;
 
 import edu.berkeley.cs.jqf.fuzz.junit.GuidedFuzzing;
+import edu.berkeley.cs.jqf.fuzz.util.IOUtils;
 
 /**
  * Entry point for fuzzing with Execution Indexing.
@@ -61,9 +62,18 @@ public class ExecutionIndexingDriver {
         try {
             // Load the guidance
             String title = testClassName+"#"+testMethodName;
-            ZestGuidance guidance = seedFiles != null ?
-                    new ExecutionIndexingGuidance(title, null, outputDirectory, seedFiles) :
-                    new ExecutionIndexingGuidance(title, null, outputDirectory, new File[]{});
+
+
+            ZestGuidance guidance = null;
+
+            if (seedFiles == null) {
+                guidance = new ExecutionIndexingGuidance(title, null, outputDirectory, new File[]{});
+            } else if (seedFiles.length == 1 && seedFiles[0].isDirectory()) {
+                guidance = new ExecutionIndexingGuidance(title, null, outputDirectory,
+                        IOUtils.resolveInputFileOrDirectory(seedFiles[0]));
+            } else {
+                guidance = new ExecutionIndexingGuidance(title, null, outputDirectory, seedFiles);
+            }
 
             // Ensure that generators are being traced
             System.setProperty("jqf.traceGenerators", "true");
