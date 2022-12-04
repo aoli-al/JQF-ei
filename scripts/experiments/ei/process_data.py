@@ -37,12 +37,14 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
             all_avg = []
             valid_avg = []
             for idx in range(0, 10):
-                path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
-                if not os.path.exists(path):
-                    break
-                # print(f"processing: {os.path.basename(path)}")
-
-                result = set(process_cov_data(os.path.join(path, "cov-all.log")))
+                folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
+                    process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
+                result = process_cov_data(os.path.join(folder, "cov-all.log"))
+                # if "mix" in algorithm:
+                #     result = process_cov_data(os.path.join(folder + "-tmp", "cov-all.log"))
+                # else:
+                #     result = process_cov_data(os.path.join(folder, "cov-all.log"))
                 all_avg.append(len(result))
                 if algorithm not in cov_all:
                     cov_all[algorithm] = set()
@@ -59,12 +61,11 @@ def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str)
         dataset_all_data = [dataset]
         for algorithm in algorithms:
             other_all = set()
-            if "ei" in algorithm:
+            if "mix" in algorithm:
                 other_all = cov_all["zest-fast"]
             else:
-                other_all = cov_all["ei-fast"]
+                other_all = cov_all["mix"]
             only_all = cov_all[algorithm] - other_all
-            path = os.path.join(base_path, f"{dataset}-{algorithm}-results-0")
             write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
             dataset_all_data.append(len(only_all))
         cov_all_unique.append(dataset_all_data)
@@ -138,6 +139,8 @@ def identify_algorithms(path: str) -> List[str]:
     algorithms = set()
     for subdir in os.listdir(path):
         dir_path = os.path.join(path, subdir)
+        if "tmp" in subdir:
+            continue
         if os.path.isdir(dir_path):
             algorithm = "-".join(subdir.split("-")[1:-2])
             if algorithm:

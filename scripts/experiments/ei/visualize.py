@@ -35,11 +35,11 @@ def load_processing_time_data(path: str) -> pd.DataFrame:
     return data
 
 def map_algorithm(algo: str) -> str:
-    if algo == "ei-fast":
-        return "Zest + EI"
+    if algo == "mix":
+        return "Mix"
     if algo == "zest-fast":
         return "Zest"
-    return "EI"
+    return "Mix-No-Havoc"
 
 def color_mapping(algo: str) -> str:
     pass
@@ -75,8 +75,12 @@ def process_plot_data(path: str) -> pd.DataFrame:
     return time_based_data, None
 
 def process_cov_data(path: str) -> Set[str]:
-    with open(path) as f:
-        return set(f.readlines())
+    if os.path.exists(path):
+        # print(path)
+        with open(path) as f:
+            return set(f.readlines())
+    else:
+        return set()
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
     print(x_axis, y_axis)

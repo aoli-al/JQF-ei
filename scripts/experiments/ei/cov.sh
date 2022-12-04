@@ -22,9 +22,9 @@ export JVM_OPTS="$JVM_OPTS -Djqf.repro.logUniqueBranches=true -Xmx16g"
 
 for e in $(seq 0 $RUNS); do
   ZEST_OUT_DIR="$NAME-zest-no-count-results-$e"
-  EI_OUT_DIR="$NAME-ei-no-havoc-results-$e"
   ZEST_FAST_OUT_DIR="$NAME-zest-fast-results-$e"
-  EI_FAST_OUT_DIR="$NAME-ei-fast-results-$e"
+  EI_OUT_DIR="$NAME-mix-no-havoc-results-$e"
+  EI_FAST_OUT_DIR="$NAME-mix-results-$e"
 
   # $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_OUT_DIR/cov-all.log  &
   $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_FAST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_FAST_OUT_DIR/cov-all.log &
