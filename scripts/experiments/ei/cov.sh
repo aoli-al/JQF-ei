@@ -29,7 +29,7 @@ for e in $(seq 0 $RUNS); do
   # $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_OUT_DIR/cov-all.log  &
   $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_FAST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_FAST_OUT_DIR/cov-all.log &
   $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_FAST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_FAST_OUT_DIR/cov-all.log &
-  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_OUT_DIR/cov-all.log 
+  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_OUT_DIR/cov-all.log &
 done
 
 for job in `jobs -p`
