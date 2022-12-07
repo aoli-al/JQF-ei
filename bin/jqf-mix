@@ -10,7 +10,7 @@ from pathlib import Path
 SCRIPT_DIR=Path(__file__).resolve().parent
 
 
-timeout = str(int(sys.argv[1]) // 2)
+timeout = str(int(sys.argv[1]) // 4 * 3)
 args = sys.argv[2:]
 out_dir = args[-1]
 
