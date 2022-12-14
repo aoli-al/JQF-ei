@@ -39,7 +39,13 @@ def map_algorithm(algo: str) -> str:
         return "Mix"
     if algo == "zest-fast":
         return "Zest"
-    return "Mix-No-Havoc"
+    if algo == "ei-fast":
+        return "EI"
+    if algo == "ei-no-havoc":
+        return "EI-No-Havoc"
+    if algo == "mix-no-havoc":
+        return "Mix-No-Havoc"
+    return "?"
 
 def color_mapping(algo: str) -> str:
     pass
@@ -76,9 +82,11 @@ def process_plot_data(path: str) -> pd.DataFrame:
 
 def process_cov_data(path: str) -> Set[str]:
     if os.path.exists(path):
-        # print(path)
         with open(path) as f:
-            return set(f.readlines())
+            result = set(f.readlines())
+            # if result:
+            #     print(path)
+            return result
     else:
         return set()
 
