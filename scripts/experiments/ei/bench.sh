@@ -26,7 +26,7 @@ SEEDS_DIR=$(dirname "$SEEDS")
 e=$IDX
 
 EI_NO_HAVOC_OUT_DIR="$NAME-ei-no-havoc-results-$e"
-EI_FAST_OUT_DIR="$NAME-ei-fast-results-$e"
+EI_OUT_DIR="$NAME-ei-fast-results-$e"
 MIX_OUT_DIR="$NAME-mix-results-$e"
 MIX_NO_HAVOC_OUT_DIR="$NAME-mix-no-havoc-results-$e"
 ZEST_FAST_OUT_DIR="$NAME-zest-fast-results-$e"
@@ -48,9 +48,15 @@ FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
 screen -S "$SNAME" -dm -t zest_fast_$e
 screen -S "$SNAME" -X screen -t mix_$e
 screen -S "$SNAME" -X screen -t mix_no_havoc_$e
+screen -S "$SNAME" -X screen -t ei_$e
+screen -S "$SNAME" -X screen -t ei_no_havoc_$e
 # screen -S "$SNAME" -p ei_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_FAST_OUT_DIR^M"
 screen -S "$SNAME" -p zest_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_FAST_OUT_DIR^M"
-screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
+# screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
+screen -S "$SNAME" -p ei_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR^M"
+
+
 NO_HAVOC_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true -Djqf.ei.HAVOC_PROBABILITY=0.0\""
-screen -S "$SNAME" -p mix_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_NO_HAVOC_OUT_DIR^M"
+# screen -S "$SNAME" -p mix_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_NO_HAVOC_OUT_DIR^M"
+screen -S "$SNAME" -p ei_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_NO_HAVOC_OUT_DIR^M"
 
