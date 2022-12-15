@@ -23,13 +23,17 @@ export JVM_OPTS="$JVM_OPTS -Djqf.repro.logUniqueBranches=true -Xmx16g"
 for e in $(seq 0 $RUNS); do
   ZEST_OUT_DIR="$NAME-zest-no-count-results-$e"
   ZEST_FAST_OUT_DIR="$NAME-zest-fast-results-$e"
-  EI_OUT_DIR="$NAME-mix-no-havoc-results-$e"
-  EI_FAST_OUT_DIR="$NAME-mix-results-$e"
+  MIX_NO_HAVOC_OUT_DIR="$NAME-mix-no-havoc-results-$e"
+  MIX_OUT_DIR="$NAME-mix-results-$e"
+  EI_NO_HAVOC_OUT_DIR="$NAME-ei-no-havoc-results-$e"
+  EI_OUT_DIR="$NAME-ei-fast-results-$e"
 
   # $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_OUT_DIR/cov-all.log  &
   $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $ZEST_FAST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $ZEST_FAST_OUT_DIR/cov-all.log &
-  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_FAST_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_FAST_OUT_DIR/cov-all.log &
+  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $MIX_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $MIX_OUT_DIR/cov-all.log &
+  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $MIX_NO_HAVOC_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $MIX_NO_HAVOC_OUT_DIR/cov-all.log
   $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_OUT_DIR/cov-all.log &
+  $JQF_REPRO -c $($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator   $EI_NO_HAVOC_OUT_DIR/corpus/* 2>/dev/null | grep "^# Cov" | sort | uniq > $EI_NO_HAVOC_OUT_DIR/cov-all.log &
 done
 
 for job in `jobs -p`

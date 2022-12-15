@@ -17,82 +17,117 @@ def write_cov_data(data: Set[str], path: str):
         for item in data:
             f.write(item)
 
+def highlight_data(data):
+    row_max = max(data[-1][1:])
+    for i in range(len(data[-1][1:])):
+        if data[-1][i + 1] == row_max:
+            data[-1][i + 1] = "\\cellgreen{" + str(data[-1][i + 1]) + "}"
 
-def generate_cov_table(base_path: str, algorithms: Set[str], output_folder: str):
+
+def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str):
     cov_all_data = []
     cov_valid_data = []
     cov_all_avg = []
-    cov_all_unique = []
-    cov_valid_unique = []
-    out_folder = os.path.join(base_path, "processed")
+    cov_unique_union = []
+    cov_unique_intersection = []
+    out_folder = os.path.join(paths[0], "processed")
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
     for dataset in DATASET:
-        cov_all = {}
-        cov_valid= {}
+        cov_all_union = {}
+        cov_all_intersection = {}
         cov_all_data.append([dataset])
         cov_all_avg.append([dataset])
         cov_valid_data.append([dataset])
         for algorithm in algorithms:
-            all_avg = []
-            valid_avg = []
-            for idx in range(0, 10):
-                folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
-                result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
-                    process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
-                result = process_cov_data(os.path.join(folder, "cov-all.log"))
-                # if "mix" in algorithm:
-                #     result = process_cov_data(os.path.join(folder + "-tmp", "cov-all.log"))
-                # else:
-                #     result = process_cov_data(os.path.join(folder, "cov-all.log"))
-                all_avg.append(len(result))
-                if algorithm not in cov_all:
-                    cov_all[algorithm] = set()
-                cov_all[algorithm] |= result
+            for base_path in paths:
+                all_avg = []
+                for idx in range(0, 10):
+                    folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                    result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
+                        process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
+                    # result = process_cov_data(os.path.join(folder, "cov-all.log"))
+                    # if "mix" in algorithm:
+                    #     result = process_cov_data(os.path.join(folder + "-tmp", "cov-all.log"))
+                    # else:
+                    #     result = process_cov_data(os.path.join(folder, "cov-all.log"))
+                    all_avg.append(len(result))
+                    if algorithm not in cov_all_union:
+                        cov_all_union[algorithm] = set(result)
+                        cov_all_intersection[algorithm] = set(result)
+                    cov_all_union[algorithm] |= result
+                    cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
 
-            cov_all_data[-1].append(len(cov_all[algorithm]))
+            cov_all_data[-1].append(len(cov_all_union[algorithm]))
             cov_all_avg[-1].append(int(sum(all_avg) / len(all_avg)))
+        highlight_data(cov_all_data)
+        highlight_data(cov_all_avg)
 
-        row_max = max(cov_all_data[-1][1:])
-        for i in range(len(cov_all_data[-1][1:])):
-            if cov_all_data[-1][i + 1] == row_max:
-                cov_all_data[-1][i + 1] = "\\cellgreen{" + str(cov_all_data[-1][i + 1]) + "}"
-
-        dataset_all_data = [dataset]
+        only_union_data = [dataset]
+        only_intersection_data = [dataset]
         for algorithm in algorithms:
             other_all = set()
-            if "mix" in algorithm:
-                other_all = cov_all["zest-fast"]
+            if "mix" in algorithm or "ei" in algorithm:
+                # other_all = cov_all_union["zest-fast"]
+                other_key = "zest-fast"
             else:
-                other_all = cov_all["mix"]
-            only_all = cov_all[algorithm] - other_all
-            write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
-            dataset_all_data.append(len(only_all))
-        cov_all_unique.append(dataset_all_data)
+                if "mix" in algorithms:
+                    other_key = "mix"
+                    # if len(cov_all["mix"]) > len(cov_all["mix-no-havoc"]):
+                    #     other_all = cov_all["mix"]
+                    # else:
+                    #     other_all = cov_all["mix-no-havoc"]
+                    # other_all = cov_all["mix-no-havoc"]
+                else:
+                    # other_all = cov_all_union["ei-fast"]
+                    other_key = "ei-fast"
+            only_union = cov_all_union[algorithm] - cov_all_union[other_key]
+            only_intersection = cov_all_intersection[algorithm] - cov_all_intersection[other_key]
+            # write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
+            only_union_data.append(len(only_union))
+            only_intersection_data.append(len(only_intersection))
+        cov_unique_union.append(only_union_data)
+        cov_unique_intersection.append(only_intersection_data)
+        highlight_data(cov_unique_union)
+        highlight_data(cov_unique_intersection)
 
 
+    print("Cov-All")
     writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
         value_matrix = cov_all_data
     )
-    result = writer.dumps()
-    result = result.replace("array", "tabular")
-    with open(os.path.join(output_folder, "cov-table.tex"), "w") as f:
-        f.write(result)
-    writer.write_table()
+    write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
 
-    # writer = MarkdownTableWriter(
-    #     headers = ["Dataset", *algorithms],
-    #     value_matrix = cov_all_avg
-    # )
-    # writer.write_table()
+    print("Cov-Avg")
+    writer = TableWriter(
+        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
+        value_matrix =cov_all_avg
+    )
+    write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
 
+
+    print("Cov-Unique-Union")
     writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
-        value_matrix = cov_all_unique
+        value_matrix = cov_unique_union
     )
-    writer.write_table()
+    write_table(writer, os.path.join(output_folder, "cov-unique-union-table.tex"))
+
+    print("Cov-Unique-Intersection")
+    writer = TableWriter(
+        headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
+        value_matrix = cov_unique_intersection
+    )
+    write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
 #
+
+def write_table(writer: TableWriter, path: str):
+    result = writer.dumps()
+    result = result.replace("array", "tabular")
+    with open(path, "w") as f:
+        f.write(result)
+    writer.write_table()
 
 
 def generate_perf_graph(base_path: str, algorithms: Set[str], out_folder: str, out_name: str):
@@ -135,16 +170,17 @@ def generate_graph(base_path: str, algorithms: Set[str], output_dir: str):
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
 
-def identify_algorithms(path: str) -> List[str]:
+def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()
-    for subdir in os.listdir(path):
-        dir_path = os.path.join(path, subdir)
-        if "tmp" in subdir:
-            continue
-        if os.path.isdir(dir_path):
-            algorithm = "-".join(subdir.split("-")[1:-2])
-            if algorithm:
-                algorithms.add(algorithm)
+    for path in paths:
+        for subdir in os.listdir(path):
+            dir_path = os.path.join(path, subdir)
+            if "tmp" in subdir:
+                continue
+            if os.path.isdir(dir_path):
+                algorithm = "-".join(subdir.split("-")[1:-2])
+                if algorithm:
+                    algorithms.add(algorithm)
     return algorithms
 
 
