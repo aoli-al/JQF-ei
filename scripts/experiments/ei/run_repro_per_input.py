@@ -15,15 +15,15 @@ def call(args: List[str]):
     subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def run(path: str, task: str):
-    cpu = 1 if task == "perf" else 10
-    with Pool(2) as pool:
+    cpu = 1 if task == "perf" else 19
+    with Pool(cpu) as pool:
         pool.map(call, generate_tasks(path, task))
 
 
 def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
-            for idx in range(0, 10):
+            for idx in range(0, 1):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
@@ -42,6 +42,8 @@ def generate_tasks(base_path: str, mode: str):
                     for file_name in sorted(os.listdir(corpus_dir)):
                         input_path = os.path.realpath(os.path.join(corpus_dir, file_name))
                         output_path = os.path.realpath(os.path.join(output_dir, file_name + '.txt'))
+                        if os.path.exists(output_path):
+                            continue
                         yield ["mvn", "jqf:repro", "-Dengine=repro",
                             f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
                             "-Dmethod=testWithGenerator", f"-Dinput={input_path}",

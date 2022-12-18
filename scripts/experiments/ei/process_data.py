@@ -9,6 +9,7 @@ from table_wriper import TableWriter
 from visualize import *
 from pytablewriter import LatexTableWriter
 from configs import *
+from functools import reduce
 import json
 
 
@@ -24,66 +25,58 @@ def highlight_data(data):
             data[-1][i + 1] = "\\cellgreen{" + str(data[-1][i + 1]) + "}"
 
 
-def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str):
-    cov_all_data = []
-    cov_valid_data = []
-    cov_all_avg = []
+def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> Dict[str, Dict[str, List[Set[str]]]]:
+    cov_all_table_data = []
+    cov_all_avg_data = []
     cov_unique_union = []
     cov_unique_intersection = []
+    cov_data = {}
     out_folder = os.path.join(paths[0], "processed")
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
     for dataset in DATASET:
         cov_all_union = {}
         cov_all_intersection = {}
-        cov_all_data.append([dataset])
-        cov_all_avg.append([dataset])
-        cov_valid_data.append([dataset])
+        cov_all_table_data.append([dataset])
+        cov_all_avg_data.append([dataset])
+        cov_data[dataset] = {}
         for algorithm in algorithms:
+            cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
                 for idx in range(0, 10):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
                         process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
-                    # result = process_cov_data(os.path.join(folder, "cov-all.log"))
-                    # if "mix" in algorithm:
-                    #     result = process_cov_data(os.path.join(folder + "-tmp", "cov-all.log"))
-                    # else:
-                    #     result = process_cov_data(os.path.join(folder, "cov-all.log"))
                     all_avg.append(len(result))
+                    cov_data[dataset][algorithm].append(result)
                     if algorithm not in cov_all_union:
                         cov_all_union[algorithm] = set(result)
                         cov_all_intersection[algorithm] = set(result)
                     cov_all_union[algorithm] |= result
                     cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
 
-            cov_all_data[-1].append(len(cov_all_union[algorithm]))
-            cov_all_avg[-1].append(int(sum(all_avg) / len(all_avg)))
-        highlight_data(cov_all_data)
-        highlight_data(cov_all_avg)
+            data = cov_data[dataset][algorithm]
+            cov_all_table_data[-1].append(len(set.union(*data)))
+            cov_all_avg_data[-1].append(reduce(lambda a,
+                                        b: a + len(b), data, 0) / len(data))
+        highlight_data(cov_all_table_data)
+        highlight_data(cov_all_avg_data)
 
         only_union_data = [dataset]
         only_intersection_data = [dataset]
         for algorithm in algorithms:
-            other_all = set()
             if "mix" in algorithm or "ei" in algorithm:
-                # other_all = cov_all_union["zest-fast"]
                 other_key = "zest-fast"
             else:
-                if "mix" in algorithms:
-                    other_key = "mix"
-                    # if len(cov_all["mix"]) > len(cov_all["mix-no-havoc"]):
-                    #     other_all = cov_all["mix"]
-                    # else:
-                    #     other_all = cov_all["mix-no-havoc"]
-                    # other_all = cov_all["mix-no-havoc"]
-                else:
-                    # other_all = cov_all_union["ei-fast"]
-                    other_key = "ei-fast"
+                # if "mix" in algorithms:
+                # other_key = "mix"
+                # else:
+                other_key = "ei-fast"
             only_union = cov_all_union[algorithm] - cov_all_union[other_key]
             only_intersection = cov_all_intersection[algorithm] - cov_all_intersection[other_key]
-            # write_cov_data(only_all, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-all.txt"))
+            write_cov_data(only_union, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-union.txt"))
+            write_cov_data(only_intersection, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-intersection.txt"))
             only_union_data.append(len(only_union))
             only_intersection_data.append(len(only_intersection))
         cov_unique_union.append(only_union_data)
@@ -95,14 +88,14 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str):
     print("Cov-All")
     writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
-        value_matrix = cov_all_data
+        value_matrix = cov_all_table_data
     )
     write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
 
     print("Cov-Avg")
     writer = TableWriter(
         headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
-        value_matrix =cov_all_avg
+        value_matrix =cov_all_avg_data
     )
     write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
 
@@ -120,7 +113,9 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str):
         value_matrix = cov_unique_intersection
     )
     write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
+    return cov_data
 #
+
 
 def write_table(writer: TableWriter, path: str):
     result = writer.dumps()
@@ -130,16 +125,17 @@ def write_table(writer: TableWriter, path: str):
     writer.write_table()
 
 
-def generate_perf_graph(base_path: str, algorithms: Set[str], out_folder: str, out_name: str):
+def generate_perf_graph(data_dirs: List[str], algorithms: Set[str], out_folder: str, out_name: str):
     for dataset in DATASET:
         corpus_based_plot_data = []
         for algorithm in algorithms:
             for idx in range(0, 10):
-                path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
-                if not os.path.exists(path):
-                    break
-                execution_time_data = load_processing_time_data(path)
-                corpus_based_plot_data.append(execution_time_data)
+                for base_path in data_dirs:
+                    path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                    if not os.path.exists(path):
+                        break
+                    execution_time_data = load_processing_time_data(path)
+                    corpus_based_plot_data.append(execution_time_data)
         corpus_based_plot_data = pd.concat(corpus_based_plot_data, ignore_index=True, sort=False)
         generate_corpus_exec_time(os.path.join(out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
 
@@ -169,6 +165,8 @@ def generate_graph(base_path: str, algorithms: Set[str], output_dir: str):
         generate_total_inputs_over_time(os.path.join(output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
+def visualize_cov_distribution(cov_data: Dict[str, Dict[str, List[Set[str]]]]):
+    pass
 
 def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()

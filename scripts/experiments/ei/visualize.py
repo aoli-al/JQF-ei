@@ -80,15 +80,27 @@ def process_plot_data(path: str) -> pd.DataFrame:
 
     return time_based_data, None
 
+
+INTERESTING = [
+    'org/mozilla/javascript',
+    'com/google/javascript/jscomp',
+    'com/google/javascript/rhino',
+    'com/google/javascript/refactoring',
+    # "org/codehaus/plexus/util/xml", "org/apache/maven/model",
+    # "com/sun/org/apache/xerces", "org/apache/tools/ant",
+    # "com/google/javascript/jscomp/parsing", "com/google/javascript/jscomp/",
+    # "org/mozilla/javascript/Parser", "org/mozilla/javascript/",
+    # "org/apache/bcel/classfile", " org/apache/bcel/verifier"
+]
+
+
 def process_cov_data(path: str) -> Set[str]:
+    result = set()
     if os.path.exists(path):
         with open(path) as f:
-            result = set(f.readlines())
-            # if result:
-            #     print(path)
-            return result
-    else:
-        return set()
+            for line in f:
+                result.add(line)
+    return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
     print(x_axis, y_axis)
