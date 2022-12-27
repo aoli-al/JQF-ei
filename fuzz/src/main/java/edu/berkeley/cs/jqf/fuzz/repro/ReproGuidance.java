@@ -270,7 +270,7 @@ public class ReproGuidance implements Guidance {
             try (PrintStream out = new PrintStream(new FileOutputStream(resultsCsv, append))) {
                 String inputName = getCurrentInputFile().toString();
                 String exception = result == Result.FAILURE ? error.getClass().getName() : "";
-                out.printf("%s,%s,%s,%d\n", inputName, result, exception, elapsed);
+                out.printf("%s,%s,%s,%d,%d\n", inputName, result, exception, allBranchesCovered.size(), elapsed);
             } catch (IOException e) {
                 throw new GuidanceException(e);
             }
