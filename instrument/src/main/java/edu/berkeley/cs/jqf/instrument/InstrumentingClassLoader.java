@@ -52,13 +52,13 @@ public class InstrumentingClassLoader extends URLClassLoader {
         this(urls, parent, true);
     }
 
-    public InstrumentingClassLoader(URL[] urls, ClassLoader parent, boolean shouldInstrument) {
+    public InstrumentingClassLoader(URL[] urls, ClassLoader parent, boolean instrument) {
         super(urls, parent);
-        this.shouldInstrument = shouldInstrument;
+        this.shouldInstrument = instrument;
     }
 
-    public InstrumentingClassLoader(String[] paths, ClassLoader parent, boolean shouldInstrument) throws MalformedURLException {
-        this(stringsToUrls(paths), parent, shouldInstrument);
+    public InstrumentingClassLoader(String[] paths, ClassLoader parent, boolean instrument) throws MalformedURLException {
+        this(stringsToUrls(paths), parent, instrument);
     }
 
     public InstrumentingClassLoader(String[] paths, ClassLoader parent) throws MalformedURLException {
