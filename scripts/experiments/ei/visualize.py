@@ -51,22 +51,21 @@ def color_mapping(algo: str) -> str:
     pass
 
 def process_plot_data(path: str) -> pd.DataFrame:
-    data = pd.read_csv(os.path.join(path, "plot_data"), sep=",", skipinitialspace=True,
-                       converters={"valid_cov": p2f, "map_size": p2f})
+    data = pd.read_csv(os.path.join(path, "plot_data"), sep=",", skipinitialspace=True)
     data['# unix_time'] -= data["# unix_time"][0]
-    data['# unix_time'] /= 60
+    data['# unix_time'] //= 60 * 10
     data['total_inputs'] = data['valid_inputs'] + data['invalid_inputs']
-    data['total_inputs'] -= data["total_inputs"][0]
-    x_axis = "total_inputs"
+    # data['total_inputs'] -= data["total_inputs"][0]
     experiment_name = os.path.basename(path)
     algorithm = "-".join(experiment_name.split('-')[1:-2])
     algorithm = map_algorithm(algorithm)
 
     x_axis = "# unix_time"
     time_based_data = data.copy().drop_duplicates(
-        keep='first', subset=[x_axis])
-    time_based_data = time_based_data.set_index(x_axis).reindex(
-        log_scale_index(time_based_data[x_axis].max())).interpolate().reset_index()
+        keep='last', subset=[x_axis])
+    time_based_data['# unix_time'] *= 10
+    # time_based_data = time_based_data.set_index(x_axis).reindex(
+    #     log_scale_index(time_based_data[x_axis].max())).interpolate().reset_index()
     time_based_data['algorithm'] = [algorithm] * time_based_data.shape[0]
 
 
@@ -134,6 +133,22 @@ def generate_valid_coverage_over_total_inputs(path: str, data: pd.DataFrame, ste
 
 def generate_all_coverage_over_total_inputs(path: str, data: pd.DataFrame, step=1):
     generate_plot_data_base(path, data, "total_inputs", "all_covered_probes", step)
+
+def generate_coverage_delta_hist(path: str, data: pd.DataFrame):
+    bins =list(range(-10, 11))
+    axis = sns.histplot(data=data, bins=bins, color=sns_configs.colors[0], discrete=True)
+    ylim = max(np.histogram(data[0].to_numpy(), bins=bins)[0]) + 10
+    axis.set_xticks(range(-10, 12, 2))
+    axis.set_xticklabels([10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10])
+    axis.set(xlim=(-10, 10))
+    axis.set(ylim=(0, ylim))
+    f1 = axis.fill_between([0, 10], y1=[ylim, ylim], alpha=0.3, facecolor=sns_configs.colors[-1], hatch="X", linewidth=0.0)
+    f2 = axis.fill_between([-10, 0], y1=[ylim, ylim], alpha=0.3, facecolor=sns_configs.colors[-2], hatch=".", linewidth=0.0)
+    axis.legend([f1, f2], ["EI", "Zest"])
+    fig = axis.get_figure()
+    fig.savefig(path)
+    fig.clf()
+
 
 def generate_corpus_exec_time(path: str, data: pd.DataFrame):
     bins = 20

@@ -50,9 +50,6 @@ def generate_tasks(base_path: str, mode: str):
                         yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Xmx16g\" ../bin/jqf-repro -i " + \
                         f"-c $({EXAMPLES_DIR}/../scripts/examples_classpath.sh) {DATASET_TEST_CLASS_MAPPING[dataset]} " + \
                         f"testWithGenerator {input_path} 2>/dev/null | grep \"^# Cov\" | sort | uniq > {output_path}"
-                        #  yield ["JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Xmx16g\"",
-                                #  "./jqf-repro", "-i", "-c", f"$({EXAMPLES_DIR}/../scripts/examples_classpath.sh)",
-                                #  f"{DATASET_TEST_CLASS_MAPPING[dataset]}", "testWithGenerator"]
 
 
 if __name__ == "__main__":

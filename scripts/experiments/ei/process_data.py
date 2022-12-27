@@ -46,6 +46,8 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                 all_avg = []
                 for idx in range(0, 10):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                    if not os.path.exists(folder):
+                        continue
                     result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
                         process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
                     all_avg.append(len(result))
@@ -137,23 +139,29 @@ def generate_perf_graph(data_dirs: List[str], algorithms: Set[str], out_folder: 
                     execution_time_data = load_processing_time_data(path)
                     corpus_based_plot_data.append(execution_time_data)
         corpus_based_plot_data = pd.concat(corpus_based_plot_data, ignore_index=True, sort=False)
-        generate_corpus_exec_time(os.path.join(out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
+        generate_corpus_exec_time(os.path.join(
+            out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
 
 
-def generate_graph(base_path: str, algorithms: Set[str], output_dir: str):
+def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
     for dataset in DATASET:
         time_based_plot_data = []
         count_based_plot_data = []
         for algorithm in algorithms:
+            if "mix" in algorithm:
+                continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
             for idx in range(0, 9):
-                path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
-                if not os.path.exists(path):
-                    break
-                time_based_data, count_based_data = process_plot_data(path)
-                time_based_data_per_algo.append(time_based_data)
-                count_based_data_per_algo.append(count_based_data)
+                for base_path in data_dirs:
+                    path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
+                    if not os.path.exists(path):
+                        break
+                    time_based_data, count_based_data = process_plot_data(path)
+                    if (time_based_data["# unix_time"].values[-1] < 4310):
+                        print(f"{dataset}-{algorithm}-{idx} ERROR!")
+                    time_based_data_per_algo.append(time_based_data)
+                    count_based_data_per_algo.append(count_based_data)
 
             time_based_plot_data.extend(time_based_data_per_algo)
             count_based_plot_data.extend(count_based_data_per_algo)
@@ -161,12 +169,31 @@ def generate_graph(base_path: str, algorithms: Set[str], output_dir: str):
             continue
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
-        time_based_plot_data = pd.concat(time_based_plot_data, ignore_index=True, sort=False)
-        generate_total_inputs_over_time(os.path.join(output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
+        time_based_plot_data = pd.concat(
+            time_based_plot_data, ignore_index=True, sort=False)
+        generate_total_inputs_over_time(os.path.join(
+            output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
-def visualize_cov_distribution(cov_data: Dict[str, Dict[str, List[Set[str]]]]):
-    pass
+def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, List[Set[str]]]]):
+    for dataset, algorithm_map in cov_data.items():
+        delta_map = {}
+        for algorithm, cov in algorithm_map.items():
+            if "mix" in algorithm:
+                continue
+            delta = 1
+            if "zest" in algorithm:
+                delta = -1
+            for run in cov:
+                for line in run:
+                    if line not in delta_map:
+                        delta_map[line] = 0
+                    delta_map[line] += delta
+        data = list(delta_map.values())
+        data = list(filter((0).__ne__, data))
+        generate_coverage_delta_hist(os.path.join(output_dir, dataset + "-delta-hist.pdf"),
+                                        pd.DataFrame(data))
+
 
 def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()
@@ -179,6 +206,7 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
+    algorithms.remove("mix")
     return algorithms
 
 

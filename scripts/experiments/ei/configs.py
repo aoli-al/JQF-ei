@@ -1,7 +1,8 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
-DATASET = ["rhino", "closure"]
-# DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
-ALGORITHM = ["zest-fast", "ei-fast", "ei-no-havoc"]
+# DATASET = ["rhino", "closure"]
+# DATASET = ["ant", "maven", "bcel", "rhino", "closure", "chacopy"]
+DATASET = ["chacopy"]
+ALGORITHM = ["zest-fast", "ei-fast"]
 #  ALGORITHM = ["ei-fast"]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
