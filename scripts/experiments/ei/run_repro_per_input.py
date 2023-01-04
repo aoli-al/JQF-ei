@@ -15,10 +15,10 @@ def call(args: List[str]):
     if isinstance(args, str):
         subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
     else:
-        subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.check_call(args, cwd=EXAMPLES_DIR)
 
 def run(path: str, task: str):
-    cpu = 1 if task == "perf" else 10
+    cpu = 1 if task == "perf" else 15
     with Pool(cpu) as pool:
         pool.map(call, generate_tasks(path, task))
 
@@ -39,20 +39,15 @@ def generate_tasks(base_path: str, mode: str):
                             "-Dmethod=testWithGenerator", f"-Dinput={corpus_dir}",
                             f"-DtraceDir={path}", "-DuseFastNonCollidingCoverageInstrumentation=true"]
                 else:
-                    output_dir = os.path.join(path, "corpus_coverage")
-                    if not os.path.exists(output_dir):
-                        os.mkdir(output_dir)
-                    for file_name in sorted(os.listdir(corpus_dir)):
-                        input_path = os.path.realpath(os.path.join(corpus_dir, file_name))
-                        output_path = os.path.realpath(os.path.join(output_dir, file_name + '.txt'))
-                        #  if os.path.exists(output_path):
-                            #  continue
-                        yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Xmx16g\" ../bin/jqf-repro -i " + \
-                        f"-c $({EXAMPLES_DIR}/../scripts/examples_classpath.sh) {DATASET_TEST_CLASS_MAPPING[dataset]} " + \
-                        f"testWithGenerator {input_path} 2>/dev/null | grep \"^# Cov\" | sort | uniq > {output_path}"
-                        #  yield ["JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Xmx16g\"",
-                                #  "./jqf-repro", "-i", "-c", f"$({EXAMPLES_DIR}/../scripts/examples_classpath.sh)",
-                                #  f"{DATASET_TEST_CLASS_MAPPING[dataset]}", "testWithGenerator"]
+                    yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
+                            f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
+                            f"{DATASET_TEST_CLASS_MAPPING[dataset]} testWithGenerator " + \
+                            f"{corpus_dir}/*"
+                    #  yield "-Djqf.repro.logUniqueBranches=true"
+                    #  yield ["mvn", "jqf:repro", "-Dengine=repro",
+                            #  f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
+                            #  "-Dmethod=testWithGenerator", f"-Dinput={corpus_dir}",
+                            #  f"-DtraceDir={path}", f"-DlogCoverage={corpus_dir}/../tmp.log"]
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 import re
 import sns_configs
+from find_interesting_inputs import build_corpus_map
 from matplotlib.patches import Patch
 
 
@@ -24,15 +25,49 @@ def log_scale_index(max: int) -> Iterator[int]:
 def name_converter(value: str) -> int:
     return int(value.split("_")[1])
 
+def build_corpus_time_map(path: str) -> Dict[str, int]:
+    pattern = re.compile(r"\[(\d+)\] Saved.*corpus/(id_\d+) .*")
+    mapping = {}
+    with open(os.path.join(path, "fuzz.log")) as f:
+        for line in f:
+            result = pattern.match(line)
+            if result:
+                mapping[result.group(2)] = int(result.group(1))
+    return mapping
+
+def name_to_time_mapping(corpus_map: Dict[str, str], value: str) -> int:
+    key = "id_" + value.split("_")[1]
+    return corpus_map[key] // 1000
+    # return int()
+
 
 def load_processing_time_data(path: str) -> pd.DataFrame:
-    data = pd.read_csv(os.path.join(path, "results.csv"), sep=",", names=["case", "result", "class", 'time'],
+    data = pd.read_csv(os.path.join(path, "results.csv"), sep=",", names=["case", "result", "class", "cov", 'time'],
                        converters={"case": name_converter}, skiprows=10)
     experiment_name = os.path.basename(path)
     algorithm = "-".join(experiment_name.split('-')[1:-2])
     algorithm = map_algorithm(algorithm)
     data['algorithm'] = [algorithm] * data.shape[0]
     return data
+
+
+def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
+    corpus_map = build_corpus_time_map(path)
+    data = pd.read_csv(os.path.join(path, "results.csv"), sep=",", names=["# unix_time", "result", "class", "all_covered_probes", 'time'],
+                       converters={"# unix_time": lambda v: name_to_time_mapping(corpus_map, v)})
+    data['# unix_time'] -= data["# unix_time"][0]
+    data['# unix_time'] //= 60 * 10
+    data = data.copy().drop_duplicates(
+        keep='last', subset=["# unix_time"])
+    data['# unix_time'] *= 10
+    data = data.set_index("# unix_time").reindex(indices).interpolate().reset_index()
+    return data
+
+
+
+
+
+
 
 def map_algorithm(algo: str) -> str:
     if algo == "mix":
@@ -75,6 +110,8 @@ def process_plot_data(path: str) -> pd.DataFrame:
     # count_based_data = count_based_data.set_index(x_axis).reindex(
     #     range(0, count_based_data[x_axis].max(), 50)).interpolate().reset_index()
     # count_based_data['algorithm'] = [algorithm] * count_based_data.shape[0]
+    cov_data = build_cov_data_over_time(path, time_based_data["# unix_time"].values.tolist())
+    time_based_data["all_covered_probes"] = cov_data["all_covered_probes"].values.tolist()
 
 
     return time_based_data, None

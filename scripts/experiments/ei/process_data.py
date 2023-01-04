@@ -156,7 +156,7 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
-                        break
+                        continue
                     time_based_data, count_based_data = process_plot_data(path)
                     if (time_based_data["# unix_time"].values[-1] < 4310):
                         print(f"{dataset}-{algorithm}-{idx} ERROR!")
@@ -171,8 +171,9 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             os.mkdir(output_dir)
         time_based_plot_data = pd.concat(
             time_based_plot_data, ignore_index=True, sort=False)
-        generate_total_inputs_over_time(os.path.join(
-            output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
+        # generate_total_inputs_over_time(os.path.join(
+        #     output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
+        print(dataset)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
 def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, List[Set[str]]]]):

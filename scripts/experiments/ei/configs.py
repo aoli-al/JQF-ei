@@ -1,7 +1,9 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
-# DATASET = ["ant", "maven", "bcel", "rhino", "closure", "chacopy"]
-DATASET = ["chacopy"]
+DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+# DATASET = ["bcel", "rhino", "closure"]
+# DATASET = ["rhino", "closure"]
+#  DATASET = ["chacopy"]
 ALGORITHM = ["zest-fast", "ei-fast"]
 #  ALGORITHM = ["ei-fast"]
 
