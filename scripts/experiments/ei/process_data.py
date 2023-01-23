@@ -11,6 +11,7 @@ from pytablewriter import LatexTableWriter
 from configs import *
 from functools import reduce
 from scipy import stats
+import cliffs_delta
 import json
 
 
@@ -67,12 +68,21 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
         [a, b] = cov_data[dataset].values()
         a = [len(x) for x in a]
         b = [len(x) for x in b]
-        print(f"ttest for {dataset}", stats.ttest_ind(a, b))
+        result = stats.ttest_ind(a, b)
+        avg_a = sum(a) / len(a)
+        avg_b = sum(b) / len(b)
+
+        cov_all_avg_data[-1].append("{:2.1f}%".format((avg_a - avg_b) / (avg_a) * 100))
+        cov_all_avg_data[-1].append(cliffs_delta.cliffs_delta(a, b)[0])
+        if result.pvalue < 0.01:
+            cov_all_avg_data[-1].append("<0.01".format(result.pvalue))
+        else:
+            cov_all_avg_data[-1].append("{:1.2f}".format(result.pvalue))
 
 
 
-        highlight_data(cov_all_table_data)
-        highlight_data(cov_all_avg_data)
+        # highlight_data(cov_all_table_data)
+        # highlight_data(cov_all_avg_data)
 
         only_union_data = [dataset]
         only_intersection_data = [dataset]
@@ -92,43 +102,43 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             only_intersection_data.append(len(only_intersection))
         cov_unique_union.append(only_union_data)
         cov_unique_intersection.append(only_intersection_data)
-        highlight_data(cov_unique_union)
-        highlight_data(cov_unique_intersection)
+        # highlight_data(cov_unique_union)
+        # highlight_data(cov_unique_intersection)
 
 
     print("Cov-All")
-    cov_summary = []
-    for idx in range(len(cov_all_table_data)):
-        cov_summary.append([*cov_all_table_data[idx], *cov_all_avg_data[idx][1:]])
+    # cov_summary = []
+    # for idx in range(len(cov_all_table_data)):
+    #     cov_summary.append([*cov_all_table_data[idx], *cov_all_avg_data[idx][1:]])
 
-    writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], *[map_algorithm(algo) for algo in algorithms]],
-        value_matrix = cov_summary
-    )
-    write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
+    # writer = TableWriter(
+    #     headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], *[map_algorithm(algo) for algo in algorithms]],
+    #     value_matrix = cov_summary
+    # )
+    # write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
 
     print("Cov-Avg")
     writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
+        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], "Improvement", "\sigma", "p"],
         value_matrix =cov_all_avg_data
     )
     write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
 
 
-    print("Cov-Unique-Union")
-    writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
-        value_matrix = cov_unique_union
-    )
-    write_table(writer, os.path.join(output_folder, "cov-unique-union-table.tex"))
+    # print("Cov-Unique-Union")
+    # writer = TableWriter(
+    #     headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
+    #     value_matrix = cov_unique_union
+    # )
+    # write_table(writer, os.path.join(output_folder, "cov-unique-union-table.tex"))
 
-    print("Cov-Unique-Intersection")
-    writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
-        value_matrix = cov_unique_intersection
-    )
-    write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
-    return cov_data
+    # print("Cov-Unique-Intersection")
+    # writer = TableWriter(
+    #     headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
+    #     value_matrix = cov_unique_intersection
+    # )
+    # write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
+    # return cov_data
 #
 
 
