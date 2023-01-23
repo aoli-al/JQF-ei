@@ -144,14 +144,19 @@ def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: 
                         hue_order=sorted(data['algorithm'].unique()), data=data)
     leg = axis.legend()
     leg_lines = leg.get_lines()
+    axis.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
     axis.lines[0].set_linestyle("--")
     leg_lines[0].set_linestyle("--")
     axis.lines[1].set_linestyle("-.")
     leg_lines[1].set_linestyle("-.")
-    if x_label:
+    if x_label and "closure" in path:
         axis.set(xlabel = x_label)
-    if y_label:
+    else:
+        axis.set(xlabel = None)
+    if y_label and "closure" in path:
         axis.set(ylabel = y_label)
+    else:
+        axis.set(ylabel = None)
     fig = axis.get_figure()
     fig.savefig(path, bbox_inches='tight', pad_inches=0.1)
     fig.clf()
@@ -179,11 +184,15 @@ def generate_coverage_delta_hist(path: str, data: pd.DataFrame):
     axis.set_xticklabels([10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10])
     axis.set(xlim=(-10, 10))
     axis.set(ylim=(0, ylim))
-    f1 = axis.fill_between([0, 10], y1=[ylim, ylim], alpha=0.3, facecolor=sns_configs.colors[-1], hatch="X", linewidth=0.0)
+    f1 = axis.fill_between([0, 10], y1=[ylim, ylim], alpha=0.3, facecolor=sns_configs.colors[-3], hatch="X", linewidth=0.0)
     f2 = axis.fill_between([-10, 0], y1=[ylim, ylim], alpha=0.3, facecolor=sns_configs.colors[-2], hatch=".", linewidth=0.0)
     axis.legend([f1, f2], ["EI", "Zest"])
+    if "closure" in path:
+        axis.set(ylabel = "# branches")
+    else:
+        axis.set(ylabel = None)
     fig = axis.get_figure()
-    fig.savefig(path)
+    fig.savefig(path, bbox_inches='tight')
     fig.clf()
 
 

@@ -10,6 +10,7 @@ from visualize import *
 from pytablewriter import LatexTableWriter
 from configs import *
 from functools import reduce
+from scipy import stats
 import json
 
 
@@ -60,8 +61,16 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
 
             data = cov_data[dataset][algorithm]
             cov_all_table_data[-1].append(len(set.union(*data)))
-            cov_all_avg_data[-1].append(reduce(lambda a,
-                                        b: a + len(b), data, 0) / len(data))
+            cov_all_avg_data[-1].append(int(reduce(lambda a,
+                                        b: a + len(b), data, 0) / len(data)))
+
+        [a, b] = cov_data[dataset].values()
+        a = [len(x) for x in a]
+        b = [len(x) for x in b]
+        print(f"ttest for {dataset}", stats.ttest_ind(a, b))
+
+
+
         highlight_data(cov_all_table_data)
         highlight_data(cov_all_avg_data)
 
@@ -88,9 +97,13 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
 
 
     print("Cov-All")
+    cov_summary = []
+    for idx in range(len(cov_all_table_data)):
+        cov_summary.append([*cov_all_table_data[idx], *cov_all_avg_data[idx][1:]])
+
     writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms]],
-        value_matrix = cov_all_table_data
+        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], *[map_algorithm(algo) for algo in algorithms]],
+        value_matrix = cov_summary
     )
     write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
 
@@ -121,9 +134,9 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
 
 def write_table(writer: TableWriter, path: str):
     result = writer.dumps()
-    result = result.replace("array", "tabular")
-    with open(path, "w") as f:
-        f.write(result)
+    # result = result.replace("array", "tabular")
+    # with open(path, "w") as f:
+    #     f.write(result)
     writer.write_table()
 
 
@@ -152,7 +165,7 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                 continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 9):
+            for idx in range(0, 10):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):

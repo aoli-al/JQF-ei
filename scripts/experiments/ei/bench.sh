@@ -52,7 +52,7 @@ screen -S "$SNAME" -X screen -t ei_$e
 screen -S "$SNAME" -X screen -t ei_no_havoc_$e
 # screen -S "$SNAME" -p ei_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_FAST_OUT_DIR^M"
 screen -S "$SNAME" -p zest_fast_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_ZEST -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $ZEST_FAST_OUT_DIR^M"
-screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
+# screen -S "$SNAME" -p mix_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_OUT_DIR^M"
 screen -S "$SNAME" -p ei_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR^M"
 
 

@@ -26,7 +26,7 @@ def run(path: str, task: str):
 def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
-            for idx in range(0, 10):
+            for idx in range(10, 20):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
                     break
