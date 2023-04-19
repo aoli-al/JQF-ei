@@ -329,11 +329,11 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     @Override
     protected List<String> checkSavingCriteriaSatisfied(Result result) {
         List<String> reasons = super.checkSavingCriteriaSatisfied(result);
-        if (HAVOC_PROBABILITY > 0 && !PERFORMANCE_GUIDANCE) {
-            if (!currentInput.desc.contains("havoc") && !currentInput.desc.contains("seed")) {
-                reasons.remove("+count");
-            }
-        }
+//        if (HAVOC_PROBABILITY > 0 && !PERFORMANCE_GUIDANCE) {
+//            if (!currentInput.desc.contains("havoc") && !currentInput.desc.contains("seed")) {
+//                reasons.remove("+count");
+//            }
+//        }
         return reasons;
     }
 
@@ -447,6 +447,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         /** A map from execution indexes to the byte (0-255) to be returned at that index. */
         protected LinkedHashMap<ExecutionIndex, Integer> valuesMap;
 
+        protected LinearInput linearInput;
+
         /**
          * A list of execution indexes that are actually requested by the test program when
          * executed with this input.
@@ -467,6 +469,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         public MappedInput() {
             super();
             valuesMap = new LinkedHashMap<>();
+            linearInput = new LinearInput();
         }
 
         /**
@@ -477,6 +480,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         public MappedInput(MappedInput toClone) {
             super(toClone);
             valuesMap = new LinkedHashMap<>(toClone.valuesMap);
+            linearInput = new LinearInput(toClone.linearInput);
         }
 
         /**
@@ -569,37 +573,39 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             if (val == null) {
                 InputPrefixMapping ipm;
 
-                // If we have an input prefix mapping for this execution index,
-                // then splice from the source input
-                if ((ipm = getInputPrefixMapping(key)) != null) {
-                    Prefix sourcePrefix = ipm.sourcePrefix;
-                    Suffix sourceSuffix = ipm.sourcePrefix.getEi().getSuffixOfPrefix(sourcePrefix);
-                    ExecutionIndex sourceEi = new ExecutionIndex(sourcePrefix, sourceSuffix);
-                    // The value can be taken from the source
-                    val = ipm.sourceInput.getValueAtKey(sourceEi);
-                }
+//                // If we have an input prefix mapping for this execution index,
+//                // then splice from the source input
+//                if ((ipm = getInputPrefixMapping(key)) != null) {
+//                    Prefix sourcePrefix = ipm.sourcePrefix;
+//                    Suffix sourceSuffix = ipm.sourcePrefix.getEi().getSuffixOfPrefix(sourcePrefix);
+//                    ExecutionIndex sourceEi = new ExecutionIndex(sourcePrefix, sourceSuffix);
+//                    // The value can be taken from the source
+//                    val = ipm.sourceInput.getValueAtKey(sourceEi);
+//                }
 
                 // If we could not splice or were unsuccessful, try to generate a new input
-                if (val == null) {
-                    if (GENERATE_EOF_WHEN_OUT) {
-                        return -1;
-                    }
-                    if (random.nextDouble() < DEMAND_DRIVEN_SPLICING_PROBABILITY) {
-                        // TODO: Find a random inputLocation with same EC,
-                        // extract common suffix of sourceEi and targetEi,
-                        // and map targetPrefix to sourcePrefix in the IPM
+                if (GENERATE_EOF_WHEN_OUT) {
+                    return -1;
+                }
+                if (random.nextDouble() < DEMAND_DRIVEN_SPLICING_PROBABILITY) {
+                    // TODO: Find a random inputLocation with same EC,
+                    // extract common suffix of sourceEi and targetEi,
+                    // and map targetPrefix to sourcePrefix in the IPM
 
 
-                    } else {
-                        // Just generate a random input
-                        val = random.nextInt(256);
-                    }
+                } else {
+                    // Just generate a random input
+//                    val = random.nextInt(256);
+                    val = linearInput.getOrGenerateFresh(orderedKeys.size(), random);
                 }
 
                 // Put the new value into the map
                 assert (val != null);
 
                 valuesMap.put(key, val);
+            } else {
+                linearInput.requested += 1;
+                linearInput.values.add(val);
             }
 
             // Mark this key as visited
@@ -727,30 +733,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
         private void fuzzInputHavoc(MappedInput newInput) {
             newInput.desc += ",havoc";
-
-            // Select a random offset and size
-            int offset = random.nextInt(newInput.valuesMap.size());
-            // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
-
-            newInput.desc += String.format("(%d)", offset);
-
-            boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
-            if (setToZero) {
-                newInput.desc += "=0";
-            }
-
-            // Iterate over all entries in the value map
-            Iterator<Map.Entry<ExecutionIndex, Integer>> entryIterator
-                    = newInput.valuesMap.entrySet().iterator();
-            for (int i = 0; entryIterator.hasNext(); i++) {
-                Map.Entry<ExecutionIndex, Integer> e = entryIterator.next();
-                if (i >= offset) {
-                    // infoLog("Mutating: %s", e.getKey());
-                    // Apply a random mutation
-                    int mutatedValue = setToZero ? 0 : random.nextInt(256);
-                    e.setValue(mutatedValue);
-                }
-            }
+            newInput.valuesMap.clear();
+            newInput.linearInput = (LinearInput) newInput.linearInput.fuzz(random);
         }
 
         private void fuzzInputRandom(MappedInput newInput) {
