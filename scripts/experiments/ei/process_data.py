@@ -65,7 +65,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
 
-        [a, b] = cov_data[dataset].values()
+        [a, b, *rst] = cov_data[dataset].values()
         a = [len(x) for x in a]
         b = [len(x) for x in b]
         result = stats.ttest_ind(a, b)
@@ -138,7 +138,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
     #     value_matrix = cov_unique_intersection
     # )
     # write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
-    # return cov_data
+    return cov_data
 #
 
 
@@ -205,6 +205,8 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
         for algorithm, cov in algorithm_map.items():
             if "mix" in algorithm:
                 continue
+            if "no-havoc" in algorithm:
+                continue
             delta = 1
             if "zest" in algorithm:
                 delta = -1
@@ -215,6 +217,7 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
                     delta_map[line] += delta
         data = list(delta_map.values())
         data = list(filter((0).__ne__, data))
+        print(len(data))
         generate_coverage_delta_hist(os.path.join(output_dir, dataset + "-delta-hist.pdf"),
                                         pd.DataFrame(data))
 
@@ -230,7 +233,9 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
-    algorithms.remove("mix")
+    algorithms.remove("ei-no-havoc")
+    if "mix" in algorithms:
+        algorithms.remove("mix")
     return algorithms
 
 
