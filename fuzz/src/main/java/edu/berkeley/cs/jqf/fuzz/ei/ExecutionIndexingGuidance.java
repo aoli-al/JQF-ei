@@ -329,11 +329,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     @Override
     protected List<String> checkSavingCriteriaSatisfied(Result result) {
         List<String> reasons = super.checkSavingCriteriaSatisfied(result);
-        if (HAVOC_PROBABILITY > 0 && !PERFORMANCE_GUIDANCE) {
-            if (!currentInput.desc.contains("havoc") && !currentInput.desc.contains("seed")) {
-                reasons.remove("+count");
-            }
-        }
         return reasons;
     }
 

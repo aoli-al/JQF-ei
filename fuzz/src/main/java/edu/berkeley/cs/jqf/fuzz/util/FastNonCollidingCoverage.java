@@ -123,7 +123,7 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
         this.counter.clear();
     }
 
-    private static int[] HOB_CACHE = new int[16];
+    private static int[] HOB_CACHE = new int[8];
 
     /* Computes the highest order bit */
     private static int computeHob(int num)
