@@ -26,10 +26,10 @@ def run(path: str, task: str):
 def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
-            for idx in range(10, 20):
+            for idx in range(5):
                 path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                 if not os.path.exists(path):
-                    break
+                    continue
                 corpus_dir = os.path.join(path, "corpus")
                 if mode == "perf":
                     if os.path.exists(os.path.join(path, "results.csv")):
