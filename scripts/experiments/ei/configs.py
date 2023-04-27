@@ -6,8 +6,10 @@ DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
 # DATASET = ["bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 #  DATASET = ["chacopy"]
-ALGORITHM = ["zest-fast", "ei-fast"]
+ALGORITHM = ["zest", "ei"]
 #  ALGORITHM = ["ei-fast"]
+
+GENERATOR = ['testWithGenerator', "testWithReversedGenerator"]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
 DATASET_TEST_CLASS_MAPPING = {
