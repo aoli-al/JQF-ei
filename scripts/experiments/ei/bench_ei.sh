@@ -22,6 +22,7 @@ TIME=$4
 DICT="$JQF_DIR/examples/target/test-classes/dictionaries/$5"
 SEEDS="$JQF_DIR/examples/target/seeds/$6"
 SEEDS_DIR=$(dirname "$SEEDS")
+METHOD=$7
 
 e=$IDX
 
@@ -46,7 +47,10 @@ SNAME="$NAME-$e"
 
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
 screen -S "$SNAME" -dm -t ei_$e
-screen -S "$SNAME" -p ei_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_OUT_DIR^M"
+screen -S "$SNAME" -p ei_$e -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $EI_OUT_DIR^M"
 
 
+# NO_HAVOC_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true -Djqf.ei.HAVOC_PROBABILITY=0.0\""
+# screen -S "$SNAME" -p mix_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_MIX $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $MIX_NO_HAVOC_OUT_DIR^M"
+# screen -S "$SNAME" -p ei_no_havoc_$e -X stuff "JVM_OPTS=$NO_HAVOC_ENV timeout $TIME $JQF_EI -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS testWithGenerator $EI_NO_HAVOC_OUT_DIR^M"
 
