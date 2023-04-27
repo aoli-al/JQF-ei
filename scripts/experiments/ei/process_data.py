@@ -198,8 +198,8 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             os.mkdir(output_dir)
         time_based_plot_data = pd.concat(
             time_based_plot_data, ignore_index=True, sort=False)
-        # generate_total_inputs_over_time(os.path.join(
-        #     output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
+        generate_total_inputs_over_time(os.path.join(
+            output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
         print(dataset)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
