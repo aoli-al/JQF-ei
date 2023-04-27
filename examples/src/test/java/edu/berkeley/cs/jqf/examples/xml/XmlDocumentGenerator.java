@@ -32,6 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import com.pholser.junit.quickcheck.generator.GenerationStatus;
 import com.pholser.junit.quickcheck.generator.Generator;
@@ -42,10 +43,7 @@ import edu.berkeley.cs.jqf.examples.common.AlphaStringGenerator;
 import edu.berkeley.cs.jqf.examples.common.Dictionary;
 import edu.berkeley.cs.jqf.examples.common.DictionaryBackedStringGenerator;
 import org.junit.Assume;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 /**
  * A generator for XML documents.
@@ -156,24 +154,33 @@ public class XmlDocumentGenerator extends Generator<Document> {
         // Add attributes
         int numAttributes = Math.max(0, geometricDistribution.sampleWithMean(MEAN_NUM_ATTRIBUTES, random)-1);
         for (int i = 0; i < numAttributes; i++) {
-            elem.setAttribute(makeString(random, status), makeString(random, status));
+            String a1 = makeString(random, status);
+            String a2 = makeString(random, status);
+            elem.setAttribute(a2, a1);
         }
         // Make children
+        ArrayList<Node> elems = new ArrayList<>();
         if (depth < minDepth || (depth < maxDepth && random.nextBoolean())) {
             int numChildren = Math.max(0, geometricDistribution.sampleWithMean(MEAN_NUM_CHILDREN, random)-1);
             for (int i = 0; i < numChildren; i++) {
                 Element child = document.createElement(makeString(random, status));
                 populateElement(document, child, random, status, depth+1);
-                elem.appendChild(child);
+//                elem.appendChild(child);
+                elems.add(0, child);
             }
         } else if (random.nextBoolean()) {
             // Add text
             Text text = document.createTextNode(makeString(random, status));
-            elem.appendChild(text);
+//            elem.appendChild(text);
+            elems.add(0, text);
         } else if (random.nextBoolean()) {
             // Add text as CDATA
             Text text = document.createCDATASection(makeString(random, status));
-            elem.appendChild(text);
+//            elem.appendChild(text);
+            elems.add(text);
+        }
+        for (Node node : elems) {
+            elem.appendChild(node);
         }
     }
 }

@@ -41,8 +41,7 @@ import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.log;
+import static java.lang.Math.*;
 
 /**
  * @author Rohan Padhye
@@ -94,7 +93,7 @@ public class JavaScriptCodeGenerator extends Generator<String> {
         int len = sampleGeometric(random, mean);
         List<T> items = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
-            items.add(generator.apply(random));
+            items.add(0, generator.apply(random));
         }
         return items;
     }
@@ -155,8 +154,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
 
     private String generateBinaryNode(SourceOfRandomness random) {
         String token = random.choose(BINARY_TOKENS);
-        String lhs = generateExpression(random);
         String rhs = generateExpression(random);
+        String lhs = generateExpression(random);
 
         return lhs + " " + token + " " + rhs;
     }
@@ -174,8 +173,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCallNode(SourceOfRandomness random) {
-        String func = generateExpression(random);
         String args = String.join(",", generateItems(this::generateExpression, random, 3));
+        String func = generateExpression(random);
 
         String call = func + "(" + args + ")";
         if (random.nextBoolean()) {
@@ -186,7 +185,9 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCaseNode(SourceOfRandomness random) {
-        return "case " + generateExpression(random) + ": " +  generateBlock(random);
+        String block = generateBlock(random);
+        String expr = generateExpression(random);
+        return "case " + expr + ": " +  block;
     }
 
     private String generateCatchNode(SourceOfRandomness random) {
