@@ -62,6 +62,10 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
 
             data = cov_data[dataset][algorithm]
             cov_all_table_data[-1].append(len(set.union(*data)))
+            # print(dataset)
+            # print(algorithm)
+            # for b in data:
+            #     print(len(b))
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
 
@@ -233,7 +237,7 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
-    algorithms.remove("ei-no-havoc")
+    # algorithms.remove("ei-no-havoc")
     if "mix" in algorithms:
         algorithms.remove("mix")
     return algorithms
