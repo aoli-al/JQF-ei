@@ -27,10 +27,8 @@ METHOD=$7
 e=$IDX
 
 EI_NO_HAVOC_OUT_DIR="$NAME-ei-no-havoc-results-$e"
-EI_OUT_DIR="$NAME-ei-fast-results-$e"
-MIX_OUT_DIR="$NAME-mix-results-$e"
-MIX_NO_HAVOC_OUT_DIR="$NAME-mix-no-havoc-results-$e"
-ZEST_FAST_OUT_DIR="$NAME-zest-fast-results-$e"
+EI_OUT_DIR="$NAME-ei-$METHOD-results-$e"
+ZEST_FAST_OUT_DIR="$NAME-zest-$METHOD-results-$e"
 
 if [ -d "$JQF_OUT_DIR" ]; then
   echo "Error! There is already a directory by the name of $JQF_OUT_DIR"
