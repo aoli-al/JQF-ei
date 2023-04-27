@@ -27,18 +27,13 @@ e=$IDX
 
 OUT_DIR="$NAME-$ALGO-$METHOD-results-$e"
 
-if [ -d "$OUT_DIR" ]; then
-  echo "Error! There is already a directory by the name of $OUT_DIR"
-  exit 3
-fi
-
 # Do not let GC mess with fuzzing
 export JVM_OPTS="$JVM_OPTS -XX:-UseGCOverheadLimit -Xmx20g"
 
 
 SNAME="$NAME-$e"
 
-SCREEN_SESSION_NAME=$ALGO_$METHOD_$e
+SCREEN_SESSION_NAME=$ALGO\_$METHOD\_$e
 
 
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
