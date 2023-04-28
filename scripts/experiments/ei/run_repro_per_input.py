@@ -18,7 +18,7 @@ def call(args: List[str]):
         subprocess.check_call(args, cwd=EXAMPLES_DIR)
 
 def run(path: str, task: str):
-    cpu = 1 if task == "perf" else 15
+    cpu = 1 if task == "perf" else 20
     with Pool(cpu) as pool:
         pool.map(call, generate_tasks(path, task))
 
@@ -42,7 +42,7 @@ def generate_tasks(base_path: str, mode: str):
                     else:
                         yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
                                 f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
-                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} testWithGenerator " + \
+                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
                                 f"{corpus_dir}/* 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
                     #  yield "-Djqf.repro.logUniqueBranches=true"
                     #  yield ["mvn", "jqf:repro", "-Dengine=repro",
