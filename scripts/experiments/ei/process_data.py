@@ -30,8 +30,6 @@ def highlight_data(data):
 def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> Dict[str, Dict[str, List[Set[str]]]]:
     cov_all_table_data = []
     cov_all_avg_data = []
-    cov_unique_union = []
-    cov_unique_intersection = []
     cov_data = {}
     out_folder = os.path.join(paths[0], "processed")
     if not os.path.exists(out_folder):
@@ -69,45 +67,24 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
 
-        [a, b, *rst] = cov_data[dataset].values()
-        a = [len(x) for x in a]
-        b = [len(x) for x in b]
-        result = stats.ttest_ind(a, b)
-        avg_a = sum(a) / len(a)
-        avg_b = sum(b) / len(b)
 
-        cov_all_avg_data[-1].append("{:2.1f}%".format((avg_a - avg_b) / (avg_a) * 100))
-        cov_all_avg_data[-1].append(cliffs_delta.cliffs_delta(a, b)[0])
-        if result.pvalue < 0.01:
-            cov_all_avg_data[-1].append("<0.01".format(result.pvalue))
-        else:
-            cov_all_avg_data[-1].append("{:1.2f}".format(result.pvalue))
+        # Print statistical results
+        # [a, b, *rst] = cov_data[dataset].values()
+        # a = [len(x) for x in a]
+        # b = [len(x) for x in b]
+        # result = stats.ttest_ind(a, b)
+        # avg_a = sum(a) / len(a)
+        # avg_b = sum(b) / len(b)
+
+        # cov_all_avg_data[-1].append("{:2.1f}%".format((avg_a - avg_b) / (avg_a) * 100))
+        # cov_all_avg_data[-1].append(cliffs_delta.cliffs_delta(a, b)[0])
+        # if result.pvalue < 0.01:
+        #     cov_all_avg_data[-1].append("<0.01".format(result.pvalue))
+        # else:
+        #     cov_all_avg_data[-1].append("{:1.2f}".format(result.pvalue))
 
 
 
-        # highlight_data(cov_all_table_data)
-        # highlight_data(cov_all_avg_data)
-
-        only_union_data = [dataset]
-        only_intersection_data = [dataset]
-        for algorithm in algorithms:
-            if "mix" in algorithm or "ei" in algorithm:
-                other_key = "zest-fast"
-            else:
-                # if "mix" in algorithms:
-                # other_key = "mix"
-                # else:
-                other_key = "ei-fast"
-            only_union = cov_all_union[algorithm] - cov_all_union[other_key]
-            only_intersection = cov_all_intersection[algorithm] - cov_all_intersection[other_key]
-            write_cov_data(only_union, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-union.txt"))
-            write_cov_data(only_intersection, os.path.join(out_folder, f"{dataset}-only-{algorithm}-cov-intersection.txt"))
-            only_union_data.append(len(only_union))
-            only_intersection_data.append(len(only_intersection))
-        cov_unique_union.append(only_union_data)
-        cov_unique_intersection.append(only_intersection_data)
-        # highlight_data(cov_unique_union)
-        # highlight_data(cov_unique_intersection)
 
 
     print("Cov-All")
