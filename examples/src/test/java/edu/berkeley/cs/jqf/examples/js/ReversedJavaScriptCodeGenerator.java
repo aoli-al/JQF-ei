@@ -41,6 +41,7 @@ import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 
+import static edu.berkeley.cs.jqf.examples.js.JavaScriptCodeGenerator.*;
 import static java.lang.Math.*;
 
 /**
@@ -53,9 +54,6 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
 
     private GenerationStatus status;
 
-    private static final int MAX_IDENTIFIERS = 100;
-    private static final int MAX_EXPRESSION_DEPTH = 10;
-    private static final int MAX_STATEMENT_DEPTH = 6;
     private static Set<String> identifiers;
     private int statementDepth;
     private int expressionDepth;
