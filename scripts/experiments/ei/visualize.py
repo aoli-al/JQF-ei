@@ -72,10 +72,14 @@ def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
 def map_algorithm(algo: str) -> str:
     if algo == "mix":
         return "Mix"
-    if algo == "zest-fast":
+    if algo == "zest-fast" or algo == "zest-testWithGenerator":
         return "Zest"
-    if algo == "ei-fast":
+    if algo == "zest-testWithReversedGenerator":
+        return "Zest-Rev"
+    if algo == "ei-fast" or algo == "ei-testWithGenerator":
         return "EI"
+    if algo == "ei-testWithReversedGenerator":
+        return "EI-Rev"
     if algo == "ei-no-havoc":
         return "EI-No-Havoc"
     if algo == "mix-no-havoc":

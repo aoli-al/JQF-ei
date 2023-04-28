@@ -188,6 +188,8 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
                 continue
             if "no-havoc" in algorithm:
                 continue
+            if "Reversed" in algorithm:
+                continue
             delta = 1
             if "zest" in algorithm:
                 delta = -1
