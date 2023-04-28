@@ -10,6 +10,7 @@ ALGORITHM = ["zest", "ei"]
 #  ALGORITHM = ["ei-fast"]
 
 GENERATOR = ['testWithGenerator', "testWithReversedGenerator"]
+GENERATOR = ['no-havoc']
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
 DATASET_TEST_CLASS_MAPPING = {

@@ -214,7 +214,8 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
-    # algorithms.remove("ei-no-havoc")
+    # if "ei-no-havoc" in algorithms:
+    #     algorithms.remove("ei-no-havoc")
     if "mix" in algorithms:
         algorithms.remove("mix")
     return algorithms

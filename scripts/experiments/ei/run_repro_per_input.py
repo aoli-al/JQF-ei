@@ -27,7 +27,7 @@ def generate_tasks(base_path: str, mode: str):
     for dataset in DATASET:
         for algorithm in ALGORITHM:
             for generator in GENERATOR:
-                for idx in range(5):
+                for idx in range(1, 10):
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-{generator}-results-{idx}")
                     if not os.path.exists(path):
                         continue
@@ -42,7 +42,7 @@ def generate_tasks(base_path: str, mode: str):
                     else:
                         yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
                                 f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
-                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
+                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} testWithGenerator " + \
                                 f"{corpus_dir}/* 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
                     #  yield "-Djqf.repro.logUniqueBranches=true"
                     #  yield ["mvn", "jqf:repro", "-Dengine=repro",
