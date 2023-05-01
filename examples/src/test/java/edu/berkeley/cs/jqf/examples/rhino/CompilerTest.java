@@ -37,7 +37,8 @@ import java.nio.charset.StandardCharsets;
 import com.pholser.junit.quickcheck.From;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 import edu.berkeley.cs.jqf.examples.js.JavaScriptCodeGenerator;
-import edu.berkeley.cs.jqf.examples.js.ReversedJavaScriptCodeGenerator;
+import edu.berkeley.cs.jqf.examples.js.LargeReversedJSCodeGenerator;
+import edu.berkeley.cs.jqf.examples.js.SmallReversedJSCodeGenerator;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import org.apache.commons.io.IOUtils;
@@ -109,12 +110,17 @@ public class CompilerTest {
     }
 
     @Fuzz
-    public void testWithReversedGenerator(@From(ReversedJavaScriptCodeGenerator.class) String code) {
+    public void testWithSmallReversedGenerator(@From(SmallReversedJSCodeGenerator.class) String code) {
         testWithString(code);
     }
 
     @Fuzz
-    public void debugWithGenerator(@From(ReversedJavaScriptCodeGenerator.class) String code) {
+    public void testWithLargeReversedGenerator(@From(LargeReversedJSCodeGenerator.class) String code) {
+        testWithString(code);
+    }
+
+    @Fuzz
+    public void debugWithGenerator(@From(SmallReversedJSCodeGenerator.class) String code) {
         debugWithString(code);
     }
 

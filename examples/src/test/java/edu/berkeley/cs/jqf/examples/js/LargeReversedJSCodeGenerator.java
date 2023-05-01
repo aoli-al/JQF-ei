@@ -41,21 +41,19 @@ import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 
+import static edu.berkeley.cs.jqf.examples.js.JavaScriptCodeGenerator.*;
 import static java.lang.Math.*;
 
 /**
  * @author Rohan Padhye
  */
-public class ReversedJavaScriptCodeGenerator extends Generator<String> {
-    public ReversedJavaScriptCodeGenerator() {
+public class LargeReversedJSCodeGenerator extends Generator<String> {
+    public LargeReversedJSCodeGenerator() {
         super(String.class);
     }
 
     private GenerationStatus status;
 
-    private static final int MAX_IDENTIFIERS = 100;
-    private static final int MAX_EXPRESSION_DEPTH = 10;
-    private static final int MAX_STATEMENT_DEPTH = 6;
     private static Set<String> identifiers;
     private int statementDepth;
     private int expressionDepth;
@@ -153,8 +151,8 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
 
 
     private String generateBinaryNode(SourceOfRandomness random) {
-        String token = random.choose(BINARY_TOKENS);
         String rhs = generateExpression(random);
+        String token = random.choose(BINARY_TOKENS);
         String lhs = generateExpression(random);
 
         return lhs + " " + token + " " + rhs;
@@ -191,8 +189,9 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCatchNode(SourceOfRandomness random) {
-        return "catch (" + generateIdentNode(random) + ") " +
-                generateBlock(random);
+        String block = generateBlock(random);
+        String iden = generateIdentNode(random);
+        return "catch (" + iden + ") " + block;
     }
 
     private String generateContinueNode(SourceOfRandomness random) {
@@ -208,38 +207,49 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateForNode(SourceOfRandomness random) {
-        String s = "for(";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        String block = generateBlock(random);
+        boolean hasExit = random.nextBoolean();
+        String exit = "";
+        if (hasExit) {
+            exit = generateExpression(random);
         }
-        s += ";";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        String update = "";
+        boolean hasUpdate = random.nextBoolean();
+        if (hasUpdate) {
+            update = generateExpression(random);
         }
-        s += ";";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        boolean hasInit = random.nextBoolean();
+        String init = "";
+        if (hasInit) {
+            init = generateExpression(random);
         }
-        s += ")";
-        s += generateBlock(random);
+
+        String s = "for(" + init + ";" + update + ";" + exit + ")" + block;
         return s;
     }
 
     private String generateFunctionNode(SourceOfRandomness random) {
-        return "function(" + String.join(", ", generateItems(this::generateIdentNode, random, 5)) + ")" + generateBlock(random);
+        String block = generateBlock(random);
+        String params = String.join(", ", generateItems(this::generateIdentNode, random, 5));
+        return "function(" + params + ")" + block;
     }
 
     private String generateNamedFunctionNode(SourceOfRandomness random) {
-        return "function " + generateIdentNode(random) + "(" + String.join(", ", generateItems(this::generateIdentNode, random, 5)) + ")" + generateBlock(random);
+        String block = generateBlock(random);
+        String params = String.join(", ", generateItems(this::generateIdentNode, random, 5));
+        String name = generateIdentNode(random);
+        return "function " + name + "(" + params + ")" + block;
     }
 
     private String generateArrowFunctionNode(SourceOfRandomness random) {
-        String params = "(" + String.join(", ", generateItems(this::generateIdentNode, random, 3)) + ")";
+        String impl;
         if (random.nextBoolean()) {
-            return params + " => " + generateBlock(random);
+            impl = generateBlock(random);
         } else {
-            return params + " => " + generateExpression(random);
+            impl = generateExpression(random);
         }
+        String params = "(" + String.join(", ", generateItems(this::generateIdentNode, random, 3)) + ")";
+        return params + " => " + impl;
 
     }
 
@@ -257,18 +267,22 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateIfNode(SourceOfRandomness random) {
-        return "if (" +
-                generateExpression(random) + ") " +
-                generateBlock(random) +
-                (random.nextBoolean() ? " else " + generateBlock(random) : "");
+        String elseBlock = (random.nextBoolean() ? " else " + generateBlock(random) : "");
+        String block = generateBlock(random);
+        String expr = generateExpression(random);
+        return "if (" + expr + ") " + block + elseBlock;
     }
 
     private String generateIndexNode(SourceOfRandomness random) {
-        return generateExpression(random) + "[" + generateExpression(random) + "]";
+        String index = generateExpression(random);
+        String obj = generateExpression(random);
+        return obj + "[" + index + "]";
     }
 
     private String generateObjectProperty(SourceOfRandomness random) {
-        return generateIdentNode(random) + ": " + generateExpression(random);
+        String prop = generateExpression(random);
+        String obj = generateIdentNode(random);
+        return obj + ": " + prop;
     }
 
     private String generateLiteralNode(SourceOfRandomness random) {
@@ -294,7 +308,9 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generatePropertyNode(SourceOfRandomness random) {
-        return generateExpression(random) + "." + generateIdentNode(random);
+        String prop = generateIdentNode(random);
+        String obj = generateExpression(random);
+        return  obj + "." + prop;
     }
 
     private String generateReturnNode(SourceOfRandomness random) {
@@ -302,13 +318,18 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateSwitchNode(SourceOfRandomness random) {
-        return "switch(" + generateExpression(random) + ") {"
-                + String.join(" ", generateItems(this::generateCaseNode, random, 2)) + "}";
+        String conds = String.join(" ", generateItems(this::generateCaseNode, random, 2));
+        String expr = generateExpression(random);
+
+        return "switch(" + expr + ") {"
+                + conds + "}";
     }
 
     private String generateTernaryNode(SourceOfRandomness random) {
-        return generateExpression(random) + " ? " + generateExpression(random) +
-                " : " + generateExpression(random);
+        String cond2 = generateExpression(random);
+        String cond1 = generateExpression(random);
+        String expr = generateExpression(random);
+        return  expr + " ? " + cond1 + " : " + cond2;
     }
 
     private String generateThrowNode(SourceOfRandomness random) {
@@ -316,12 +337,15 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateTryNode(SourceOfRandomness random) {
-        return "try " + generateBlock(random) + generateCatchNode(random);
+        String catchBlock = generateCatchNode(random);
+        String tryBlock = generateBlock(random);
+        return "try " + tryBlock + catchBlock;
     }
 
     private String generateUnaryNode(SourceOfRandomness random) {
+        String expr = generateExpression(random);
         String token = random.choose(UNARY_TOKENS);
-        return token + " " + generateExpression(random);
+        return token + " " + expr;
     }
 
     private String generateVarNode(SourceOfRandomness random) {
@@ -329,6 +353,8 @@ public class ReversedJavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateWhileNode(SourceOfRandomness random) {
-        return "while (" + generateExpression(random) + ")" + generateBlock(random);
+        String expr = generateExpression(random);
+        String block = generateBlock(random);
+        return "while (" + expr + ")" + block;
     }
 }
