@@ -47,8 +47,8 @@ import static java.lang.Math.*;
 /**
  * @author Rohan Padhye
  */
-public class ReversedJavaScriptCodeGenerator extends Generator<String> {
-    public ReversedJavaScriptCodeGenerator() {
+public class LargeReversedJSCodeGenerator extends Generator<String> {
+    public LargeReversedJSCodeGenerator() {
         super(String.class);
     }
 
