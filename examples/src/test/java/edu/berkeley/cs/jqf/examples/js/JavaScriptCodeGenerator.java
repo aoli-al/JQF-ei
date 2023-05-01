@@ -27,8 +27,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     private GenerationStatus status;
 
     public static final int MAX_IDENTIFIERS = 100;
-    public static final int MAX_EXPRESSION_DEPTH = 15;
-    public static final int MAX_STATEMENT_DEPTH = 10;
+    public static final int MAX_EXPRESSION_DEPTH = 10;
+    public static final int MAX_STATEMENT_DEPTH = 6;
     private static Set<String> identifiers;
     private int statementDepth;
     private int expressionDepth;
