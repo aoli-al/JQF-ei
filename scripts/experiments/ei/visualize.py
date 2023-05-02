@@ -74,12 +74,16 @@ def map_algorithm(algo: str) -> str:
         return "Mix"
     if algo == "zest-fast" or algo == "zest-testWithGenerator":
         return "Zest"
-    if algo == "zest-testWithReversedGenerator":
+    if algo == "zest-testWithSmallReversedGenerator":
         return "Zest-Rev"
+    if algo == "zest-testWithLargeReversedGenerator":
+        return "Zest-LRev"
     if algo == "ei-fast" or algo == "ei-testWithGenerator":
         return "EI"
-    if algo == "ei-testWithReversedGenerator":
+    if algo == "ei-testWithSmallReversedGenerator":
         return "EI-Rev"
+    if algo == "ei-testWithLargeReversedGenerator":
+        return "EI-LRev"
     if algo == "ei-no-havoc":
         return "EI-No-Havoc"
     if algo == "mix-no-havoc":
