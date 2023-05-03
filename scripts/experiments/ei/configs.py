@@ -9,7 +9,11 @@ DATASET = ["rhino", "closure"]
 ALGORITHM = ["zest", "ei", "ei-no-havoc"]
 #  ALGORITHM = ["ei-fast"]
 
-GENERATOR = ['testWithGenerator', "testWithReversedGenerator"]
+GENERATOR = [
+    'testWithGenerator', 
+    "testWithSmallReversedGenerator",
+    "testWithLargeReversedGenerator",
+]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
 DATASET_TEST_CLASS_MAPPING = {
