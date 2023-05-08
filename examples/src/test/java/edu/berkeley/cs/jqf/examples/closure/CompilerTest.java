@@ -117,6 +117,8 @@ public class CompilerTest {
 
     @Fuzz
     public void testWithLargeReversedGenerator(@From(LargeReversedJSCodeGenerator.class) String code) {
+
+
         testWithString(code);
     }
 
