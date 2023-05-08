@@ -1,16 +1,18 @@
 package edu.berkeley.cs.jqf.fuzz.repro;
 
 import com.influxdb.client.*;
-import com.influxdb.client.domain.Bucket;
-import com.influxdb.client.domain.Buckets;
-import com.influxdb.client.domain.Organization;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import edu.berkeley.cs.jqf.fuzz.junit.GuidedFuzzing;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,12 +29,13 @@ public class ReproReporter {
     String fuzzer;
     String repetition;
     String token;
-    String orgId;
-    String bucketName;
+    String username;
+    String password;
     String experiment;
     String dbLocation;
     String orgName;
     Instant startTime;
+    Connection connection;
 
     WatchService watcher;
     Map<WatchKey, Path> keys = new HashMap<>();
@@ -45,8 +48,7 @@ public class ReproReporter {
         System.out.println("Start monitoring: " + p.normalize());
     }
 
-    public void processEvents() throws IOException, ClassNotFoundException {
-        WriteApi writeApi = influxDBClient.makeWriteApi(WriteOptions.builder().flushInterval(1_000).build());
+    public void processEvents() throws IOException, ClassNotFoundException, SQLException {
         // Run the Junit test
         for (;;) {
             WatchKey key;
@@ -76,15 +78,18 @@ public class ReproReporter {
                 Instant now = Instant.now();
                 allBranchCovered.addAll(newCoverage);
                 if (newCoverage.size() != 0) {
-                    Point p = Point.measurement("coverage")
-                            .addTag("testClassName", testClassName)
-                            .addTag("testMethodName", testMethodName)
-                            .addTag("fuzzer", fuzzer)
-                            .addTag("repetition", repetition)
-                            .addTag("experiment", experiment)
-                            .addField("total", allBranchCovered.size())
-                            .time(now.toEpochMilli() - startTime.toEpochMilli(), WritePrecision.MS);
-                    writeApi.writePoint(bucketName, orgName, p);
+                    List<String> data = Arrays.asList(testClassName, testMethodName, fuzzer, repetition, experiment,
+                            String.valueOf(allBranchCovered.size()),
+                            String.valueOf(now.toEpochMilli() - startTime.toEpochMilli())).stream().map(
+                                    it -> "'" + it +"'"
+                    ).collect(Collectors.toList());
+                    Statement stmt = connection.createStatement();
+                    String sql = "insert into ei_results (\"CLASS_NAME\", \"METHOD_NAME\", \"FUZZER\", " +
+                            "\"REPETITION\", " +
+                            "\"EXPERIMENT\", " +
+                            "\"TOTAL\", \"TIME\") VALUES(" + String.join(",", data) +  ")";
+                    System.out.println(sql);
+                    stmt.executeUpdate(sql);
                 }
             }
             boolean valid = key.reset();
@@ -95,7 +100,7 @@ public class ReproReporter {
     }
 
     InfluxDBClient influxDBClient;
-    public ReproReporter(String args[]) throws IOException {
+    public ReproReporter(String args[]) throws IOException, ClassNotFoundException, SQLException {
         testClassName  = args[0];
         testMethodName = args[1];
         fuzzer = args[2];
@@ -104,17 +109,11 @@ public class ReproReporter {
 
 
         dbLocation = args[6];
-        orgId = args[7];
-        bucketName = args[8];
-        token = args[9];
+        username = args[7];
+        password = args[8];
 
-        influxDBClient = InfluxDBClientFactory.create(dbLocation, token.toCharArray());
-        orgName = influxDBClient.getOrganizationsApi().findOrganizationByID(orgId).getName();
-        Bucket bucket = influxDBClient.getBucketsApi().findBucketByName(bucketName);
-        if (bucket == null) {
-            bucket = influxDBClient.getBucketsApi().createBucket(bucketName, orgId);
-        }
-        bucketName = bucket.getName();
+        Class.forName("org.postgresql.Driver");
+        connection = DriverManager.getConnection(dbLocation, username, password);
 
 
         watcher = FileSystems.getDefault().newWatchService();
@@ -123,7 +122,7 @@ public class ReproReporter {
         register(args[5] + "/corpus");
     }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
         if (args.length < 3) {
             System.err.println("Usage: java " + ReproReporter.class + " TEST_CLASS TEST_METHOD FUZZER " +
                     "APPLICATION REPETITION TOKEN ORG BUCKET SEED_FOLDER");

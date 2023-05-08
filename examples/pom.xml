@@ -156,6 +156,11 @@
             <version>1.18</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 
     <build>
