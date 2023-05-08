@@ -73,22 +73,19 @@ public class ReproReporter {
                 Set<String> newCoverage = guidance.getBranchesCovered();
                 System.out.println("New covered: " + newCoverage.size());
                 newCoverage.removeAll(allBranchCovered);
-                allBranchCovered.addAll(newCoverage);
                 Instant now = Instant.now();
-
-                List<Point> points = newCoverage.stream().map(s -> Point.measurement("coverage")
-                        .addTag("testClassName", testClassName)
-                        .addTag("testMethodName", testMethodName)
-                        .addTag("fuzzer", fuzzer)
-                        .addTag("repetition", repetition)
-                        .addTag("experiment", experiment)
-                        .addTag("covered", s)
-                        .addField("value", 1)
-                        .time(now.toEpochMilli() - startTime.toEpochMilli(), WritePrecision.MS)
-//                        .time(now.toEpochMilli(), WritePrecision.MS)
-                ).collect(Collectors.toList());
-                System.out.println("Total covered: " + allBranchCovered.size());
-                writeApi.writePoints(bucketName, orgName, points);
+                allBranchCovered.addAll(newCoverage);
+                if (newCoverage.size() != 0) {
+                    Point p = Point.measurement("coverage")
+                            .addTag("testClassName", testClassName)
+                            .addTag("testMethodName", testMethodName)
+                            .addTag("fuzzer", fuzzer)
+                            .addTag("repetition", repetition)
+                            .addTag("experiment", experiment)
+                            .addField("total", allBranchCovered.size())
+                            .time(now.toEpochMilli() - startTime.toEpochMilli(), WritePrecision.MS);
+                    writeApi.writePoint(bucketName, orgName, p);
+                }
             }
             boolean valid = key.reset();
             if (!valid) {
