@@ -46,6 +46,7 @@ if [ -z "$instrument" ]; then
   export JQF_DISABLE_INSTRUMENTATION=1
 fi
 
+export JVM_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 $JVM_OPTS"
 
 # Run the repro input driver
 $ROOT_DIR/scripts/jqf-driver.sh edu.berkeley.cs.jqf.fuzz.repro.ReproReporter $@

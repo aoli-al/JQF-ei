@@ -29,12 +29,15 @@
 package edu.berkeley.cs.jqf.fuzz.junit;
 
 import java.io.PrintStream;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import edu.berkeley.cs.jqf.fuzz.guidance.Guidance;
 import edu.berkeley.cs.jqf.fuzz.junit.listeners.ExecutionTimeReporter;
 import edu.berkeley.cs.jqf.instrument.tracing.SingleSnoop;
 import edu.berkeley.cs.jqf.instrument.tracing.TraceLogger;
+import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;

@@ -1,22 +1,22 @@
 package edu.berkeley.cs.jqf.fuzz.repro;
 
 import com.influxdb.client.*;
+import com.influxdb.client.domain.Bucket;
+import com.influxdb.client.domain.Buckets;
+import com.influxdb.client.domain.Organization;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import com.influxdb.client.write.events.WriteErrorEvent;
-import com.influxdb.client.write.events.WriteSuccessEvent;
 import edu.berkeley.cs.jqf.fuzz.junit.GuidedFuzzing;
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.sql.Time;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
@@ -27,9 +27,11 @@ public class ReproReporter {
     String fuzzer;
     String repetition;
     String token;
-    String org;
-    String bucket;
+    String orgId;
+    String bucketName;
     String experiment;
+    String dbLocation;
+    String orgName;
     Instant startTime;
 
     WatchService watcher;
@@ -45,9 +47,7 @@ public class ReproReporter {
 
     public void processEvents() throws IOException, ClassNotFoundException {
         WriteApi writeApi = influxDBClient.makeWriteApi(WriteOptions.builder().flushInterval(1_000).build());
-        writeApi.listenEvents(WriteSuccessEvent.class, (value) -> System.out.println("Success"));
-        writeApi.listenEvents(WriteErrorEvent.class, (value) -> System.out.println(value.toString()));
-//        WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
+        // Run the Junit test
         for (;;) {
             WatchKey key;
             try {
@@ -66,28 +66,29 @@ public class ReproReporter {
                 Path fullPath = dir.resolve(name);
 
                 ReproGuidance guidance = new ReproGuidance(fullPath.toFile(), null);
-                System.out.println("New input found: " + name.getFileName());
+                GuidedFuzzing.unsetGuidance();
+                GuidedFuzzing.run(testClassName, testMethodName, guidance, null);
 
-                // Run the Junit test
-                GuidedFuzzing.run(testClassName, testMethodName, guidance, System.out);
-                System.out.println("Run finished!!!");
 
                 Set<String> newCoverage = guidance.getBranchesCovered();
+                System.out.println("New covered: " + newCoverage.size());
                 newCoverage.removeAll(allBranchCovered);
                 allBranchCovered.addAll(newCoverage);
+                Instant now = Instant.now();
 
-                for (String s : newCoverage) {
-                    Point point = Point.measurement("coverage")
-                            .addTag("testClassName", testClassName)
-                            .addTag("testMethodName", testMethodName)
-                            .addTag("fuzzer", fuzzer)
-                            .addTag("repetition", repetition)
-                            .addTag("experiment", experiment)
-                            .addField("covered", s)
-                            .time(Instant.now().toEpochMilli() - startTime.toEpochMilli(), WritePrecision.MS);
-//                            .time(Instant.now(), WritePrecision.MS);
-                    writeApi.writePoint(point);
-                }
+                List<Point> points = newCoverage.stream().map(s -> Point.measurement("coverage")
+                        .addTag("testClassName", testClassName)
+                        .addTag("testMethodName", testMethodName)
+                        .addTag("fuzzer", fuzzer)
+                        .addTag("repetition", repetition)
+                        .addTag("experiment", experiment)
+                        .addTag("covered", s)
+                        .addField("value", 1)
+                        .time(now.toEpochMilli() - startTime.toEpochMilli(), WritePrecision.MS)
+//                        .time(now.toEpochMilli(), WritePrecision.MS)
+                ).collect(Collectors.toList());
+                System.out.println("Total covered: " + allBranchCovered.size());
+                writeApi.writePoints(bucketName, orgName, points);
             }
             boolean valid = key.reset();
             if (!valid) {
@@ -102,17 +103,27 @@ public class ReproReporter {
         testMethodName = args[1];
         fuzzer = args[2];
         repetition = args[3];
-        token = System.getenv("INFLUX_API_KEY");
-        org = "CMU";
-        bucket = "fuzzer";
         experiment = args[4];
 
-        influxDBClient = InfluxDBClientFactory.create("http://localhost:8086", token.toCharArray(), org, bucket);
+
+        dbLocation = args[6];
+        orgId = args[7];
+        bucketName = args[8];
+        token = args[9];
+
+        influxDBClient = InfluxDBClientFactory.create(dbLocation, token.toCharArray());
+        orgName = influxDBClient.getOrganizationsApi().findOrganizationByID(orgId).getName();
+        Bucket bucket = influxDBClient.getBucketsApi().findBucketByName(bucketName);
+        if (bucket == null) {
+            bucket = influxDBClient.getBucketsApi().createBucket(bucketName, orgId);
+        }
+        bucketName = bucket.getName();
+
+
         watcher = FileSystems.getDefault().newWatchService();
         startTime = Instant.now();
 
         register(args[5] + "/corpus");
-
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {

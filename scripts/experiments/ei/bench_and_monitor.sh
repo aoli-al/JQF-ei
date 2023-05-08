@@ -13,6 +13,10 @@ popd > /dev/null
 
 ALGO=$8
 EXPERIMENT=$9
+ENDPOINT=${10}
+ORG_ID=${11}
+BUCKET=${12}
+TOKEN=${13}
 JQF_DIR="$SCRIPT_DIR/../../../"
 JQF_BIN="$JQF_DIR/bin/jqf-$ALGO"
 NAME=$1
@@ -41,8 +45,8 @@ mkdir -p $OUT_DIR/corpus
 screen -S "$SNAME" -dm -t fuzzer
 screen -S "$SNAME" -X screen -t monitor
 
-REPRO_OPTS="\"$JVM_OPTS -Djqf.repro.logUniqueBranches=true\""
-screen -S "$SNAME" -p monitor -X stuff "JVM_OPTS=$REPRO_OPTS $JQF_REPRO -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $ALGO $e $EXPERIMENT $OUT_DIR^M"
+REPRO_OPTS="\"$JVM_OPTS -Djqf.repro.logUniqueBranches=true -Djqf.repro.ignoreInvalidCoverage=false\""
+screen -S "$SNAME" -p monitor -X stuff "JVM_OPTS=$REPRO_OPTS $JQF_REPRO -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $ALGO $e $EXPERIMENT $OUT_DIR $ENDPOINT $ORG_ID $BUCKET $TOKEN^M"
 sleep 5
 
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
