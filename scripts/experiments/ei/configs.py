@@ -1,16 +1,16 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
-# DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]
 # DATASET = ["bcel", "rhino", "closure"]
-DATASET = ["rhino", "closure"]
+# DATASET = ["rhino", "closure"]
 #  DATASET = ["chacopy"]
 ALGORITHM = ["zest", "ei", "ei-no-havoc"]
 #  ALGORITHM = ["ei-fast"]
 
 GENERATOR = [
-    'testWithGenerator', 
+    'testWithGenerator',
     "testWithSmallReversedGenerator",
     "testWithLargeReversedGenerator",
 ]

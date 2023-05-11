@@ -85,7 +85,7 @@ def map_algorithm(algo: str) -> str:
     if algo == "ei-testWithLargeReversedGenerator":
         return "EI-LRev"
     if algo == "ei-no-havoc":
-        return "EI-No-Havoc"
+        return "EI"
     if algo == "mix-no-havoc":
         return "Mix-No-Havoc"
     return "?"
@@ -165,6 +165,8 @@ def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: 
         axis.set(ylabel = y_label)
     else:
         axis.set(ylabel = None)
+    if "closure" not in path:
+        axis.legend().remove()
     fig = axis.get_figure()
     fig.savefig(path, bbox_inches='tight', pad_inches=0.1)
     fig.clf()

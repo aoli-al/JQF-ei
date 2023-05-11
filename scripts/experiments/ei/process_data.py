@@ -44,7 +44,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 10):
+                for idx in range(0, 5):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -156,7 +156,7 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                 continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 10):
+            for idx in range(0, 5):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
@@ -216,8 +216,8 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
-    # if "ei-no-havoc" in algorithms:
-    #     algorithms.remove("ei-no-havoc")
+    if "ei-fast" in algorithms:
+        algorithms.remove("ei-fast")
     if "mix" in algorithms:
         algorithms.remove("mix")
     return algorithms
