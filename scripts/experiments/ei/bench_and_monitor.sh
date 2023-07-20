@@ -45,9 +45,9 @@ mkdir -p $OUT_DIR/corpus
 screen -S "$SNAME" -dm -t fuzzer
 screen -S "$SNAME" -X screen -t monitor
 
-REPRO_OPTS="\"$JVM_OPTS -Djqf.repro.logUniqueBranches=true -Djqf.repro.ignoreInvalidCoverage=true\""
-screen -S "$SNAME" -p monitor -X stuff "JVM_OPTS=$REPRO_OPTS $JQF_REPRO -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $ALGO $e $EXPERIMENT $OUT_DIR $ENDPOINT $ORG_ID $BUCKET $TOKEN^M"
-sleep 5
+# REPRO_OPTS="\"$JVM_OPTS -Djqf.repro.logUniqueBranches=true -Djqf.repro.ignoreInvalidCoverage=true\""
+# screen -S "$SNAME" -p monitor -X stuff "JVM_OPTS=$REPRO_OPTS $JQF_REPRO -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $ALGO $e $EXPERIMENT $OUT_DIR $ENDPOINT $ORG_ID $BUCKET $TOKEN^M"
+# sleep 5
 
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
 screen -S "$SNAME" -p fuzzer -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_BIN -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $OUT_DIR^M"
