@@ -213,6 +213,8 @@ public class ZestGuidance implements Guidance {
     /** Whether to store all generated inputs to disk (can get slowww!) */
     protected final boolean LOG_ALL_INPUTS = Boolean.getBoolean("jqf.ei.LOG_ALL_INPUTS");
 
+    protected final boolean PERFORMANCE_GUIDANCE = Boolean.getBoolean("jqf.ei.PERFORMANCE_GUIDANCE");
+
     // ------------- TIMEOUT HANDLING ------------
 
     /** Timeout for an individual run. */
@@ -440,7 +442,7 @@ public class ZestGuidance implements Guidance {
     /* Writes a line of text to the log file. */
     protected void infoLog(String str, Object... args) {
         if (verbose) {
-            String line = String.format(str, args);
+            String line = "[" + System.currentTimeMillis() + "] " + String.format(str, args);
             if (logFile != null) {
                 appendLineToFile(logFile, line);
 
@@ -559,8 +561,13 @@ public class ZestGuidance implements Guidance {
             return  "Generator-based random fuzzing (no guidance)\n" +
                     "--------------------------------------------\n";
         } else {
-            return  "Semantic Fuzzing with Zest\n" +
-                    "--------------------------\n";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Semantic Fuzzing with Zest");
+            if (PERFORMANCE_GUIDANCE) {
+                sb.append(" (PerfFuzz)");
+            }
+            sb.append("\n--------------------------\n");
+            return sb.toString();
         }
     }
 
@@ -851,9 +858,9 @@ public class ZestGuidance implements Guidance {
         int validNonZeroBefore = validCoverage.getNonZeroCount();
 
         // Update total coverage
-        boolean coverageBitsUpdated = totalCoverage.updateBits(runCoverage);
+        boolean coverageBitsUpdated = totalCoverage.updateBits(runCoverage, !PERFORMANCE_GUIDANCE);
         if (result == Result.SUCCESS) {
-            validCoverage.updateBits(runCoverage);
+            validCoverage.updateBits(runCoverage, !PERFORMANCE_GUIDANCE);
         }
 
         // Coverage after
@@ -866,7 +873,7 @@ public class ZestGuidance implements Guidance {
         // Possibly save input
         List<String> reasonsToSave = new ArrayList<>();
 
-
+        // Only save +count for havoc input.
         if (!DISABLE_SAVE_NEW_COUNTS && coverageBitsUpdated) {
             reasonsToSave.add("+count");
         }

@@ -43,6 +43,8 @@ import com.google.javascript.jscomp.SourceFile;
 import com.pholser.junit.quickcheck.From;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 import edu.berkeley.cs.jqf.examples.js.JavaScriptCodeGenerator;
+import edu.berkeley.cs.jqf.examples.js.LargeReversedJSCodeGenerator;
+import edu.berkeley.cs.jqf.examples.js.SmallReversedJSCodeGenerator;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import org.apache.commons.io.IOUtils;
@@ -106,6 +108,18 @@ public class CompilerTest {
     public void debugWithInputStream(InputStream in) throws IOException {
         String input = IOUtils.toString(in, StandardCharsets.UTF_8);
         debugWithString(input);
+    }
+
+    @Fuzz
+    public void testWithSmallReversedGenerator(@From(SmallReversedJSCodeGenerator.class) String code) {
+        testWithString(code);
+    }
+
+    @Fuzz
+    public void testWithLargeReversedGenerator(@From(LargeReversedJSCodeGenerator.class) String code) {
+
+
+        testWithString(code);
     }
 
     @Fuzz

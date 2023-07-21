@@ -120,7 +120,7 @@ public class NoGuidance implements Guidance {
             this.keepGoing = false;
         }
 
-        if (numTrials > 10 && ((float) numDiscards)/((float) (numTrials)) > maxDiscardRatio) {
+        if (numTrials > 1000 && ((float) numDiscards)/((float) (numTrials)) > maxDiscardRatio) {
             throw new GuidanceException("Assumption is too strong; too many inputs discarded");
         }
     }

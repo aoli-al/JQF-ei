@@ -45,10 +45,20 @@ import janala.instrument.SnoopInstructionTransformer;
  */
 public class InstrumentingClassLoader extends URLClassLoader {
 
+    private boolean shouldInstrument;
     private ClassFileTransformer transformer = new SnoopInstructionTransformer();
 
     public InstrumentingClassLoader(URL[] urls, ClassLoader parent) {
+        this(urls, parent, true);
+    }
+
+    public InstrumentingClassLoader(URL[] urls, ClassLoader parent, boolean instrument) {
         super(urls, parent);
+        this.shouldInstrument = instrument;
+    }
+
+    public InstrumentingClassLoader(String[] paths, ClassLoader parent, boolean instrument) throws MalformedURLException {
+        this(stringsToUrls(paths), parent, instrument);
     }
 
     public InstrumentingClassLoader(String[] paths, ClassLoader parent) throws MalformedURLException {
@@ -81,16 +91,15 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
         assert (originalBytecode != null);
 
-        byte[] bytesToLoad;
-        try {
-            byte[] instrumented = transformer.transform(this, internalName, null, null, originalBytecode);
-            if (instrumented != null) {
-                bytesToLoad = instrumented;
-            } else {
-                bytesToLoad = originalBytecode;
+        byte[] bytesToLoad = originalBytecode;
+        if (shouldInstrument) {
+            try {
+                byte[] instrumented = transformer.transform(this, internalName, null, null, originalBytecode);
+                if (instrumented != null) {
+                    bytesToLoad = instrumented;
+                }
+            } catch (IllegalClassFormatException e) {
             }
-        } catch (IllegalClassFormatException e) {
-            bytesToLoad = originalBytecode;
         }
         return defineClass(name, bytesToLoad, 0, bytesToLoad.length);
 

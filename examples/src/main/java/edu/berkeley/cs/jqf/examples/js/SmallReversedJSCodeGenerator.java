@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2017-2018 The Regents of the University of California
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.berkeley.cs.jqf.examples.js;
 
 import java.util.ArrayList;
@@ -13,22 +41,21 @@ import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.log;
+import static java.lang.Math.*;
 
 /**
  * @author Rohan Padhye
  */
-public class JavaScriptCodeGenerator extends Generator<String> {
-    public JavaScriptCodeGenerator() {
+public class SmallReversedJSCodeGenerator extends Generator<String> {
+    public SmallReversedJSCodeGenerator() {
         super(String.class);
     }
 
     private GenerationStatus status;
 
-    public static final int MAX_IDENTIFIERS = 100;
-    public static final int MAX_EXPRESSION_DEPTH = 10;
-    public static final int MAX_STATEMENT_DEPTH = 6;
+    private static final int MAX_IDENTIFIERS = 100;
+    private static final int MAX_EXPRESSION_DEPTH = 10;
+    private static final int MAX_STATEMENT_DEPTH = 6;
     private static Set<String> identifiers;
     private int statementDepth;
     private int expressionDepth;
@@ -66,7 +93,7 @@ public class JavaScriptCodeGenerator extends Generator<String> {
         int len = sampleGeometric(random, mean);
         List<T> items = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
-            items.add(generator.apply(random));
+            items.add(0, generator.apply(random));
         }
         return items;
     }
@@ -127,8 +154,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
 
     private String generateBinaryNode(SourceOfRandomness random) {
         String token = random.choose(BINARY_TOKENS);
-        String lhs = generateExpression(random);
         String rhs = generateExpression(random);
+        String lhs = generateExpression(random);
 
         return lhs + " " + token + " " + rhs;
     }
@@ -146,8 +173,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCallNode(SourceOfRandomness random) {
-        String func = generateExpression(random);
         String args = String.join(",", generateItems(this::generateExpression, random, 3));
+        String func = generateExpression(random);
 
         String call = func + "(" + args + ")";
         if (random.nextBoolean()) {
@@ -158,7 +185,9 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCaseNode(SourceOfRandomness random) {
-        return "case " + generateExpression(random) + ": " +  generateBlock(random);
+        String block = generateBlock(random);
+        String expr = generateExpression(random);
+        return "case " + expr + ": " +  block;
     }
 
     private String generateCatchNode(SourceOfRandomness random) {

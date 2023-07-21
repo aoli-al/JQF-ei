@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2017-2018 The Regents of the University of California
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.berkeley.cs.jqf.examples.js;
 
 import java.util.ArrayList;
@@ -13,22 +41,19 @@ import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.log;
+import static edu.berkeley.cs.jqf.examples.js.JavaScriptCodeGenerator.*;
+import static java.lang.Math.*;
 
 /**
  * @author Rohan Padhye
  */
-public class JavaScriptCodeGenerator extends Generator<String> {
-    public JavaScriptCodeGenerator() {
+public class LargeReversedJSCodeGenerator extends Generator<String> {
+    public LargeReversedJSCodeGenerator() {
         super(String.class);
     }
 
     private GenerationStatus status;
 
-    public static final int MAX_IDENTIFIERS = 100;
-    public static final int MAX_EXPRESSION_DEPTH = 10;
-    public static final int MAX_STATEMENT_DEPTH = 6;
     private static Set<String> identifiers;
     private int statementDepth;
     private int expressionDepth;
@@ -66,7 +91,7 @@ public class JavaScriptCodeGenerator extends Generator<String> {
         int len = sampleGeometric(random, mean);
         List<T> items = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
-            items.add(generator.apply(random));
+            items.add(0, generator.apply(random));
         }
         return items;
     }
@@ -126,9 +151,9 @@ public class JavaScriptCodeGenerator extends Generator<String> {
 
 
     private String generateBinaryNode(SourceOfRandomness random) {
+        String rhs = generateExpression(random);
         String token = random.choose(BINARY_TOKENS);
         String lhs = generateExpression(random);
-        String rhs = generateExpression(random);
 
         return lhs + " " + token + " " + rhs;
     }
@@ -146,8 +171,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCallNode(SourceOfRandomness random) {
-        String func = generateExpression(random);
         String args = String.join(",", generateItems(this::generateExpression, random, 3));
+        String func = generateExpression(random);
 
         String call = func + "(" + args + ")";
         if (random.nextBoolean()) {
@@ -158,12 +183,15 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateCaseNode(SourceOfRandomness random) {
-        return "case " + generateExpression(random) + ": " +  generateBlock(random);
+        String block = generateBlock(random);
+        String expr = generateExpression(random);
+        return "case " + expr + ": " +  block;
     }
 
     private String generateCatchNode(SourceOfRandomness random) {
-        return "catch (" + generateIdentNode(random) + ") " +
-                generateBlock(random);
+        String block = generateBlock(random);
+        String iden = generateIdentNode(random);
+        return "catch (" + iden + ") " + block;
     }
 
     private String generateContinueNode(SourceOfRandomness random) {
@@ -179,38 +207,49 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateForNode(SourceOfRandomness random) {
-        String s = "for(";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        String block = generateBlock(random);
+        boolean hasExit = random.nextBoolean();
+        String exit = "";
+        if (hasExit) {
+            exit = generateExpression(random);
         }
-        s += ";";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        String update = "";
+        boolean hasUpdate = random.nextBoolean();
+        if (hasUpdate) {
+            update = generateExpression(random);
         }
-        s += ";";
-        if (random.nextBoolean()) {
-            s += generateExpression(random);
+        boolean hasInit = random.nextBoolean();
+        String init = "";
+        if (hasInit) {
+            init = generateExpression(random);
         }
-        s += ")";
-        s += generateBlock(random);
+
+        String s = "for(" + init + ";" + update + ";" + exit + ")" + block;
         return s;
     }
 
     private String generateFunctionNode(SourceOfRandomness random) {
-        return "function(" + String.join(", ", generateItems(this::generateIdentNode, random, 5)) + ")" + generateBlock(random);
+        String block = generateBlock(random);
+        String params = String.join(", ", generateItems(this::generateIdentNode, random, 5));
+        return "function(" + params + ")" + block;
     }
 
     private String generateNamedFunctionNode(SourceOfRandomness random) {
-        return "function " + generateIdentNode(random) + "(" + String.join(", ", generateItems(this::generateIdentNode, random, 5)) + ")" + generateBlock(random);
+        String block = generateBlock(random);
+        String params = String.join(", ", generateItems(this::generateIdentNode, random, 5));
+        String name = generateIdentNode(random);
+        return "function " + name + "(" + params + ")" + block;
     }
 
     private String generateArrowFunctionNode(SourceOfRandomness random) {
-        String params = "(" + String.join(", ", generateItems(this::generateIdentNode, random, 3)) + ")";
+        String impl;
         if (random.nextBoolean()) {
-            return params + " => " + generateBlock(random);
+            impl = generateBlock(random);
         } else {
-            return params + " => " + generateExpression(random);
+            impl = generateExpression(random);
         }
+        String params = "(" + String.join(", ", generateItems(this::generateIdentNode, random, 3)) + ")";
+        return params + " => " + impl;
 
     }
 
@@ -228,18 +267,22 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateIfNode(SourceOfRandomness random) {
-        return "if (" +
-                generateExpression(random) + ") " +
-                generateBlock(random) +
-                (random.nextBoolean() ? " else " + generateBlock(random) : "");
+        String elseBlock = (random.nextBoolean() ? " else " + generateBlock(random) : "");
+        String block = generateBlock(random);
+        String expr = generateExpression(random);
+        return "if (" + expr + ") " + block + elseBlock;
     }
 
     private String generateIndexNode(SourceOfRandomness random) {
-        return generateExpression(random) + "[" + generateExpression(random) + "]";
+        String index = generateExpression(random);
+        String obj = generateExpression(random);
+        return obj + "[" + index + "]";
     }
 
     private String generateObjectProperty(SourceOfRandomness random) {
-        return generateIdentNode(random) + ": " + generateExpression(random);
+        String prop = generateExpression(random);
+        String obj = generateIdentNode(random);
+        return obj + ": " + prop;
     }
 
     private String generateLiteralNode(SourceOfRandomness random) {
@@ -265,7 +308,9 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generatePropertyNode(SourceOfRandomness random) {
-        return generateExpression(random) + "." + generateIdentNode(random);
+        String prop = generateIdentNode(random);
+        String obj = generateExpression(random);
+        return  obj + "." + prop;
     }
 
     private String generateReturnNode(SourceOfRandomness random) {
@@ -273,13 +318,18 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateSwitchNode(SourceOfRandomness random) {
-        return "switch(" + generateExpression(random) + ") {"
-                + String.join(" ", generateItems(this::generateCaseNode, random, 2)) + "}";
+        String conds = String.join(" ", generateItems(this::generateCaseNode, random, 2));
+        String expr = generateExpression(random);
+
+        return "switch(" + expr + ") {"
+                + conds + "}";
     }
 
     private String generateTernaryNode(SourceOfRandomness random) {
-        return generateExpression(random) + " ? " + generateExpression(random) +
-                " : " + generateExpression(random);
+        String cond2 = generateExpression(random);
+        String cond1 = generateExpression(random);
+        String expr = generateExpression(random);
+        return  expr + " ? " + cond1 + " : " + cond2;
     }
 
     private String generateThrowNode(SourceOfRandomness random) {
@@ -287,12 +337,15 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateTryNode(SourceOfRandomness random) {
-        return "try " + generateBlock(random) + generateCatchNode(random);
+        String catchBlock = generateCatchNode(random);
+        String tryBlock = generateBlock(random);
+        return "try " + tryBlock + catchBlock;
     }
 
     private String generateUnaryNode(SourceOfRandomness random) {
+        String expr = generateExpression(random);
         String token = random.choose(UNARY_TOKENS);
-        return token + " " + generateExpression(random);
+        return token + " " + expr;
     }
 
     private String generateVarNode(SourceOfRandomness random) {
@@ -300,6 +353,8 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateWhileNode(SourceOfRandomness random) {
-        return "while (" + generateExpression(random) + ")" + generateBlock(random);
+        String expr = generateExpression(random);
+        String block = generateBlock(random);
+        return "while (" + expr + ")" + block;
     }
 }

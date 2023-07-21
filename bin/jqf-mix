@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+
+import sys
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+SCRIPT_DIR=Path(__file__).resolve().parent
+
+
+timeout = str(int(sys.argv[1]) // 3 * 2)
+args = sys.argv[2:]
+out_dir = args[-1]
+
+ZEST_PATH = SCRIPT_DIR.joinpath("jqf-zest")
+EI_PATH = SCRIPT_DIR.joinpath("jqf-ei")
+
+subprocess.call(["timeout", timeout, ZEST_PATH, *args])
+shutil.move(out_dir, out_dir+"-tmp")
+subprocess.call([EI_PATH, *args, out_dir+"-tmp/corpus"])

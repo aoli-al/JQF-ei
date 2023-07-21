@@ -189,18 +189,26 @@ public class Coverage implements TraceEventVisitor, ICoverage<Counter> {
      * Updates this coverage with bits from the parameter.
      *
      * @param that the run coverage whose bits to OR
+     * @param useHop use AFL style hit count bucket.
      *
      * @return <code>true</code> iff <code>that</code> is not a subset
      *         of <code>this</code>, causing <code>this</code> to change.
      */
     @Override
-    public boolean updateBits(ICoverage that) {
+    public boolean updateBits(ICoverage that, boolean useHop) {
         boolean changed = false;
         if (that.getCounter().hasNonZeros()) {
             for (int idx = 0; idx < COVERAGE_MAP_SIZE; idx++) {
                 int before = this.counter.getAtIndex(idx);
-                int after = before | hob(that.getCounter().getAtIndex(idx));
-                if (after != before) {
+                int after = that.getCounter().getAtIndex(idx);
+                if (useHop) {
+                    after = before | hob(after);
+                    if (after != before) {
+                        this.counter.setAtIndex(idx, after);
+                        changed = true;
+                    }
+                }
+                else if (!useHop && (before != after)) {
                     this.counter.setAtIndex(idx, after);
                     changed = true;
                 }
