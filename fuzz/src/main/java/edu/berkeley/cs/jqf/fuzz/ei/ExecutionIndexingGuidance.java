@@ -272,6 +272,9 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 assert numSavedInputsBefore == savedInputs.size() - 1 : "savedInputs can only grow by 1 at a time";
                 coverageHashToSavedInputIdx.put(coverageHash, numSavedInputsBefore);
             } else {
+                if (true) {
+                    return;
+                }
                 // If the current input was not saved (maybe no new coverage),
                 // then see if it can replace an existing input with save coverage
                 if (coverageHashToSavedInputIdx.containsKey(coverageHash)) {
