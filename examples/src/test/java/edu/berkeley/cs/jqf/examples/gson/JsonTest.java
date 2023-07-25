@@ -17,7 +17,7 @@ public class JsonTest {
     private Gson gson = new Gson();
 
     @Fuzz
-    public void fuzzJSONParser(@From(AsciiStringGenerator.class) String input) {
+    public void testWithGenerator(@From(AsciiStringGenerator.class) String input) {
         try {
             gson.fromJson(input, Object.class);
         } catch (JsonSyntaxException e) {

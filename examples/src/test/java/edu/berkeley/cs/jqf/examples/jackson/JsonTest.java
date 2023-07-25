@@ -16,7 +16,7 @@ public class JsonTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Fuzz
-    public void fuzzJsonReadValue(@From(AsciiStringGenerator.class) String input) {
+    public void testWithGenerator(@From(AsciiStringGenerator.class) String input) {
         Object output = null;
         try {
             objectMapper.readValue(input, Object.class);
