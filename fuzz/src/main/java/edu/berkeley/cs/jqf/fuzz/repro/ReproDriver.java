@@ -47,10 +47,12 @@ public class ReproDriver {
 
         String testClassName  = args[0];
         String testMethodName = args[1];
-        File[] testInputFiles = new File[args.length - 2];
-        for (int i = 0; i < testInputFiles.length; i++) {
-            testInputFiles[i] = new File(args[i+2]);
-        }
+//        File[] testInputFiles = new File[args.length - 2];
+//        for (int i = 0; i < testInputFiles.length; i++) {
+//            testInputFiles[i] = new File(args[i+2]);
+//        }
+        File testInputFile = new File(args[2]);
+
 
         try {
             // Maybe log the trace
@@ -58,7 +60,7 @@ public class ReproDriver {
             File traceDir = traceDirName != null ? new File(traceDirName) : null;
 
             // Load the guidance
-            ReproGuidance guidance = new ReproGuidance(testInputFiles, traceDir);
+            ReproGuidance guidance = new ReproGuidance(testInputFile, traceDir);
 
             // Run the Junit test
             GuidedFuzzing.run(testClassName, testMethodName, guidance, System.out);

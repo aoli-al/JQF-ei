@@ -5,6 +5,7 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import edu.berkeley.cs.jqf.fuzz.junit.GuidedFuzzing;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.sql.Connection;
@@ -67,7 +68,7 @@ public class ReproReporter {
                 Path name = (Path) event.context();
                 Path fullPath = dir.resolve(name);
 
-                ReproGuidance guidance = new ReproGuidance(fullPath.toFile(), null);
+                ReproGuidance guidance = new ReproGuidance(fullPath.toFile(), (File) null);
                 GuidedFuzzing.unsetGuidance();
                 GuidedFuzzing.run(testClassName, testMethodName, guidance, null);
 

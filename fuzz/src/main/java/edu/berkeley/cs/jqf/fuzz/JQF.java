@@ -176,7 +176,7 @@ public class JQF extends JUnitQuickcheck {
                     // Create a ReproGuidance with the given path
                     File inputFile = new File(reproPath);
                     try {
-                        guidance = new ReproGuidance(inputFile, null);
+                        guidance = new ReproGuidance(inputFile, (File) null);
                     } catch (IOException e) {
                         throw new GuidanceException(String.format("Could not open repro file: %s",
                                 inputFile.getAbsolutePath()), e);
