@@ -18,7 +18,7 @@ def call(args: List[str]):
         subprocess.check_call(args, cwd=EXAMPLES_DIR)
 
 def run(path: str, task: str):
-    cpu = 1 if task == "perf" else 10
+    cpu = 1 if task == "perf" else 20
     with Pool(cpu) as pool:
         pool.map(call, generate_tasks(path, task))
 
