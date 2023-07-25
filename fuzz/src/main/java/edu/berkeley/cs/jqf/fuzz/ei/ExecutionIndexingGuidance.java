@@ -108,13 +108,13 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
     /** Probability to perform havoc mutation similar to Zest. */
     protected final double HAVOC_PROBABILITY = Double.parseDouble(
-            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
+            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.3"));
 
     /** Whether to splice only in the same sub-tree */
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
@@ -272,6 +272,9 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 assert numSavedInputsBefore == savedInputs.size() - 1 : "savedInputs can only grow by 1 at a time";
                 coverageHashToSavedInputIdx.put(coverageHash, numSavedInputsBefore);
             } else {
+                if (true) {
+                    return;
+                }
                 // If the current input was not saved (maybe no new coverage),
                 // then see if it can replace an existing input with save coverage
                 if (coverageHashToSavedInputIdx.containsKey(coverageHash)) {
@@ -329,6 +332,11 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     @Override
     protected List<String> checkSavingCriteriaSatisfied(Result result) {
         List<String> reasons = super.checkSavingCriteriaSatisfied(result);
+        if (HAVOC_PROBABILITY > 0) {
+            if (!currentInput.desc.contains("havoc")) {
+                reasons.remove("+count");
+            }
+        }
         return reasons;
     }
 

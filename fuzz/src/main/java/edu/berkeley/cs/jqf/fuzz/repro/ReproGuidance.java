@@ -130,9 +130,9 @@ public class ReproGuidance implements Guidance {
      *                 traces
      * @throws FileNotFoundException if `inputFile` is not a valid file or directory
      */
-//    public ReproGuidance(File inputFile, File traceDir) throws IOException {
-//        this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDir);
-//    }
+    public ReproGuidance(File inputFile, File traceDir) throws IOException {
+        this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDir);
+    }
     public ReproGuidance(File inputFile, String traceDirName) throws IOException {
         this(IOUtils.resolveInputFileOrDirectory(inputFile), traceDirName != null ? new File(traceDirName) : null);
     }

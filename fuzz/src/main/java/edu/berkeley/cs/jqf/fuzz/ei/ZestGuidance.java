@@ -201,7 +201,7 @@ public class ZestGuidance implements Guidance {
     /** The currently executing input (for debugging purposes). */
     protected File currentInputFile;
 
-    /** The file contianing the coverage information */ 
+    /** The file contianing the coverage information */
     protected File coverageFile;
 
     /** Use libFuzzer like output instead of AFL like stats screen (https://llvm.org/docs/LibFuzzer.html#output) **/
@@ -471,15 +471,21 @@ public class ZestGuidance implements Guidance {
     protected void displayStats(boolean force) {
         Date now = new Date();
         long intervalMilliseconds = now.getTime() - lastRefreshTime.getTime();
+        intervalMilliseconds = Math.max(1, intervalMilliseconds);
         if (intervalMilliseconds < STATS_REFRESH_TIME_PERIOD && !force) {
             return;
         }
         long interlvalTrials = numTrials - lastNumTrials;
-        long intervalExecsPerSec = interlvalTrials * 1000L / intervalMilliseconds;
-        double intervalExecsPerSecDouble = interlvalTrials * 1000.0 / intervalMilliseconds;
+        long intervalExecsPerSec = interlvalTrials * 1000L;
+        double intervalExecsPerSecDouble = interlvalTrials * 1000.0;
+        if(intervalMilliseconds != 0) {
+            intervalExecsPerSec = interlvalTrials * 1000L / intervalMilliseconds;
+            intervalExecsPerSecDouble = interlvalTrials * 1000.0 / intervalMilliseconds;
+        }
         lastRefreshTime = now;
         lastNumTrials = numTrials;
         long elapsedMilliseconds = now.getTime() - startTime.getTime();
+        elapsedMilliseconds = Math.max(1, elapsedMilliseconds);
         long execsPerSec = numTrials * 1000L / elapsedMilliseconds;
 
         String currentParentInputDesc;
@@ -537,7 +543,7 @@ public class ZestGuidance implements Guidance {
         appendLineToFile(statsFile, plotData);
     }
 
-    /** Updates the data in the coverage file */ 
+    /** Updates the data in the coverage file */
     protected void updateCoverageFile() {
         try {
             PrintWriter pw = new PrintWriter(coverageFile);
@@ -548,7 +554,7 @@ public class ZestGuidance implements Guidance {
             throw new GuidanceException(ignore);
         }
     }
-    
+
     /* Returns the banner to be displayed on the status screen */
     protected String getTitle() {
         if (blind) {
@@ -988,6 +994,9 @@ public class ZestGuidance implements Guidance {
 
         // Fourth, assume responsibility for branches
         currentInput.responsibilities = responsibilities;
+        if (responsibilities.size() > 0) {
+          currentInput.setFavored();
+        }
         IntIterator iter = responsibilities.intIterator();
         while(iter.hasNext()){
             int b = iter.next();
@@ -1101,6 +1110,11 @@ public class ZestGuidance implements Guidance {
         int id;
 
         /**
+         * Whether this input is favored.
+         */
+        boolean favored;
+
+        /**
          * The description for this input.
          *
          * <p>This field is modified by the construction and mutation
@@ -1169,6 +1183,14 @@ public class ZestGuidance implements Guidance {
         public abstract void gc();
 
         /**
+         * Sets this input to be favored for fuzzing.
+         */
+        public void setFavored() {
+            favored = true;
+        }
+
+
+        /**
          * Returns whether this input should be favored for fuzzing.
          *
          * <p>An input is favored if it is responsible for covering
@@ -1177,7 +1199,7 @@ public class ZestGuidance implements Guidance {
          * @return whether or not this input is favored
          */
         public boolean isFavored() {
-            return responsibilities.size() > 0;
+            return favored;
         }
 
         /**

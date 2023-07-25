@@ -39,5 +39,3 @@ SCREEN_SESSION_NAME=$ALGO\_$METHOD\_$e
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
 screen -S "$SNAME" -dm -t $SCREEN_SESSION_NAME
 screen -S "$SNAME" -p $SCREEN_SESSION_NAME -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_BIN -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $OUT_DIR^M"
-
-
