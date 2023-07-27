@@ -59,6 +59,7 @@ import edu.berkeley.cs.jqf.instrument.tracing.events.CallEvent;
 import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import janala.instrument.FastCoverageListener;
 import org.eclipse.collections.api.iterator.IntIterator;
+import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -229,26 +230,19 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
     @Override
     public InputStream getInput() throws GuidanceException {
-        // First, reset execution indexing state
-        eiState = CoverageFactory.newEIState();
-        if (eiState instanceof FastExecutionIndexingState) {
-            FastCoverageSnoop.setFastCoverageListener((FastCoverageListener) eiState);
-        }
 
 
         // Unmark "test started"
         testEntered = false;
 
         // Then, do the same logic as ZestGuidance (e.g. returning seeds, mutated inputs, or new input)
-        return super.getInput();
-    }
-
-    @Override
-    public void run(TestClass testClass, FrameworkMethod method, Object[] args) throws Throwable {
-        if (this.runCoverage instanceof FastCoverageListener) {
-            FastCoverageSnoop.setFastCoverageListener((FastCoverageListener) this.runCoverage);
+        InputStream result = super.getInput();
+        // First, reset execution indexing state
+        eiState = CoverageFactory.newEIState();
+        if (eiState instanceof FastExecutionIndexingState) {
+            FastCoverageSnoop.setFastCoverageListener((FastCoverageListener) eiState);
         }
-        super.run(testClass, method, args);
+        return result;
     }
 
     /**
@@ -590,17 +584,17 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 if (GENERATE_EOF_WHEN_OUT) {
                     return -1;
                 }
-                if (random.nextDouble() < DEMAND_DRIVEN_SPLICING_PROBABILITY) {
-                    // TODO: Find a random inputLocation with same EC,
-                    // extract common suffix of sourceEi and targetEi,
-                    // and map targetPrefix to sourcePrefix in the IPM
-
-
-                } else {
-                    // Just generate a random input
-//                    val = random.nextInt(256);
-                    val = linearInput.getOrGenerateFresh(orderedKeys.size(), random);
-                }
+//                if (random.nextDouble() < DEMAND_DRIVEN_SPLICING_PROBABILITY) {
+//                    // TODO: Find a random inputLocation with same EC,
+//                    // extract common suffix of sourceEi and targetEi,
+//                    // and map targetPrefix to sourcePrefix in the IPM
+//
+//
+//                } else {
+//                    // Just generate a random input
+////                    val = random.nextInt(256);
+                val = linearInput.getOrGenerateFresh(orderedKeys.size(), random);
+//                }
 
                 // Put the new value into the map
                 assert (val != null);
@@ -664,6 +658,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             for (ExecutionIndex key : orderedKeys) {
                 newMap.put(key, valuesMap.get(key));
             }
+            linearInput.gc();
             valuesMap = newMap;
             assert valuesMap.size() == orderedKeys.size() : "valuesMap and orderedKeys must be of same size";
 
@@ -713,6 +708,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Derive new input from this object as source
             MappedInput newInput = new MappedInput(this);
 
+            // FIXIT(leo): fix this after experiment.
             if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
                 // Maybe try splicing
                 boolean splicingDone = false;
@@ -974,6 +970,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         public void gc() {
             // Set the `executed` flag
             executed = true;
+            linearInput.gc();
 
             // Close the seed file
             try {
