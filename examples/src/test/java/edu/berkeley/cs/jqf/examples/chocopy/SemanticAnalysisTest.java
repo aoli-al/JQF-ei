@@ -1,6 +1,5 @@
 package edu.berkeley.cs.jqf.examples.chocopy;
 
-import chocopy.ChocoPy;
 import chocopy.common.astnodes.Program;
 import chocopy.reference.RefAnalysis;
 import chocopy.reference.RefParser;
@@ -17,7 +16,7 @@ public class SemanticAnalysisTest {
 
     /** Entry point for fuzzing reference ChocoPy semantic analysis with ChocoPy code generator */
     @Fuzz
-    public void fuzzSemanticAnalysis(@From(ChocoPySemanticGenerator.class) String code) {
+    public void testWithGenerator(@From(ChocoPySemanticGenerator.class) String code) {
         Program program = RefParser.process(code, false);
         assumeTrue(!program.hasErrors());
         RefAnalysis.process(program);
