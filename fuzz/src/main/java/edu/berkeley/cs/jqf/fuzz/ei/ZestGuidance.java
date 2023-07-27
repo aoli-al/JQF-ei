@@ -370,7 +370,7 @@ public class ZestGuidance implements Guidance {
      * @throws IOException if the output directory could not be prepared
      */
     public ZestGuidance(String testName, Duration duration, File outputDirectory) throws IOException {
-        this(testName, duration, null, outputDirectory, new Random(0));
+        this(testName, duration, null, outputDirectory, new Random());
     }
 
     /**
