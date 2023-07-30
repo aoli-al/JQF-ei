@@ -73,6 +73,8 @@ import janala.instrument.FastCoverageListener;
 import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.log;
@@ -288,10 +290,6 @@ public class ZestGuidance implements Guidance {
         this.blind = Boolean.getBoolean("jqf.ei.TOTALLY_RANDOM");
         this.validityFuzzing = !Boolean.getBoolean("jqf.ei.DISABLE_VALIDITY_FUZZING");
         prepareOutputDirectory();
-
-        if(this.runCoverage instanceof FastCoverageListener){
-            FastCoverageSnoop.setFastCoverageListener((FastCoverageListener) this.runCoverage);
-        }
 
         // Try to parse the single-run timeout
         String timeout = System.getProperty("jqf.ei.TIMEOUT");
@@ -662,6 +660,9 @@ public class ZestGuidance implements Guidance {
 
     @Override
     public InputStream getInput() throws GuidanceException {
+        if (this.runCoverage instanceof FastCoverageListener) {
+            FastCoverageSnoop.setFastCoverageListener(new FastCoverageListener.Default());
+        }
         conditionallySynchronize(multiThreaded, () -> {
             // Clear coverage stats for this run
             runCoverage.clear();
@@ -739,6 +740,14 @@ public class ZestGuidance implements Guidance {
     }
 
     @Override
+    public void run(TestClass testClass, FrameworkMethod method, Object[] args) throws Throwable {
+        if (this.runCoverage instanceof FastCoverageListener) {
+            FastCoverageSnoop.setFastCoverageListener((FastCoverageListener) this.runCoverage);
+        }
+        Guidance.super.run(testClass, method, args);
+    }
+
+    @Override
     public void handleResult(Result result, Throwable error) throws GuidanceException {
         conditionallySynchronize(multiThreaded, () -> {
             // Stop timeout handling
@@ -753,6 +762,7 @@ public class ZestGuidance implements Guidance {
                 // Increment valid counter
                 numValid++;
             }
+
 
             if (result == Result.SUCCESS || (result == Result.INVALID && !SAVE_ONLY_VALID)) {
 

@@ -1,7 +1,7 @@
 package janala.instrument;
 
 public interface FastCoverageListener {
-    class Default implements FastCoverageListener {
+    public class Default implements FastCoverageListener {
         public void logMethodBegin(int iid) {}
 
         public void logMethodEnd(int iid) {}
