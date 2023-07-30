@@ -44,7 +44,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 10):
+                for idx in range(0, 9):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -59,11 +59,15 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                     cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
 
             data = cov_data[dataset][algorithm]
+            if not data:
+                continue
             cov_all_table_data[-1].append(len(set.union(*data)))
             # print(dataset)
             # print(algorithm)
             # for b in data:
             #     print(len(b))
+            if dataset == "rhino":
+                print([len(x) for x in data])
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
 
@@ -200,7 +204,6 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
                     delta_map[line] += delta
         data = list(delta_map.values())
         data = list(filter((0).__ne__, data))
-        print(len(data))
         generate_coverage_delta_hist(os.path.join(output_dir, dataset + "-delta-hist.pdf"),
                                         pd.DataFrame(data))
 

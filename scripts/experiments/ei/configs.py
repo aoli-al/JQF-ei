@@ -1,6 +1,6 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
-DATASET = ["ant", "maven", "bcel", "rhino", "closure"]
+DATASET = ["ant", "maven", "bcel", "rhino", "closure", "chocopy", "gson", "jackson"]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]
 # DATASET = ["bcel", "rhino", "closure"]
@@ -21,5 +21,9 @@ DATASET_TEST_CLASS_MAPPING = {
     "maven": TEST_CLASS_PREFIX + "maven.ModelReaderTest",
     "bcel": TEST_CLASS_PREFIX + "bcel.ParserTest",
     "closure": TEST_CLASS_PREFIX + "closure.CompilerTest",
-    "rhino": TEST_CLASS_PREFIX + "rhino.CompilerTest"
+    "rhino": TEST_CLASS_PREFIX + "rhino.CompilerTest",
+    "chocopy": TEST_CLASS_PREFIX + "chocopy.SemanticAnalysisTest",
+    "gson": TEST_CLASS_PREFIX + "gson.JsonTest",
+    "jackson": TEST_CLASS_PREFIX + "jackson.JsonTest",
+
 }
