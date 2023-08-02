@@ -109,13 +109,13 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
     /** Probability to perform havoc mutation similar to Zest. */
     protected final double HAVOC_PROBABILITY = Double.parseDouble(
-            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.7"));
+            System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
 
     /** Whether to splice only in the same sub-tree */
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0.0;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
@@ -361,14 +361,14 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
 
     private void mapEcToInputLoc(Input input) {
-//        if (input instanceof MappedInput) {
-//            MappedInput mappedInput = (MappedInput) input;
-//            for (int offset = 0; offset < mappedInput.size(); offset++) {
-//                ExecutionIndex ei = mappedInput.orderedKeys.get(offset);
-//                ExecutionContext ec = new ExecutionContext(ei);
-//                ecToInputLoc.get(ec).add(new InputLocation(mappedInput, offset));
-//            }
-//        }
+        if (input instanceof MappedInput) {
+            MappedInput mappedInput = (MappedInput) input;
+            for (int offset = 0; offset < mappedInput.size(); offset++) {
+                ExecutionIndex ei = mappedInput.orderedKeys.get(offset);
+                ExecutionContext ec = new ExecutionContext(ei);
+                ecToInputLoc.get(ec).add(new InputLocation(mappedInput, offset));
+            }
+        }
     }
 
 
