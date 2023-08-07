@@ -94,7 +94,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final double MEAN_MUTATION_SIZE = 4.0; // Bytes
 
     /** Probability that a standard mutation sets the byte to just zero instead of a random value. */
-    protected final double MUTATION_ZERO_PROBABILITY = 0.05;
+    protected final double MUTATION_ZERO_PROBABILITY = 0.1;
 
     /** Max number of contiguous bytes to splice in from another input during the splicing stage. */
     protected final int MAX_SPLICE_SIZE = 64; // Bytes
@@ -107,7 +107,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0.8;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
