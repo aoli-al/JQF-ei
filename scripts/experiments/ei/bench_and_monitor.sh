@@ -47,5 +47,14 @@ screen -S "$SNAME" -X screen -t monitor
 
 
 FAST_ENV="\"$JVM_OPTS -DuseFastNonCollidingCoverageInstrumentation=true\""
-screen -S "$SNAME" -p fuzzer -X stuff "JVM_OPTS=$FAST_ENV timeout $TIME $JQF_BIN -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $OUT_DIR^M"
+
+
+if [ "$ALGO" == "mix" ]; then
+  COMMAND="$JQF_BIN $TIME -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $OUT_DIR^M"
+else
+  COMMAND="timeout $TIME $JQF_BIN -c \$($JQF_DIR/scripts/examples_classpath.sh) $TEST_CLASS $METHOD $OUT_DIR^M"
+fi
+
+
+screen -S "$SNAME" -p fuzzer -X stuff "JVM_OPTS=$FAST_ENV $COMMAND"
 

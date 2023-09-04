@@ -5,10 +5,11 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from multiprocessing import parent_process
+
 
 
 SCRIPT_DIR=Path(__file__).resolve().parent
-
 
 timeout = str(int(sys.argv[1]) // 3 * 2)
 args = sys.argv[2:]
