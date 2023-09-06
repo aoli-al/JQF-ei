@@ -946,6 +946,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Populate the value map
             orderedKeys.add(key);
             valuesMap.put(key.hashCode(), value);
+            linearInput.requested += 1;
+            linearInput.values.add(value);
 
             return value;
         }
