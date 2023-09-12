@@ -29,6 +29,7 @@ def generate_tasks(base_path: str, mode: str):
             for generator in GENERATOR:
                 for idx in range(10):
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-{generator}-results-{idx}")
+                    print(path)
                     if not os.path.exists(path):
                         continue
                     corpus_dir = os.path.join(path, "corpus")

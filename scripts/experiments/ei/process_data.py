@@ -223,10 +223,10 @@ def identify_algorithms(paths: List[str]) -> List[str]:
                 algorithm = "-".join(subdir.split("-")[1:-2])
                 if algorithm:
                     algorithms.add(algorithm)
-    if "ei-fast" in algorithms:
-        algorithms.remove("ei-fast")
-    if "mix" in algorithms:
-        algorithms.remove("mix")
+    # if "ei-fast" in algorithms:
+    #     algorithms.remove("ei-fast")
+    # if "mix" in algorithms:
+    #     algorithms.remove("mix")
     return algorithms
 
 
