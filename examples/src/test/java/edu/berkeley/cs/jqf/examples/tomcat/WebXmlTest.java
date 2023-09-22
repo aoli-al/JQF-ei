@@ -31,10 +31,6 @@ package edu.berkeley.cs.jqf.examples.tomcat;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import com.pholser.junit.quickcheck.From;
-import edu.berkeley.cs.jqf.examples.xml.XMLDocumentUtils;
-import edu.berkeley.cs.jqf.examples.xml.ReversedXmlDocumentGenerator;
-import edu.berkeley.cs.jqf.examples.common.Dictionary;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import org.apache.tomcat.util.descriptor.web.WebXml;
@@ -42,7 +38,6 @@ import org.apache.tomcat.util.descriptor.web.WebXmlParser;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 @RunWith(JQF.class)
@@ -55,17 +50,6 @@ public class WebXmlTest {
         WebXmlParser parser = new WebXmlParser(false, false, true);
         boolean success = parser.parseWebXml(inputSource, webXml, false);
         Assume.assumeTrue(success);
-    }
-
-    @Fuzz
-    public void testWithGenerator(@From(ReversedXmlDocumentGenerator.class) @Dictionary("dictionaries/tomcat-webxml.dict") Document dom) {
-        testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
-    }
-
-    @Fuzz
-    public void debugWithGenerator(@From(ReversedXmlDocumentGenerator.class) @Dictionary("dictionaries/tomcat-webxml.dict") Document dom) {
-        System.out.println(XMLDocumentUtils.documentToString(dom));
-        testWithGenerator(dom);
     }
 
     @Fuzz

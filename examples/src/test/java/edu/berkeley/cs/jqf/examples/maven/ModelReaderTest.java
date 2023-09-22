@@ -35,7 +35,6 @@ import java.io.InputStream;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.generator.Size;
 import edu.berkeley.cs.jqf.examples.xml.XMLDocumentUtils;
-import edu.berkeley.cs.jqf.examples.xml.ReversedXmlDocumentGenerator;
 import edu.berkeley.cs.jqf.examples.common.Dictionary;
 import edu.berkeley.cs.jqf.examples.xml.XmlDocumentGenerator;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
@@ -64,25 +63,10 @@ public class ModelReaderTest {
     }
 
     @Fuzz
-    public void testWithReversedGenerator(@From(ReversedXmlDocumentGenerator.class)
-                                      @Size(min = 0, max = 10)
-                                      @Dictionary("dictionaries/maven-model.dict") Document dom) {
-        testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
-    }
-
-    @Fuzz
     public void testWithGenerator(@From(XmlDocumentGenerator.class)
                                   @Size(min = 0, max = 10)
                                   @Dictionary("dictionaries/maven-model.dict") Document dom) {
         testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
-    }
-
-    @Fuzz
-    public void debugWithGenerator(@From(ReversedXmlDocumentGenerator.class)
-                                       @Size(min = 0, max = 10)
-                                       @Dictionary("dictionaries/maven-model.dict") Document dom) {
-        System.out.println(XMLDocumentUtils.documentToString(dom));
-        testWithGenerator(dom);
     }
 
     @Fuzz

@@ -64,6 +64,7 @@ import edu.berkeley.cs.jqf.fuzz.guidance.Result;
 import edu.berkeley.cs.jqf.fuzz.guidance.TimeoutException;
 import edu.berkeley.cs.jqf.fuzz.util.Coverage;
 import edu.berkeley.cs.jqf.fuzz.util.CoverageFactory;
+import edu.berkeley.cs.jqf.fuzz.util.DefaultFastCoverageListener;
 import edu.berkeley.cs.jqf.fuzz.util.FastNonCollidingCoverage;
 import edu.berkeley.cs.jqf.fuzz.util.ICoverage;
 import edu.berkeley.cs.jqf.fuzz.util.IOUtils;
@@ -661,7 +662,7 @@ public class ZestGuidance implements Guidance {
     @Override
     public InputStream getInput() throws GuidanceException {
         if (this.runCoverage instanceof FastCoverageListener) {
-            FastCoverageSnoop.setFastCoverageListener(new FastCoverageListener.Default());
+            FastCoverageSnoop.setFastCoverageListener(new DefaultFastCoverageListener());
         }
         conditionallySynchronize(multiThreaded, () -> {
             // Clear coverage stats for this run
@@ -716,6 +717,10 @@ public class ZestGuidance implements Guidance {
                 // Start time-counting for timeout handling
                 this.runStart = new Date();
                 this.branchCount = 0;
+
+                if (this.runCoverage instanceof FastCoverageListener) {
+                    ((FastCoverageListener) runCoverage).start();
+                }
             }
         });
 
@@ -752,6 +757,9 @@ public class ZestGuidance implements Guidance {
         conditionallySynchronize(multiThreaded, () -> {
             // Stop timeout handling
             this.runStart = null;
+            if (this.runCoverage instanceof FastCoverageListener) {
+                ((FastCoverageListener) this.runCoverage).done();
+            }
 
             // Increment run count
             this.numTrials++;
