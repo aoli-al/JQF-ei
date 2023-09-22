@@ -882,7 +882,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
                 @Override
                 public Integer next() {
-                    return valuesMap.get(keyIt.next().hashCode());
+                    ExecutionIndex next = keyIt.next();
+                    return valuesMap.get(next.hashCode());
                 }
             };
         }
@@ -924,12 +925,20 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         @Override
         public int getOrGenerateFresh(ExecutionIndex key, Random random) {
             int value;
+
             try {
-                value = in.read();
+                if (valuesMap.containsKey(key.hashCode())) {
+                    value = valuesMap.get(key.hashCode());
+                    in.read(); // We need to consume this byte anyway.
+                } else {
+                    value = in.read();
+                }
             } catch (IOException e) {
                 throw new GuidanceException("Error reading from seed file: " + seedFile.getName(), e);
 
             }
+
+
 
             // Check for EOF (ideally, should not happen since generators are expected to be deterministic)
             if (value == -1) {

@@ -154,8 +154,10 @@ public class ReproGuidance implements Guidance {
      */
     @Override
     public InputStream getInput() {
+
         try {
             File inputFile = inputFiles[nextFileIdx];
+
             this.inputStream = new BufferedInputStream(new FileInputStream(inputFile));
 
             if (allBranchesCovered != null) {
