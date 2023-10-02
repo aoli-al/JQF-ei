@@ -57,10 +57,10 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                         cov_all_intersection[algorithm] = set(result)
                     cov_all_union[algorithm] |= result
                     cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
-                with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-intersection.txt"), "w") as f:
-                    f.writelines(sorted(cov_all_intersection[algorithm]))
-                with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-union.txt"), "w") as f:
-                    f.writelines(sorted(cov_all_union[algorithm]))
+            with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-intersection.txt"), "w") as f:
+                f.writelines(sorted(cov_all_intersection[algorithm]))
+            with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-union.txt"), "w") as f:
+                f.writelines(sorted(cov_all_union[algorithm]))
 
             data = cov_data[dataset][algorithm]
             if not data:
@@ -70,8 +70,6 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             # print(algorithm)
             # for b in data:
             #     print(len(b))
-            if dataset == "closure":
-                print([len(x) for x in data])
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
 

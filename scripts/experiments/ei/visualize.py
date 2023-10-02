@@ -70,7 +70,7 @@ def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
 
 
 def map_algorithm(algo: str) -> str:
-    if algo == "mix":
+    if algo == "mix" or algo == "mix-testWithGenerator":
         return "Mix"
     if algo == "zest-fast" or algo == "zest-testWithGenerator":
         return "Zest"
@@ -88,6 +88,7 @@ def map_algorithm(algo: str) -> str:
         return "EI"
     if algo == "mix-no-havoc":
         return "Mix-No-Havoc"
+    print(algo)
     return "?"
 
 def color_mapping(algo: str) -> str:
@@ -127,9 +128,11 @@ def process_plot_data(path: str) -> pd.DataFrame:
 
 INTERESTING = [
     'org/mozilla/javascript',
-    'com/google/javascript/jscomp',
-    'com/google/javascript/rhino',
-    'com/google/javascript/refactoring',
+    'com/google/javascript',
+    'org/apache/maven/model',
+    'org/apache/tools/ant',
+    'org/apache/bcel/verifier',
+    'chocopy/reference'
     # "org/codehaus/plexus/util/xml", "org/apache/maven/model",
     # "com/sun/org/apache/xerces", "org/apache/tools/ant",
     # "com/google/javascript/jscomp/parsing", "com/google/javascript/jscomp/",
@@ -143,7 +146,9 @@ def process_cov_data(path: str) -> Set[str]:
     if os.path.exists(path):
         with open(path) as f:
             for line in f:
-                result.add(line)
+                for pattern in INTERESTING:
+                    if pattern in line or True:
+                        result.add(line)
     return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
