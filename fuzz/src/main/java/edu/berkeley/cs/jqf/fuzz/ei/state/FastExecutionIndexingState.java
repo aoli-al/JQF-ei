@@ -56,4 +56,11 @@ public class FastExecutionIndexingState extends AbstractExecutionIndexingState i
             setLastEventIid(iid + arm);
         }
     }
+
+    @Override
+    public void done() {
+    }
+
+    public void start() {}
+
 }

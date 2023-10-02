@@ -69,21 +69,6 @@ public class ParserTest {
     }
 
     @Fuzz
-    public void testWithReversedGenerator(@From(ReversedJavaClassGenerator.class) JavaClass javaClass) throws IOException {
-
-        try {
-            // Dump the javaclass to a byte stream and get an input pipe
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            javaClass.dump(out);
-
-            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-            testWithInputStream(in);
-        } catch (ClassFormatException e) {
-            throw e;
-        }
-    }
-
-    @Fuzz
     public void testWithGenerator(@From(JavaClassGenerator.class) JavaClass javaClass) throws IOException {
 
         try {

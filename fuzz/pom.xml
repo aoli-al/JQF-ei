@@ -72,14 +72,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                    	<manifest>
-                    		<addClasspath>true</addClasspath>
-                    		<classpathPrefix>dependency/</classpathPrefix>
-                    	</manifest>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin> 
 		        <groupId>org.apache.maven.plugins</groupId> 
@@ -119,6 +111,27 @@
                                     <mainClass>edu.berkeley.cs.jqf.fuzz.ei.ZestCLI</mainClass>
                                 </manifest>
                             </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.antlr.runtime</pattern>
+                                    <shadedPattern>org.antlr.runtime.shaded</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

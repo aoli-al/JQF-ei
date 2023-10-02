@@ -47,7 +47,7 @@ import java.util.Iterator;
  *
  * @author Jonathan Bell
  */
-public class FastNonCollidingCoverage extends FastCoverageListener.Default implements ICoverage<FastNonCollidingCounter> {
+public class FastNonCollidingCoverage extends DefaultFastCoverageListener implements ICoverage<FastNonCollidingCounter> {
 
     /** The starting size of the coverage map. */
     private final int COVERAGE_MAP_SIZE = (1 << 8);
@@ -241,16 +241,19 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
 
     @Override
     public void logMethodBegin(int iid) {
+        super.logMethodBegin(iid);
         logCoverage(iid, 0);
     }
 
     @Override
     public void logJump(int iid, int branch) {
+        super.logJump(iid, branch);
         logCoverage(iid, branch);
     }
 
     @Override
     public void logLookUpSwitch(int value, int iid, int dflt, int[] cases) {
+        super.logLookUpSwitch(value, iid, dflt, cases);
         // Compute arm index or else default
         int arm = cases.length;
         for (int i = 0; i < cases.length; i++) {
@@ -265,6 +268,7 @@ public class FastNonCollidingCoverage extends FastCoverageListener.Default imple
 
     @Override
     public void logTableSwitch(int value, int iid, int min, int max, int dflt) {
+        super.logTableSwitch(value, iid, min, max, dflt);
         int arm = 1 + max - min;
         if (value >= min && value <= max) {
             arm = value - min;
