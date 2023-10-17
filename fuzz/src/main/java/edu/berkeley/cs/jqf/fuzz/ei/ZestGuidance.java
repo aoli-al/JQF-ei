@@ -810,11 +810,15 @@ public class ZestGuidance implements Guidance {
     }
 
     private void logMutation(boolean saved) {
-        if (currentRaw != null && savedInputs.get(currentParentInputIdx).raw != null) {
-            int distance = getLevenshteinDistFromString(currentRaw, savedInputs.get(currentParentInputIdx).raw);
-            String text = distance + ", " + saved + ", " + currentParentInputIdx;
+        String parentRaw =savedInputs.get(currentParentInputIdx).raw;
+        if (currentRaw != null && parentRaw != null) {
+            int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
+            String text =  currentRaw.length() + "," +  parentRaw.length() + "," +
+                    distance + "," + saved + "," + currentParentInputIdx + ",";
             if (saved) {
-                text += ", " + currentInput.id;
+                text += Integer.toString(currentInput.id);
+            } else {
+                text += "-1";
             }
             appendLineToFile(mutationLog, text);
         }
