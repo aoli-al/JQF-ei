@@ -1,9 +1,10 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 DATASET = [
-     "ant", "maven", "bcel",
-    "rhino", "closure",
-     "chocopy", "gson", "jackson"
+    #  "ant", "maven", "bcel",
+    # "rhino", "closure",
+    #  "chocopy", "gson", "jackson",
+    "jython"
 ]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]
@@ -29,5 +30,5 @@ DATASET_TEST_CLASS_MAPPING = {
     "chocopy": TEST_CLASS_PREFIX + "chocopy.SemanticAnalysisTest",
     "gson": TEST_CLASS_PREFIX + "gson.JsonTest",
     "jackson": TEST_CLASS_PREFIX + "jackson.JsonTest",
-
+    "jython": TEST_CLASS_PREFIX + "jython.JythonInterpreterTest",
 }
