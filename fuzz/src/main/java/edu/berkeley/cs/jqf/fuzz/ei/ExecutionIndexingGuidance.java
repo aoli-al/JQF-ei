@@ -552,6 +552,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             }
 
             // If we reached a limit, then just return EOF
+
+
             if (orderedKeys.size() >= MAX_INPUT_SIZE) {
                 return -1;
             }
