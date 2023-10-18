@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="mutation-project" packages="">
+    <Properties>
+        <Property name="LOG_DIR1">./mutation-log</Property>
+    </Properties>
+    <Appenders>
+        <RollingFile
+                name="rollingFile1"
+                fileName="${LOG_DIR1}/mutation.log"
+                filePattern="${LOG_DIR1}/mutation.%i.log.gz"
+                ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>%d{ISO8601}%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1GB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"> </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="mutation-logger" level="debug" additivity="false">
+            <AppenderRef ref="rollingFile1"/>
+        </Logger>
+        <Root level="debug"/>
+    </Loggers>
+</Configuration>

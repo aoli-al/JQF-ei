@@ -29,34 +29,15 @@
  */
 package edu.berkeley.cs.jqf.fuzz.ei;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import edu.berkeley.cs.jqf.fuzz.guidance.Guidance;
 import edu.berkeley.cs.jqf.fuzz.guidance.GuidanceException;
@@ -71,11 +52,21 @@ import edu.berkeley.cs.jqf.fuzz.util.IOUtils;
 import edu.berkeley.cs.jqf.instrument.tracing.FastCoverageSnoop;
 import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEvent;
 import janala.instrument.FastCoverageListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
+import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
+import org.w3c.dom.Document;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.log;
@@ -867,6 +858,109 @@ public class ZestGuidance implements Guidance {
                 GuidanceException.wrap(() -> writeCurrentInputToFile(saveFile));
             }
         });
+        log_mutation_statistics(result);
+    }
+
+    // logging: helper functions
+    @Override
+    public void observeGeneratedArgs(Object[] args) {
+        if(args != null) {
+            String[] values = new String[args.length];
+            if (args[0] instanceof Document) {
+                for(int i=0; i<args.length; i++) {
+                    values[i] = documentToString((Document) args[i]);
+                }
+            } else{
+                for(int i=0; i<args.length; i++) {
+                    values[i] = args[i].toString();
+                }
+            }
+            this.currentInput.value = values;
+        }
+    }
+
+    private static String documentToString(Document document) {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            StringWriter stream = new StringWriter();
+            transformer.transform(new DOMSource(document), new StreamResult(stream));
+            return stream.toString();
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void log_mutation_statistics(Result result) {
+        // log4j logger
+        Logger mutationLogger = LogManager.getLogger("mutation-logger");
+
+        // get the parent input
+        Input parentInput = this.savedInputs.get(this.currentParentInputIdx);
+
+        // mutation distance
+        String mutationDistance = getMutationDistanceString(parentInput.value, this.currentInput.value);
+
+        // coverage info
+        IntIntHashMap currentCoverage = this.currentInput.coverage == null? new IntIntHashMap():this.currentInput.coverage.getNonZeroCoverageMap();
+        IntIntHashMap parentCoverage = parentInput.coverage == null? new IntIntHashMap(): parentInput.coverage.getNonZeroCoverageMap();
+        int diff_in_num_of_branches = parentCoverage.keySet().select(k -> !currentCoverage.containsKey(k)).size() +
+                currentCoverage.keySet().select(k -> !parentCoverage.containsKey(k)).size();
+        long parent_cov_values = parentCoverage.values().sum();
+        long child_cov_values = currentCoverage.values().sum();
+
+        mutationLogger.error(String.format("; %d; %s; %s; %d; %d; %d",
+                parentInput.id, result,
+                mutationDistance,
+                diff_in_num_of_branches,
+                (child_cov_values - parent_cov_values),
+                (parent_cov_values + child_cov_values)));
+    }
+
+    private String getMutationDistanceString(String[] parent, String[] child) {
+        assert(child != null);
+        if (parent == null) {
+            return IntStream.range(0, child.length)
+                    .mapToObj(i -> "" + getLevenshteinDistFromString("", child[i]))
+                    .collect(Collectors.joining(", "));
+        } else {
+            assert(parent.length == child.length);
+            return IntStream.range(0, child.length)
+                    .mapToObj(i -> "" + getLevenshteinDistFromString(parent[i], child[i]))
+                    .collect(Collectors.joining(", "));
+        }
+    }
+
+    private int getLevenshteinDistFromString(String s1, String s2) {
+        if (s1.equals(s2)) {
+            return 0;
+        }
+        int n = s2.length();
+        int[] v0 = new int[n + 1];
+        int[] v1 = new int[n + 1];
+        for (int i = 0; i < s2.length() + 1; i++) {
+            v0[i] = i;
+        }
+        for (int i = 0; i < s1.length(); i++) {
+            v1[0] = i + 1;
+            for (int j = 0; j < s2.length(); j++) {
+                int deletionCost = v0[j + 1] + 1;
+                int insertionCost = v1[j] + 1;
+                int substitutionCost = 0;
+                if (s1.charAt(i) == s2.charAt(j)) {
+                    substitutionCost = v0[j];
+                } else {
+                    substitutionCost = v0[j] + 1;
+                }
+                int min = deletionCost < insertionCost ? deletionCost : insertionCost;
+                v1[j + 1] = min < substitutionCost ? min : substitutionCost;
+            }
+            // swap
+            int[] tmp = v0;
+            v0 = v1;
+            v1 = tmp;
+        }
+        return v0[n];
     }
 
     // Return a list of saving criteria that have been satisfied for a non-failure input
@@ -1112,6 +1206,8 @@ public class ZestGuidance implements Guidance {
      * A candidate or saved test input that maps objects of type K to bytes.
      */
     public static abstract class Input<K> implements Iterable<Integer> {
+
+        String[] value = null;
 
         /**
          * The file where this input is saved.

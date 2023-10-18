@@ -30,6 +30,7 @@ package edu.berkeley.cs.jqf.fuzz.util;
 
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
+import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,5 +240,16 @@ public class Counter {
 
     public void setAtIndex(int idx, int value) {
         this.counts[idx] = value;
+    }
+
+    public IntIntHashMap getNonZeroEntries() {
+        IntIntHashMap entries = new IntIntHashMap();
+        for (int i = 0; i < counts.length; i++) {
+            int count = counts[i];
+            if (count != 0) {
+                entries.put(i, count);
+            }
+        }
+        return entries;
     }
 }

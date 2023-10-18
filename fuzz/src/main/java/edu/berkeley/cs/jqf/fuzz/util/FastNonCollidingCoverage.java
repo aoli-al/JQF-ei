@@ -36,6 +36,7 @@ import org.eclipse.collections.api.iterator.IntIterator;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.tuple.primitive.IntIntPair;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
+import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -279,5 +280,10 @@ public class FastNonCollidingCoverage extends DefaultFastCoverageListener implem
 
     private void logCoverage(int iid, int arm) {
         counter.increment(iid + arm);
+    }
+
+    @Override
+    public IntIntHashMap getNonZeroCoverageMap() {
+        return counter.getNonZeroEntries();
     }
 }
