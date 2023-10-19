@@ -861,24 +861,24 @@ public class ZestGuidance implements Guidance {
         log_mutation_statistics(result);
     }
 
-    // logging: helper functions
     @Override
     public void observeGeneratedArgs(Object[] args) {
-        if(args != null) {
-            String[] values = new String[args.length];
-            if (args[0] instanceof Document) {
-                for(int i=0; i<args.length; i++) {
-                    values[i] = documentToString((Document) args[i]);
-                }
-            } else{
-                for(int i=0; i<args.length; i++) {
-                    values[i] = args[i].toString();
-                }
+        assert(args != null);
+        String[] values = new String[args.length];
+        if (args[0] instanceof Document) {
+            for(int i=0; i<args.length; i++) {
+                // convert the document to string
+                values[i] = documentToString((Document) args[i]);
             }
-            this.currentInput.value = values;
+        } else{
+            for(int i=0; i<args.length; i++) {
+                values[i] = args[i].toString();
+            }
         }
+        this.currentInput.value = values;
     }
 
+    // a helper function that converts the document to string
     private static String documentToString(Document document) {
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -892,27 +892,29 @@ public class ZestGuidance implements Guidance {
     }
 
     protected void log_mutation_statistics(Result result) {
-        // log4j logger
+        // set up the log4j logger
         Logger mutationLogger = LogManager.getLogger("mutation-logger");
 
         // get the parent input
         Input parentInput = this.savedInputs.get(this.currentParentInputIdx);
 
-        // mutation distance
+        // compute the mutation distance
         String mutationDistance = getMutationDistanceString(parentInput.value, this.currentInput.value);
 
-        // coverage info
-        IntIntHashMap currentCoverage = this.currentInput.coverage == null? new IntIntHashMap():this.currentInput.coverage.getNonZeroCoverageMap();
-        IntIntHashMap parentCoverage = parentInput.coverage == null? new IntIntHashMap(): parentInput.coverage.getNonZeroCoverageMap();
-        int diff_in_num_of_branches = parentCoverage.keySet().select(k -> !currentCoverage.containsKey(k)).size() +
+        // compute the coverage information
+        IntIntHashMap currentCoverage = this.currentInput.coverage == null? new IntIntHashMap() : this.currentInput.coverage.getNonZeroCoverageMap();
+        IntIntHashMap parentCoverage = parentInput.coverage == null? new IntIntHashMap() : parentInput.coverage.getNonZeroCoverageMap();
+        int diff_in_covered_branches = parentCoverage.keySet().select(k -> !currentCoverage.containsKey(k)).size() +
                 currentCoverage.keySet().select(k -> !parentCoverage.containsKey(k)).size();
         long parent_cov_values = parentCoverage.values().sum();
         long child_cov_values = currentCoverage.values().sum();
 
+        // log the parent input id, the result status, the mutation distance, the number of different branches,
+        // the difference between the path lengths, the sum of path lengths
         mutationLogger.error(String.format("; %d; %s; %s; %d; %d; %d",
                 parentInput.id, result,
                 mutationDistance,
-                diff_in_num_of_branches,
+                diff_in_covered_branches,
                 (child_cov_values - parent_cov_values),
                 (parent_cov_values + child_cov_values)));
     }
