@@ -13,6 +13,7 @@ from functools import reduce
 from scipy import stats
 import cliffs_delta
 import json
+import matplotlib.pyplot as plt
 
 
 def write_cov_data(data: Set[str], path: str):
@@ -208,6 +209,31 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
         data = list(filter((0).__ne__, data))
         generate_coverage_delta_hist(os.path.join(output_dir, dataset + "-delta-hist.pdf"),
                                         pd.DataFrame(data))
+
+
+def parse_and_visualize_mutation_data(path: str, saved_only: bool):
+    for dataset in DATASET:
+        print(dataset)
+        dfs = []
+        for algorithm in ["zest", "ei"]:
+            for i in range(1):
+                data_path = os.path.join(path, f"{dataset}-{algorithm}-testWithGenerator-results-{i}", "mutation.log")
+                if os.path.exists(data_path):
+                    data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id"], na_values=-1)
+                    data_frame["algorithm"] = algorithm
+                    if saved_only:
+                        data_frame = data_frame[data_frame["saved"]]
+                    data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)
+                    data_frame["mutation"] = data_frame["distance"] / data_frame["max_length"]
+                    dfs.append(data_frame)
+        if dfs:
+            dfs = pd.concat(dfs)
+            dfs.dropna(subset = ['mutation'], inplace=True)
+            res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="percent", bins=20, multiple="dodge")
+            res.set(title=dataset)
+            plt.show()
+    # sns.histplot(data_frame,  x="distance")
+
 
 
 def identify_algorithms(paths: List[str]) -> List[str]:
