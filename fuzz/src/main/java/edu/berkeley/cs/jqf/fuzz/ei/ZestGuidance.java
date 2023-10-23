@@ -198,6 +198,9 @@ public class ZestGuidance implements Guidance {
     /** The file where log data is written. */
     protected File logFile;
 
+    /** The file where log data is written. */
+    protected File mutationLog;
+
     /** The file where saved plot data is written. */
     protected File statsFile;
 
@@ -217,6 +220,8 @@ public class ZestGuidance implements Guidance {
     protected final boolean LOG_ALL_INPUTS = Boolean.getBoolean("jqf.ei.LOG_ALL_INPUTS");
 
     protected final boolean PERFORMANCE_GUIDANCE = Boolean.getBoolean("jqf.ei.PERFORMANCE_GUIDANCE");
+
+    protected final boolean OBSERVE_MUTATION_DISTANCE = Boolean.getBoolean("jqf.ei.OBSERVE_MUTATION_DISTANCE");
 
     // ------------- TIMEOUT HANDLING ------------
 
@@ -269,6 +274,8 @@ public class ZestGuidance implements Guidance {
     /** Whether to steal responsibility from old inputs (this increases computation cost). */
     protected final boolean STEAL_RESPONSIBILITY = Boolean.getBoolean("jqf.ei.STEAL_RESPONSIBILITY");
 
+    protected String currentRaw = null;
+
     /**
      * Creates a new Zest guidance instance with optional duration,
      * optional trial limit, and possibly deterministic PRNG.
@@ -302,6 +309,22 @@ public class ZestGuidance implements Guidance {
                 throw new IllegalArgumentException("Invalid timeout duration: " + timeout);
             }
         }
+    }
+
+    @Override
+    public void observeGeneratedArgs(Object[] args) {
+        if (!OBSERVE_MUTATION_DISTANCE) {
+            return;
+        }
+
+        if (args.length != 1) {
+            return;
+        }
+
+        if (!(args[0] instanceof String)) {
+            return;
+        }
+        currentRaw = (String) args[0];
     }
 
     /**
@@ -403,6 +426,7 @@ public class ZestGuidance implements Guidance {
         }
         this.statsFile = new File(outputDirectory, "plot_data");
         this.logFile = new File(outputDirectory, "fuzz.log");
+        this.mutationLog = new File(outputDirectory, "mutation.log");
         this.currentInputFile = new File(outputDirectory, ".cur_input");
         this.coverageFile = new File(outputDirectory, "coverage_hash");
 
@@ -412,6 +436,7 @@ public class ZestGuidance implements Guidance {
         // We also do not check if the deletes are actually successful.
         statsFile.delete();
         logFile.delete();
+        mutationLog.delete();
         coverageFile.delete();
         for (File file : savedCorpusDirectory.listFiles()) {
             file.delete();
@@ -752,6 +777,54 @@ public class ZestGuidance implements Guidance {
         Guidance.super.run(testClass, method, args);
     }
 
+    private int getLevenshteinDistFromString(String s1, String s2) {
+        if (s1.equals(s2)) {
+            return 0;
+        }
+        int n = s2.length();
+        int[] v0 = new int[n + 1];
+        int[] v1 = new int[n + 1];
+        for (int i = 0; i < s2.length() + 1; i++) {
+            v0[i] = i;
+        }
+        for (int i = 0; i < s1.length(); i++) {
+            v1[0] = i + 1;
+            for (int j = 0; j < s2.length(); j++) {
+                int deletionCost = v0[j + 1] + 1;
+                int insertionCost = v1[j] + 1;
+                int substitutionCost = 0;
+                if (s1.charAt(i) == s2.charAt(j)) {
+                    substitutionCost = v0[j];
+                } else {
+                    substitutionCost = v0[j] + 1;
+                }
+                int min = deletionCost < insertionCost ? deletionCost : insertionCost;
+                v1[j + 1] = min < substitutionCost ? min : substitutionCost;
+            }
+            // swap
+            int[] tmp = v0;
+            v0 = v1;
+            v1 = tmp;
+        }
+        return v0[n];
+    }
+
+    private void logMutation(boolean saved) {
+        String parentRaw =savedInputs.get(currentParentInputIdx).raw;
+        if (currentRaw != null && parentRaw != null) {
+            int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
+            String text =  currentRaw.length() + "," +  parentRaw.length() + "," +
+                    distance + "," + saved + "," + currentParentInputIdx + ",";
+            if (saved) {
+                text += Integer.toString(currentInput.id);
+            } else {
+                text += "-1";
+            }
+            appendLineToFile(mutationLog, text);
+        }
+    }
+
+
     @Override
     public void handleResult(Result result, Throwable error) throws GuidanceException {
         conditionallySynchronize(multiThreaded, () -> {
@@ -765,12 +838,12 @@ public class ZestGuidance implements Guidance {
             this.numTrials++;
 
             boolean valid = result == Result.SUCCESS;
+            boolean toSave = false;
 
             if (valid) {
                 // Increment valid counter
                 numValid++;
             }
-
 
             if (result == Result.SUCCESS || (result == Result.INVALID && !SAVE_ONLY_VALID)) {
 
@@ -782,7 +855,7 @@ public class ZestGuidance implements Guidance {
 
                 // Determine if this input should be saved
                 List<String> savingCriteriaSatisfied = checkSavingCriteriaSatisfied(result);
-                boolean toSave = savingCriteriaSatisfied.size() > 0;
+                toSave = savingCriteriaSatisfied.size() > 0;
 
                 if (toSave) {
                     String why = String.join(" ", savingCriteriaSatisfied);
@@ -858,6 +931,11 @@ public class ZestGuidance implements Guidance {
             if (!LIBFUZZER_COMPAT_OUTPUT) {
                 displayStats(false);
             }
+
+            if (OBSERVE_MUTATION_DISTANCE && !savedInputs.isEmpty()) {
+                logMutation(toSave);
+            }
+
 
             // Save input unconditionally if such a setting is enabled
             if (LOG_ALL_INPUTS && (SAVE_ONLY_VALID ? valid : true)) {
@@ -1008,6 +1086,7 @@ public class ZestGuidance implements Guidance {
         currentInput.coverage = runCoverage.copy();
         currentInput.nonZeroCoverage = runCoverage.getNonZeroCount();
         currentInput.offspring = 0;
+        currentInput.raw = currentRaw;
         savedInputs.get(currentParentInputIdx).offspring += 1;
 
         // Fourth, assume responsibility for branches
@@ -1139,6 +1218,11 @@ public class ZestGuidance implements Guidance {
          * operations.</p>
          */
         String desc;
+
+        /**
+         * Raw string representation if available.
+         */
+        String raw;
 
         /**
          * The run coverage for this input, if the input is saved.
