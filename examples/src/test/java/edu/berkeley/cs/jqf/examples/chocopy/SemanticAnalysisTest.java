@@ -21,4 +21,11 @@ public class SemanticAnalysisTest {
         assumeTrue(!program.hasErrors());
         RefAnalysis.process(program);
     }
+
+    @Fuzz
+    public void testWithReversedGenerator(@From(ReversedChocoPySemanticGenerator.class) String code) {
+        Program program = RefParser.process(code, false);
+        assumeTrue(!program.hasErrors());
+        RefAnalysis.process(program);
+    }
 }

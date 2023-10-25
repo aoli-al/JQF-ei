@@ -31,6 +31,10 @@ package edu.berkeley.cs.jqf.examples.tomcat;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import com.pholser.junit.quickcheck.From;
+import edu.berkeley.cs.jqf.examples.common.Dictionary;
+import edu.berkeley.cs.jqf.examples.xml.ReversedXmlDocumentGenerator;
+import edu.berkeley.cs.jqf.examples.xml.XmlDocumentGenerator;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import org.apache.tomcat.util.descriptor.web.WebXml;
@@ -42,6 +46,18 @@ import org.xml.sax.InputSource;
 
 @RunWith(JQF.class)
 public class WebXmlTest {
+
+    @Fuzz
+    public void testWithGenerator(@From(XmlDocumentGenerator.class) @Dictionary("dictionaries/tomcat-webxml.dict") String dom) {
+        testWithString(dom);
+    }
+
+    @Fuzz
+    public void testWithReversedGenerator(@From(ReversedXmlDocumentGenerator.class)
+                                              @Dictionary("dictionaries/tomcat-webxml.dict") String dom) {
+        testWithString(dom);
+    }
+
 
     @Fuzz
     public void testWithInputStream(InputStream in) {

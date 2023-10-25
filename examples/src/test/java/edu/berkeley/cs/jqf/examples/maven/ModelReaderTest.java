@@ -31,9 +31,11 @@ package edu.berkeley.cs.jqf.examples.maven;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.generator.Size;
+import edu.berkeley.cs.jqf.examples.xml.ReversedXmlDocumentGenerator;
 import edu.berkeley.cs.jqf.examples.xml.XMLDocumentUtils;
 import edu.berkeley.cs.jqf.examples.common.Dictionary;
 import edu.berkeley.cs.jqf.examples.xml.XmlDocumentGenerator;
@@ -65,8 +67,15 @@ public class ModelReaderTest {
     @Fuzz
     public void testWithGenerator(@From(XmlDocumentGenerator.class)
                                   @Size(min = 0, max = 10)
-                                  @Dictionary("dictionaries/maven-model.dict") Document dom) {
-        testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
+                                  @Dictionary("dictionaries/maven-model.dict") String dom) {
+        testWithInputStream(new ByteArrayInputStream(dom.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @Fuzz
+    public void testWithReversedGenerator(@From(ReversedXmlDocumentGenerator.class)
+                                  @Size(min = 0, max = 10)
+                                  @Dictionary("dictionaries/maven-model.dict") String dom) {
+        testWithInputStream(new ByteArrayInputStream(dom.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Fuzz

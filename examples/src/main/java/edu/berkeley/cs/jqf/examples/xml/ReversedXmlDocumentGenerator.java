@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2017-2018 The Regents of the University of California
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.berkeley.cs.jqf.examples.xml;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -10,6 +38,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
 import com.pholser.junit.quickcheck.generator.GenerationStatus;
 import com.pholser.junit.quickcheck.generator.Generator;
@@ -20,17 +49,14 @@ import edu.berkeley.cs.jqf.examples.common.AlphaStringGenerator;
 import edu.berkeley.cs.jqf.examples.common.Dictionary;
 import edu.berkeley.cs.jqf.examples.common.DictionaryBackedStringGenerator;
 import org.junit.Assume;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 /**
  * A generator for XML documents.
  *
  * @author Rohan Padhye
  */
-public class XmlDocumentGenerator extends Generator<String> {
+public class ReversedXmlDocumentGenerator extends Generator<String> {
 
     private static DocumentBuilderFactory documentBuilderFactory =
             DocumentBuilderFactory.newInstance();
@@ -58,7 +84,7 @@ public class XmlDocumentGenerator extends Generator<String> {
 
     private Generator<String> stringGenerator = new AlphaStringGenerator();
 
-    public XmlDocumentGenerator() {
+    public ReversedXmlDocumentGenerator() {
         super(String.class);
     }
 
@@ -142,24 +168,30 @@ public class XmlDocumentGenerator extends Generator<String> {
         // Add attributes
         int numAttributes = Math.max(0, geometricDistribution.sampleWithMean(MEAN_NUM_ATTRIBUTES, random)-1);
         for (int i = 0; i < numAttributes; i++) {
-            elem.setAttribute(makeString(random, status), makeString(random, status));
+            String a1 = makeString(random, status);
+            String a2 = makeString(random, status);
+            elem.setAttribute(a2, a1);
         }
         // Make children
+        ArrayList<Node> elems = new ArrayList<>();
         if (depth < minDepth || (depth < maxDepth && random.nextBoolean())) {
             int numChildren = Math.max(0, geometricDistribution.sampleWithMean(MEAN_NUM_CHILDREN, random)-1);
             for (int i = 0; i < numChildren; i++) {
                 Element child = document.createElement(makeString(random, status));
                 populateElement(document, child, random, status, depth+1);
-                elem.appendChild(child);
+                elems.add(0, child);
             }
         } else if (random.nextBoolean()) {
             // Add text
             Text text = document.createTextNode(makeString(random, status));
-            elem.appendChild(text);
+            elems.add(0, text);
         } else if (random.nextBoolean()) {
             // Add text as CDATA
             Text text = document.createCDATASection(makeString(random, status));
-            elem.appendChild(text);
+            elems.add(0, text);
+        }
+        for (Node node : elems) {
+            elem.appendChild(node);
         }
     }
 }
