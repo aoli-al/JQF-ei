@@ -107,7 +107,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0.8;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
@@ -728,8 +728,10 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
             for (int mutation = 1; mutation <= numMutations; mutation++) {
 
-                // Select a random offset and size
-                int offset = random.nextInt(newInput.valuesMap.size());
+                // Select a random offset and size. We need to select the random location
+                // from parent input's orderedKeys because the list for the new input
+                // is not constructed.
+                int offset = random.nextInt(orderedKeys.size());
                 int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
                 // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
 
@@ -741,20 +743,14 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 }
 
                 // Iterate over all entries in the value map
-
-
-                IntIterator entryIterator = newInput.valuesMap.keysView().intIterator();
-                for (int i = 0; entryIterator.hasNext(); i++) {
-                    int e = entryIterator.next();
-                    if (i >= offset && i < (offset + mutationSize)) {
-                        // Apply a random mutation
-                        int originValue = newInput.valuesMap.get(e);
-                        int mutatedValue = setToZero && originValue != 0 ? 0 : random.nextInt(256);
-                        newInput.valuesMap.put(e, mutatedValue);
-                    }
-                    if (i >= (offset + mutationSize)) {
+                for (int i = offset; i < offset + mutationSize; i++) {
+                    if (i >= newInput.orderedKeys.size()) {
                         break;
                     }
+                    int ei = newInput.orderedKeys.get(i).hashCode();
+                    int originValue = newInput.valuesMap.get(ei);
+                    int mutatedValue = setToZero && originValue != 0 ? 0 : random.nextInt(256);
+                    newInput.valuesMap.put(ei, mutatedValue);
                 }
             }
         }
