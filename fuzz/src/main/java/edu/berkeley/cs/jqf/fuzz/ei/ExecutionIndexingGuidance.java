@@ -744,10 +744,10 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
                 // Iterate over all entries in the value map
                 for (int i = offset; i < offset + mutationSize; i++) {
-                    if (i >= newInput.orderedKeys.size()) {
+                    if (i >= orderedKeys.size()) {
                         break;
                     }
-                    int ei = newInput.orderedKeys.get(i).hashCode();
+                    int ei = orderedKeys.get(i).hashCode();
                     int originValue = newInput.valuesMap.get(ei);
                     int mutatedValue = setToZero && originValue != 0 ? 0 : random.nextInt(256);
                     newInput.valuesMap.put(ei, mutatedValue);
