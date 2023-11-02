@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pholser.junit.quickcheck.From;
 import edu.berkeley.cs.jqf.examples.common.AsciiStringGenerator;
+import edu.berkeley.cs.jqf.examples.json.JsonGenerator;
 import edu.berkeley.cs.jqf.fuzz.JQF;
 import edu.berkeley.cs.jqf.fuzz.Fuzz;
 import org.junit.Assume;
@@ -16,7 +17,7 @@ public class JsonTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Fuzz
-    public void testWithGenerator(@From(AsciiStringGenerator.class) String input) {
+    public void testWithGenerator(@From(JsonGenerator.class) String input) {
         Object output = null;
         try {
             objectMapper.readValue(input, Object.class);

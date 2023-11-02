@@ -1087,6 +1087,8 @@ public class ZestGuidance implements Guidance {
         currentInput.nonZeroCoverage = runCoverage.getNonZeroCount();
         currentInput.offspring = 0;
         currentInput.raw = currentRaw;
+
+
         savedInputs.get(currentParentInputIdx).offspring += 1;
 
         // Fourth, assume responsibility for branches
