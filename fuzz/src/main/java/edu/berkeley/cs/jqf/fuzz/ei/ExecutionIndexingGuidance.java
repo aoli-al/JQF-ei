@@ -434,8 +434,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
         protected boolean executed = false;
 
         /** A map from execution indexes to the byte (0-255) to be returned at that index. */
-//        protected LinkedHashMap<ExecutionIndex, Integer> valuesMap;
-        protected IntIntHashMap valuesMap;
+        protected LinkedHashMap<ExecutionIndex, Integer> valuesMap;
+//        protected IntIntHashMap valuesMap;
 
         protected LinearInput linearInput;
 
@@ -458,7 +458,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
          */
         public MappedInput() {
             super();
-            valuesMap = new IntIntHashMap();
+            valuesMap = new LinkedHashMap<>();
             linearInput = new LinearInput();
         }
 
@@ -469,7 +469,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
          */
         public MappedInput(MappedInput toClone) {
             super(toClone);
-            valuesMap = new IntIntHashMap(toClone.valuesMap);
+            valuesMap = new LinkedHashMap<>(toClone.valuesMap);
             linearInput = new LinearInput(toClone.linearInput);
         }
 
@@ -501,7 +501,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
             // Return the mapping for the execution index queried at the offset
             ExecutionIndex ei = orderedKeys.get(offset);
-            return valuesMap.get(ei.hashCode());
+            return valuesMap.get(ei);
         }
 
 
@@ -560,8 +560,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
 
             int val = 0;
-            if (valuesMap.containsKey(key.hashCode())) {
-                val = valuesMap.get(key.hashCode());
+            if (valuesMap.containsKey(key)) {
+                val = valuesMap.get(key);
                 linearInput.requested += 1;
                 linearInput.values.add(val);
             }
@@ -584,7 +584,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 }
                 val = linearInput.getOrGenerateFresh(orderedKeys.size(), random);
 
-                valuesMap.put(key.hashCode(), val);
+                valuesMap.put(key, val);
             }
 
             // Mark this key as visited
@@ -604,10 +604,10 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
          *      larger than {@link #size}()-1
          */
         protected final Integer getValueAtKey(ExecutionIndex ei) throws IndexOutOfBoundsException {
-            if (!valuesMap.containsKey(ei.hashCode())) {
+            if (!valuesMap.containsKey(ei)) {
                 return null;
             }
-            return valuesMap.get(ei.hashCode());
+            return valuesMap.get(ei);
         }
 
         /**
@@ -626,7 +626,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 throw new IllegalStateException("Cannot set value before execution");
             }
 
-            valuesMap.put(ei.hashCode(), val);
+            valuesMap.put(ei, val);
         }
 
         /**
@@ -639,9 +639,9 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
          */
         @Override
         public void gc() {
-            IntIntHashMap newMap = new IntIntHashMap();
+            LinkedHashMap<ExecutionIndex, Integer> newMap = new LinkedHashMap<>();
             for (ExecutionIndex key : orderedKeys) {
-                newMap.put(key.hashCode(), valuesMap.get(key.hashCode()));
+                newMap.put(key, valuesMap.get(key));
             }
             linearInput.gc();
             valuesMap = newMap;
@@ -747,7 +747,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                     if (i >= orderedKeys.size()) {
                         break;
                     }
-                    int ei = orderedKeys.get(i).hashCode();
+                    ExecutionIndex ei = orderedKeys.get(i);
                     int originValue = newInput.valuesMap.get(ei);
                     int mutatedValue = setToZero && originValue != 0 ? 0 : random.nextInt(256);
                     newInput.valuesMap.put(ei, mutatedValue);
@@ -832,7 +832,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                             }
                             Suffix spliceSuffix = candidateEi.getSuffixOfPrefix(sourcePrefix);
                             ExecutionIndex spliceEi = new ExecutionIndex(targetPrefix, spliceSuffix);
-                            newInput.valuesMap.put(spliceEi.hashCode(), sourceInput.valuesMap.get(candidateEi.hashCode()));
+                            newInput.valuesMap.put(spliceEi, sourceInput.valuesMap.get(candidateEi));
 
                             srcIdx++;
                         }
@@ -881,7 +881,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 @Override
                 public Integer next() {
                     ExecutionIndex next = keyIt.next();
-                    return valuesMap.get(next.hashCode());
+                    return valuesMap.get(next);
                 }
             };
         }
@@ -925,8 +925,8 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             int value;
 
             try {
-                if (valuesMap.containsKey(key.hashCode())) {
-                    value = valuesMap.get(key.hashCode());
+                if (valuesMap.containsKey(key)) {
+                    value = valuesMap.get(key);
                     in.read(); // We need to consume this byte anyway.
                 } else {
                     value = in.read();
@@ -952,7 +952,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
             // Populate the value map
             orderedKeys.add(key);
-            valuesMap.put(key.hashCode(), value);
+            valuesMap.put(key, value);
             linearInput.requested += 1;
             linearInput.values.add(value);
 
