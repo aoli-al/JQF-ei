@@ -276,6 +276,9 @@ public class ZestGuidance implements Guidance {
 
     protected String currentRaw = null;
 
+    protected int identicalMutationIndex = 0;
+    protected File identicalMutationDirectory;
+
     /**
      * Creates a new Zest guidance instance with optional duration,
      * optional trial limit, and possibly deterministic PRNG.
@@ -423,6 +426,9 @@ public class ZestGuidance implements Guidance {
             IOUtils.createDirectory(allInputsDirectory, "success");
             IOUtils.createDirectory(allInputsDirectory, "invalid");
             IOUtils.createDirectory(allInputsDirectory, "failure");
+        }
+        if (OBSERVE_MUTATION_DISTANCE) {
+            this.identicalMutationDirectory = IOUtils.createDirectory(outputDirectory, "identical");
         }
         this.statsFile = new File(outputDirectory, "plot_data");
         this.logFile = new File(outputDirectory, "fuzz.log");
@@ -817,6 +823,19 @@ public class ZestGuidance implements Guidance {
                     distance + "," + saved + "," + currentParentInputIdx + ",";
             if (saved) {
                 text += Integer.toString(currentInput.id);
+            } else {
+                text += "-1";
+            }
+            text += ",";
+            if (distance == 0) {
+                String saveFileName = String.format("id_%06d", identicalMutationIndex);
+                File saveFile = new File(identicalMutationDirectory, saveFileName);
+                try {
+                    writeCurrentInputToFile(saveFile);
+                } catch (IOException e) {
+                }
+                text += saveFileName;
+                identicalMutationIndex += 1;
             } else {
                 text += "-1";
             }
