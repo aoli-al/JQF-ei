@@ -107,7 +107,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
-    protected final double STANDARD_SPLICING_PROBABILITY = 0;
+    protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
 
     /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
     protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
