@@ -64,30 +64,25 @@ def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
     return data
 
 
-
-
-
-
-
 def map_algorithm(algo: str) -> str:
-    if algo == "mix" or algo == "mix-testWithGenerator":
+    if "mix-testWithGenerator" in algo:
         return "Mix"
+    if "mix-testWithReversedGenerator" in algo:
+        return "Mix-Rev"
     if algo == "zest-fast" or algo == "zest-testWithGenerator":
         return "Zest"
-    if algo == "zest-testWithSmallReversedGenerator":
+    if algo == "zest-testWithReversedGenerator":
         return "Zest-Rev"
-    if algo == "zest-testWithLargeReversedGenerator":
-        return "Zest-LRev"
     if algo == "ei-fast" or algo == "ei-testWithGenerator":
         return "EI"
-    if algo == "ei-testWithSmallReversedGenerator":
+    if algo == "ei-testWithReversedGenerator":
         return "EI-Rev"
-    if algo == "ei-testWithLargeReversedGenerator":
-        return "EI-LRev"
     if algo == "ei-no-havoc":
         return "EI"
     if algo == "mix-no-havoc":
         return "Mix-No-Havoc"
+    if "blind" in algo:
+        return "Blind"
     print(algo)
     return "?"
 
@@ -99,29 +94,17 @@ def process_plot_data(path: str) -> pd.DataFrame:
     data['# unix_time'] -= data["# unix_time"][0]
     data['# unix_time'] //= 60 * 10
     data['total_inputs'] = data['valid_inputs'] + data['invalid_inputs']
-    # data['total_inputs'] -= data["total_inputs"][0]
     experiment_name = os.path.basename(path)
     algorithm = "-".join(experiment_name.split('-')[1:-2])
     algorithm = map_algorithm(algorithm)
-
     x_axis = "# unix_time"
     time_based_data = data.copy().drop_duplicates(
         keep='last', subset=[x_axis])
     time_based_data['# unix_time'] *= 10
-    # time_based_data = time_based_data.set_index(x_axis).reindex(
-    #     log_scale_index(time_based_data[x_axis].max())).interpolate().reset_index()
     time_based_data['algorithm'] = [algorithm] * time_based_data.shape[0]
-
-
     x_axis = "total_inputs"
-    # count_based_data = data.copy().drop_duplicates(
-    #     keep='first', subset=[x_axis])
-    # count_based_data = count_based_data.set_index(x_axis).reindex(
-    #     range(0, count_based_data[x_axis].max(), 50)).interpolate().reset_index()
-    # count_based_data['algorithm'] = [algorithm] * count_based_data.shape[0]
     cov_data = build_cov_data_over_time(path, time_based_data["# unix_time"].values.tolist())
     time_based_data["all_covered_probes"] = cov_data["all_covered_probes"].values.tolist()
-
 
     return time_based_data, None
 
@@ -146,32 +129,18 @@ def process_cov_data(path: str) -> Set[str]:
     if os.path.exists(path):
         with open(path) as f:
             for line in f:
-                for pattern in INTERESTING:
-                    if pattern in line or True:
-                        result.add(line)
+                # for pattern in INTERESTING:
+                #     if pattern in line or True:
+                result.add(line)
     return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
     print(x_axis, y_axis)
     axis = sns.lineplot(x=x_axis, y=y_axis, hue='algorithm',
-                        hue_order=sorted(data['algorithm'].unique()), data=data)
-    leg = axis.legend()
-    leg_lines = leg.get_lines()
-    axis.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-    axis.lines[0].set_linestyle("--")
-    leg_lines[0].set_linestyle("--")
-    axis.lines[1].set_linestyle("-.")
-    leg_lines[1].set_linestyle("-.")
-    if x_label and "closure" in path:
-        axis.set(xlabel = x_label)
-    else:
-        axis.set(xlabel = None)
-    if y_label and "closure" in path:
-        axis.set(ylabel = y_label)
-    else:
-        axis.set(ylabel = None)
-    if "closure" not in path:
-        axis.legend().remove()
+                        hue_order=sorted(data['algorithm'].unique()),
+                        style_order=sorted(data['algorithm'].unique()), data=data)
+    axis.set(xlabel = x_label)
+    axis.set(ylabel = y_label)
     fig = axis.get_figure()
     fig.savefig(path, bbox_inches='tight', pad_inches=0.1)
     fig.clf()

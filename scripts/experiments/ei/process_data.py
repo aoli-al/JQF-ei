@@ -6,8 +6,8 @@ import os
 from typing import Dict, Set
 import pandas as pd
 from table_wriper import TableWriter
+import pytablewriter
 from visualize import *
-from pytablewriter import LatexTableWriter
 from configs import *
 from functools import reduce
 from scipy import stats
@@ -45,7 +45,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 9):
+                for idx in range(0, 7):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -58,6 +58,8 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                         cov_all_intersection[algorithm] = set(result)
                     cov_all_union[algorithm] |= result
                     cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
+            if algorithm not in cov_all_union:
+                continue
             with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-intersection.txt"), "w") as f:
                 f.writelines(sorted(cov_all_intersection[algorithm]))
             with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-union.txt"), "w") as f:
@@ -73,59 +75,16 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             #     print(len(b))
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
-
-
-        # Print statistical results
-        # [a, b, *rst] = cov_data[dataset].values()
-        # a = [len(x) for x in a]
-        # b = [len(x) for x in b]
-        # result = stats.ttest_ind(a, b)
-        # avg_a = sum(a) / len(a)
-        # avg_b = sum(b) / len(b)
-
-        # cov_all_avg_data[-1].append("{:2.1f}%".format((avg_a - avg_b) / (avg_a) * 100))
-        # cov_all_avg_data[-1].append(cliffs_delta.cliffs_delta(a, b)[0])
-        # if result.pvalue < 0.01:
-        #     cov_all_avg_data[-1].append("<0.01".format(result.pvalue))
-        # else:
-        #     cov_all_avg_data[-1].append("{:1.2f}".format(result.pvalue))
-
-
-
-
-
-    print("Cov-All")
-    # cov_summary = []
-    # for idx in range(len(cov_all_table_data)):
-    #     cov_summary.append([*cov_all_table_data[idx], *cov_all_avg_data[idx][1:]])
-
-    # writer = TableWriter(
-    #     headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], *[map_algorithm(algo) for algo in algorithms]],
-    #     value_matrix = cov_summary
-    # )
-    # write_table(writer, os.path.join(output_folder, "cov-total-table.tex"))
-
-    print("Cov-Avg")
-    writer = TableWriter(
-        headers = ["Dataset", *[map_algorithm(algo) for algo in algorithms], "Improvement", "\sigma", "p"],
+            cov_all_avg_data[-1].append(cov_all_avg_data[-1][-1] - cov_all_avg_data[-1][1])
+    keys = []
+    for algo in algorithms:
+        keys.append(map_algorithm(algo))
+        keys.append("Delta")
+    writer = pytablewriter.MarkdownTableWriter(
+        headers = ["Dataset", *keys],
         value_matrix =cov_all_avg_data
     )
     write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
-
-
-    # print("Cov-Unique-Union")
-    # writer = TableWriter(
-    #     headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
-    #     value_matrix = cov_unique_union
-    # )
-    # write_table(writer, os.path.join(output_folder, "cov-unique-union-table.tex"))
-
-    # print("Cov-Unique-Intersection")
-    # writer = TableWriter(
-    #     headers = ["Dataset", *[map_algorithm(algo) for algo in  algorithms]],
-    #     value_matrix = cov_unique_intersection
-    # )
-    # write_table(writer, os.path.join(output_folder, "cov-unique-intersection-table.tex"))
     return cov_data
 #
 
@@ -159,21 +118,27 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
         time_based_plot_data = []
         count_based_plot_data = []
         for algorithm in algorithms:
-            if "mix" in algorithm:
+            if "blind" in algorithm:
                 continue
+            # if "mix" in algorithm:
+            #     continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 5):
+            for idx in range(0, 7):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
                         continue
                     time_based_data, count_based_data = process_plot_data(path)
-                    if (time_based_data["# unix_time"].values[-1] < 4310):
-                        print(f"{dataset}-{algorithm}-{idx} ERROR!")
+                    if "mix" in path:
+                        time_based_data["# unix_time"] += 480
                     time_based_data_per_algo.append(time_based_data)
                     count_based_data_per_algo.append(count_based_data)
-
+                    if "mix" in path:
+                        path += "-tmp"
+                        time_based_data, count_based_data = process_plot_data(path)
+                        time_based_data_per_algo.append(time_based_data)
+                        count_based_data_per_algo.append(count_based_data)
             time_based_plot_data.extend(time_based_data_per_algo)
             count_based_plot_data.extend(count_based_data_per_algo)
         if not time_based_plot_data:
@@ -184,7 +149,6 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             time_based_plot_data, ignore_index=True, sort=False)
         generate_total_inputs_over_time(os.path.join(
             output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
-        print(dataset)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
 
 def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, List[Set[str]]]]):
@@ -211,27 +175,42 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
                                         pd.DataFrame(data))
 
 
-def parse_and_visualize_mutation_data(path: str, saved_only: bool):
+def visualize_mutation_distance_overtime(path: str, saved_only: bool, generators: List[str], algorithms: List[str]):
+    data = parse_mutation_distance_data(path, saved_only, generators, algorithms)
+    for dataset, dfs in data.items():
+        res = sns.scatterplot(dfs, x=dfs.index, y="distance", hue="algorithm")
+        res.set(title=dataset)
+        plt.show()
+
+def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]) -> Dict[str, pd.DataFrame]:
     for dataset in DATASET:
-        print(dataset)
         dfs = []
-        for algorithm in ["zest", "ei"]:
-            for i in range(1):
-                data_path = os.path.join(path, f"{dataset}-{algorithm}-testWithGenerator-results-{i}", "mutation.log")
-                if os.path.exists(data_path):
-                    data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id"], na_values=-1)
-                    data_frame["algorithm"] = algorithm
-                    if saved_only:
-                        data_frame = data_frame[data_frame["saved"]]
-                    data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)
-                    data_frame["mutation"] = data_frame["distance"] / data_frame["max_length"]
-                    dfs.append(data_frame)
+        for algorithm in algorithms:
+            for i in range(5):
+                for generator in generators:
+                    for if_saved in saved_only:
+                        data_path = os.path.join(path, f"{dataset}-{algorithm}-{generator}-results-{i}", "mutation.log")
+                        if os.path.exists(data_path):
+                            data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id"], na_values=-1)
+                            data_frame["algorithm"] = algorithm + "-" + generator + ("-saved_only" if if_saved else "")
+                            # data_frame = data_frame[data_frame["distance"] != 0]
+                            if if_saved:
+                                data_frame = data_frame[data_frame["saved"]]
+                            data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)
+                            data_frame["mutation"] = data_frame["distance"] / data_frame["max_length"]
+                            data_frame.drop(columns=["current_len", "parent_len", "saved", "parent", "id"])
+                            dfs.append(data_frame)
         if dfs:
             dfs = pd.concat(dfs)
             dfs.dropna(subset = ['mutation'], inplace=True)
-            res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="percent", bins=20, multiple="dodge")
-            res.set(title=dataset)
-            plt.show()
+            yield dataset, dfs
+
+def parse_and_visualize_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]):
+    for dataset, dfs in parse_mutation_distance_data(path, saved_only, generators, algorithms):
+        res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="proportion", bins=20, multiple="dodge", cumulative=True)
+        sns.ecdfplot(dfs, x="mutation", linewidth=1.5, hue="algorithm", ax=res, stat="proportion")
+        res.set(title=dataset)
+        plt.show()
     # sns.histplot(data_frame,  x="distance")
 
 
@@ -242,6 +221,10 @@ def identify_algorithms(paths: List[str]) -> List[str]:
         for subdir in os.listdir(path):
             dir_path = os.path.join(path, subdir)
             if "tmp" in subdir:
+                continue
+            if "no-havoc" in subdir:
+                continue
+            if "mix-testWithReversedGenerator" in subdir:
                 continue
             if os.path.isdir(dir_path):
                 algorithm = "-".join(subdir.split("-")[1:-2])

@@ -28,6 +28,16 @@ def generate_tasks(base_path: str, mode: str):
         for algorithm in ALGORITHM:
             for generator in GENERATOR:
                 for idx in range(10):
+                    if "mix" in algorithm:
+                        path = os.path.join(base_path, f"{dataset}-{algorithm}-{generator}-results-{idx}-tmp")
+                        print(path)
+                        if not os.path.exists(path):
+                            continue
+                        corpus_dir = os.path.join(path, "corpus")
+                        yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
+                                f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
+                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
+                                f"{corpus_dir} 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-{generator}-results-{idx}")
                     print(path)
                     if not os.path.exists(path):

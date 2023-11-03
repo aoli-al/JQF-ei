@@ -5,7 +5,7 @@ sns.set_style("whitegrid", {'axes.grid' : True})
 sns.set_context("paper", font_scale=1.5)
 
 plt.rcParams.update({'axes.edgecolor': 'black', 'axes.linewidth': 2, 'axes.grid': True, 'grid.linestyle': '--'})
-plt.rcParams['figure.figsize'] = 4, 3
+plt.rcParams['figure.figsize'] = 8, 6
 
 # colors = ['#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5', '#8DD3C7', '#FFFFB3', '#BEBADA']
 colors = ['#2A587A', '#FABC75', '#83B828', '#F83A25', '#FDD8EB']

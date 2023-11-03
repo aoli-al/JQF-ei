@@ -1,23 +1,24 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 DATASET = [
-     "ant", "maven", "bcel",
+     "ant",
+     "maven",
     "rhino", "closure",
-     "chocopy", "gson", "jackson",
-    "jython"
+     "chocopy",
+     "gson", "jackson", "jython"
 ]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]
 # DATASET = ["bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 #  DATASET = ["chacopy"]
-ALGORITHM = ["zest", "ei", "ei-no-havoc", "mix"]
+ALGORITHM = ["zest", "ei", "ei-no-havoc", "blind", "mix"]
 #  ALGORITHM = ["ei-fast"]
 
 GENERATOR = [
-    # 'testWithGenerator',
+    'testWithGenerator',
     #  "testWithSmallReversedGenerator",
-     "testWithReversedGenerator",
+    #  "testWithReversedGenerator",
 ]
 
 TEST_CLASS_PREFIX = "edu.berkeley.cs.jqf.examples."
