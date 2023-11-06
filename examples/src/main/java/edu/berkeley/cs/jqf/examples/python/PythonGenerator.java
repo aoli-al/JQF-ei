@@ -125,8 +125,8 @@ public class PythonGenerator extends Generator<String> {
                 this::generateClassDef,
                 this::generateFuncDef,
                 this::generateVarDef
-        ), random, 1));
-        String statements = generateBlock(random, 1);
+        ), random, 0));
+        String statements = generateBlock(random, 0);
         return declarations + statements;
     }
 
