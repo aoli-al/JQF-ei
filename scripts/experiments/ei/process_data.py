@@ -45,7 +45,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 7):
+                for idx in range(0, 6):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -124,14 +124,14 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             #     continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 7):
+            for idx in range(0, 6):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
                         continue
                     time_based_data, count_based_data = process_plot_data(path)
                     if "mix" in path:
-                        time_based_data["# unix_time"] += 480
+                        time_based_data["# unix_time"] += 1920
                     time_based_data_per_algo.append(time_based_data)
                     count_based_data_per_algo.append(count_based_data)
                     if "mix" in path:
@@ -186,12 +186,12 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
     for dataset in DATASET:
         dfs = []
         for algorithm in algorithms:
-            for i in range(5):
+            for i in range(1):
                 for generator in generators:
                     for if_saved in saved_only:
                         data_path = os.path.join(path, f"{dataset}-{algorithm}-{generator}-results-{i}", "mutation.log")
                         if os.path.exists(data_path):
-                            data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id"], na_values=-1)
+                            data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id", "file"], na_values=-1)
                             data_frame["algorithm"] = algorithm + "-" + generator + ("-saved_only" if if_saved else "")
                             # data_frame = data_frame[data_frame["distance"] != 0]
                             if if_saved:

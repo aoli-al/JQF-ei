@@ -11,3 +11,10 @@
 3. Are disruptive mutations beneficial for fuzzing?
 
 4. What is the impact of the havoc effect on fuzzing?
+
+
+- Understand 0 mutation distance
+- Find better viaulization to answer RQ1
+- Fix jython generator
+
+- There is a instinct: the reason gf <- small mutations.
