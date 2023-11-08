@@ -222,6 +222,7 @@ public class ZestGuidance implements Guidance {
     protected final boolean PERFORMANCE_GUIDANCE = Boolean.getBoolean("jqf.ei.PERFORMANCE_GUIDANCE");
 
     protected final boolean OBSERVE_MUTATION_DISTANCE = Boolean.getBoolean("jqf.ei.OBSERVE_MUTATION_DISTANCE");
+    protected final boolean SAVE_IDENTICAL_MUTATION = Boolean.getBoolean("jqf.ei.SAVE_IDENTICAL_MUTATION");
 
     // ------------- TIMEOUT HANDLING ------------
 
@@ -427,7 +428,7 @@ public class ZestGuidance implements Guidance {
             IOUtils.createDirectory(allInputsDirectory, "invalid");
             IOUtils.createDirectory(allInputsDirectory, "failure");
         }
-        if (OBSERVE_MUTATION_DISTANCE) {
+        if (OBSERVE_MUTATION_DISTANCE && SAVE_IDENTICAL_MUTATION) {
             this.identicalMutationDirectory = IOUtils.createDirectory(outputDirectory, "identical");
         }
         this.statsFile = new File(outputDirectory, "plot_data");
@@ -827,7 +828,7 @@ public class ZestGuidance implements Guidance {
                 text += "-1";
             }
             text += ",";
-            if (distance == 0) {
+            if (distance == 0 && SAVE_IDENTICAL_MUTATION) {
                 String saveFileName = String.format("id_%06d", identicalMutationIndex);
                 File saveFile = new File(identicalMutationDirectory, saveFileName);
                 try {
