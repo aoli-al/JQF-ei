@@ -45,7 +45,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 6):
+                for idx in range(0, 5):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -124,7 +124,7 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             #     continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 6):
+            for idx in range(0, 15):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
@@ -193,7 +193,7 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
                         if os.path.exists(data_path):
                             data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id", "file"], na_values=-1)
                             data_frame["algorithm"] = algorithm + "-" + generator + ("-saved_only" if if_saved else "")
-                            # data_frame = data_frame[data_frame["distance"] != 0]
+                            data_frame = data_frame[data_frame["distance"] != 0]
                             if if_saved:
                                 data_frame = data_frame[data_frame["saved"]]
                             data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)
@@ -207,6 +207,7 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
 
 def parse_and_visualize_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]):
     for dataset, dfs in parse_mutation_distance_data(path, saved_only, generators, algorithms):
+        print(dataset)
         res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="proportion", bins=20, multiple="dodge", cumulative=True)
         sns.ecdfplot(dfs, x="mutation", linewidth=1.5, hue="algorithm", ax=res, stat="proportion")
         res.set(title=dataset)

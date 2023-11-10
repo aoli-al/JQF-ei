@@ -18,3 +18,8 @@
 - Fix jython generator
 
 - There is a instinct: the reason gf <- small mutations.
+
+Notes for Jython:
+
+- Timeout too short
+- Dynamic object creation
