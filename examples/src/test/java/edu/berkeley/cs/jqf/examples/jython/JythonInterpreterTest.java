@@ -23,17 +23,22 @@ import org.python.util.PythonInterpreter;
 public class JythonInterpreterTest {
     @Fuzz
     public void testWithGenerator(@From(PythonGenerator.class) String code) throws Throwable {
-
-
-        PythonCompiler compiler = new LegacyCompiler();
-        if (code.contains("\0")) {
-            throw Py.TypeError("compile() expected string without null bytes");
+        try (PythonInterpreter interp = new PythonInterpreter()) {
+            interp.exec(code);
+        } catch (PyException e) {
+            if (e.getCause() instanceof TimeoutException) {
+                throw e.getCause();
+            }
         }
-        CompilerFlags cflags = new CompilerFlags();
-        CompileMode mode = CompileMode.exec;
-        String filename = "<String>";
-        mod node = ParserFacade.parse(code, mode, filename, cflags);
-        PythonCodeBundle bundle = compiler.compile(node, "org.python.pycode._pyx", filename,
-                true, true, cflags);
+//        PythonCompiler compiler = new LegacyCompiler();
+//        if (code.contains("\0")) {
+//            throw Py.TypeError("compile() expected string without null bytes");
+//        }
+//        CompilerFlags cflags = new CompilerFlags();
+//        CompileMode mode = CompileMode.exec;
+//        String filename = "<String>";
+//        mod node = ParserFacade.parse(code, mode, filename, cflags);
+//        PythonCodeBundle bundle = compiler.compile(node, "org.python.pycode._pyx", filename,
+//                true, true, cflags);
     }
 }
