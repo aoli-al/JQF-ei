@@ -33,7 +33,7 @@ JQF_REPRO="$JQF_DIR/bin/jqf-reporter -i"
 OUT_DIR="$NAME-$ALGO-$METHOD-results-$e"
 
 # Do not let GC mess with fuzzing
-export JVM_OPTS="$JVM_OPTS -XX:-UseGCOverheadLimit -Xmx10g -Djqf.ei.TIMEOUT=5000"
+export JVM_OPTS="$JVM_OPTS -XX:-UseGCOverheadLimit -Xmx10g -Djqf.ei.TIMEOUT=10000"
 
 
 SNAME=$ALGO\_$METHOD\_$e
