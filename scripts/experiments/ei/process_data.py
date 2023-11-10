@@ -191,7 +191,7 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
                     for if_saved in saved_only:
                         data_path = os.path.join(path, f"{dataset}-{algorithm}-{generator}-results-{i}", "mutation.log")
                         if os.path.exists(data_path):
-                            data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id"], na_values=-1)
+                            data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id", "file"], na_values=-1)
                             data_frame["algorithm"] = algorithm + "-" + generator + ("-saved_only" if if_saved else "")
                             # data_frame = data_frame[data_frame["distance"] != 0]
                             if if_saved:
@@ -207,13 +207,34 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
 
 def parse_and_visualize_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]):
     for dataset, dfs in parse_mutation_distance_data(path, saved_only, generators, algorithms):
-        res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="proportion", bins=20, multiple="dodge", cumulative=True)
-        sns.ecdfplot(dfs, x="mutation", linewidth=1.5, hue="algorithm", ax=res, stat="proportion")
+        res = sns.histplot(dfs,  x="mutation", hue="algorithm", common_norm=False, stat="proportion", bins=20, multiple="dodge", cumulative=False)
+        #sns.ecdfplot(dfs, x="mutation", linewidth=1.5, hue="algorithm", stat="proportion")
         res.set(title=dataset)
         plt.show()
     # sns.histplot(data_frame,  x="distance")
 
+def process_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]):
+    df_dict = {}
+    attributes = ['mutation', 'algorithm']
 
+    for name, df in parse_mutation_distance_data(path, saved_only, generators, algorithms):
+        print('processing {}...'.format(name))
+        for attribute in attributes:
+            if attribute in df_dict:
+                # concat
+                df_dict[attribute] = pd.concat([df_dict[attribute], df[attribute]], ignore_index=True)
+            else:
+                df_dict[attribute] = df[attribute]
+        # add the benchmark names
+        if 'benchmark_name' in df_dict:
+            # concat
+            tmp_col = pd.Series([name] * len(df))
+            df_dict['benchmark_name'] = pd.concat([df_dict['benchmark_name'], tmp_col], ignore_index=True)
+        else:
+            df_dict['benchmark_name'] = pd.Series([name] * len(df))
+    print('creating dataframe...')
+    mutation_df = pd.DataFrame(df_dict)
+    mutation_df.to_pickle('./mutation.pkl')  
 
 def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()
