@@ -60,6 +60,9 @@ public class FastNonCollidingCounter extends Counter {
      * @return the new value after incrementing the count
      */
     public synchronized int increment(int key) {
+        if (key == 150090) {
+            System.out.println("???");
+        }
         int newVal = this.counts.addToValue(key, 1);
         if (newVal == 1) {
             this.nonZeroKeys.add(key);
