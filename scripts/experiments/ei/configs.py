@@ -2,12 +2,13 @@
 # DATASET = ["rhino", "closure"]
 DATASET = [
      "ant",
-     "maven",
+    #  "maven",
      "rhino",
-     "closure",
-      "chocopy",
-      "gson", "jackson",
-     "jython",
+    #  "closure",
+    #  "chocopy",
+    #  "gson",
+    #  "jackson",
+    #  "jython",
 ]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]

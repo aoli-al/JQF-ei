@@ -132,8 +132,8 @@ def process_cov_data(path: str) -> Set[str]:
                 # for pattern in INTERESTING:
                 #     if pattern in line or True:
                 result.add(line)
-    # if result:
-    #     print(path, len(result))
+    if result:
+        print(path, len(result))
     return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):

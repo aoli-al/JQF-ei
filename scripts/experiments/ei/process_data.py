@@ -14,6 +14,7 @@ from scipy import stats
 import cliffs_delta
 import json
 import matplotlib.pyplot as plt
+from scipy.stats import fisher_exact, mannwhitneyu, rankdata
 
 
 def write_cov_data(data: Set[str], path: str):
@@ -45,7 +46,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 5):
+                for idx in range(0, 20):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -113,13 +114,36 @@ def generate_perf_graph(data_dirs: List[str], algorithms: Set[str], out_folder: 
             out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
 
 
+def mann_whitney_u_test(sample1, sample2, alternative='two-sided', verbose=True):
+    n = len(sample1)
+    m = len(sample2)
+    U1, p = mannwhitneyu(sample1, sample2, alternative=alternative, method='exact')
+    U2 = n * m - U1
+
+    # Effective size: A12
+    rank_results = rankdata(sample1 + sample2)
+    r1 = sum(rank_results[0:n])
+    r2 = sum(rank_results[n:n + m])
+    # A = (r1/m - (m+1)/2)/n # formula (14) in Vargha and Delaney, 2000
+    # equivalent formula to avoid accuracy errors
+    A_12 = (2 * r1 - m * (m + 1)) / (2 * n * m)
+
+    if verbose:
+        print('The Mann-Whitney U Test')
+        print('p value: {}\nA12: {}'.format(p, A_12))
+
+    return p, A_12, U1, U2, r1, r2
+
+
 def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
     for dataset in DATASET:
+        zest_data = []
+        mix_data =[]
         time_based_plot_data = []
         count_based_plot_data = []
         for algorithm in algorithms:
-            if "blind" in algorithm:
-                continue
+            # if "blind" in algorithm:
+            #     continue
             # if "mix" in algorithm:
             #     continue
             time_based_data_per_algo = []
@@ -139,6 +163,10 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                         time_based_data, count_based_data = process_plot_data(path)
                         time_based_data_per_algo.append(time_based_data)
                         count_based_data_per_algo.append(count_based_data)
+                    if "zest" in algorithm:
+                        zest_data.append((int(time_based_data[time_based_data["# unix_time"] == 1900]["all_covered_probes"])))
+                    elif "mix" in algorithm:
+                        mix_data.append((int(time_based_data[time_based_data["# unix_time"] == 1900]["all_covered_probes"])))
             time_based_plot_data.extend(time_based_data_per_algo)
             count_based_plot_data.extend(count_based_data_per_algo)
         if not time_based_plot_data:
@@ -147,6 +175,9 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             os.mkdir(output_dir)
         time_based_plot_data = pd.concat(
             time_based_plot_data, ignore_index=True, sort=False)
+        print(zest_data)
+        print(mix_data)
+        mann_whitney_u_test(zest_data, mix_data)
         generate_total_inputs_over_time(os.path.join(
             output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
@@ -174,13 +205,6 @@ def visualize_cov_distribution(output_dir: str, cov_data: Dict[str, Dict[str, Li
         generate_coverage_delta_hist(os.path.join(output_dir, dataset + "-delta-hist.pdf"),
                                         pd.DataFrame(data))
 
-
-def visualize_mutation_distance_overtime(path: str, saved_only: bool, generators: List[str], algorithms: List[str]):
-    data = parse_mutation_distance_data(path, saved_only, generators, algorithms)
-    for dataset, dfs in data.items():
-        res = sns.scatterplot(dfs, x=dfs.index, y="distance", hue="algorithm")
-        res.set(title=dataset)
-        plt.show()
 
 def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]) -> Dict[str, pd.DataFrame]:
     for dataset in DATASET:
