@@ -43,18 +43,10 @@ def generate_tasks(base_path: str, mode: str):
                     if not os.path.exists(path):
                         continue
                     corpus_dir = os.path.join(path, "corpus")
-                    if mode == "perf":
-                        if os.path.exists(os.path.join(path, "results.csv")):
-                            continue
-                        yield ["mvn", "jqf:repro", "-Dengine=repro",
-                                f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
-                                "-Dmethod=testWithGenerator", f"-Dinput={corpus_dir}",
-                                f"-DtraceDir={path}", "-DuseFastNonCollidingCoverageInstrumentation=true"]
-                    else:
-                        yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
-                                f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
-                                f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
-                                f"{corpus_dir} 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
+                    yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
+                            f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
+                            f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
+                            f"{corpus_dir} 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
                     #  yield "-Djqf.repro.logUniqueBranches=true"
                     #  yield ["mvn", "jqf:repro", "-Dengine=repro",
                             #  f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",

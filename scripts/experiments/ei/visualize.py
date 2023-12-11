@@ -8,6 +8,7 @@ import re
 import sns_configs
 from find_interesting_inputs import build_corpus_map
 from matplotlib.patches import Patch
+import matplotlib.pyplot as plt
 
 
 def p2f(value: str) -> float:
@@ -66,7 +67,7 @@ def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
 
 def map_algorithm(algo: str) -> str:
     if "mix-testWithGenerator" in algo:
-        return "Mix"
+        return "$\\textsc{gex}_m$"
     if "mix-testWithReversedGenerator" in algo:
         return "Mix-Rev"
     if algo == "zest-fast" or algo == "zest-testWithGenerator":
@@ -77,8 +78,8 @@ def map_algorithm(algo: str) -> str:
         return "EI"
     if algo == "ei-testWithReversedGenerator":
         return "EI-Rev"
-    if algo == "ei-no-havoc":
-        return "EI"
+    if "ei-no-havoc" in algo:
+        return "$\\textsc{Gex}$"
     if algo == "mix-no-havoc":
         return "Mix-No-Havoc"
     if "blind" in algo:
@@ -132,8 +133,10 @@ def process_cov_data(path: str) -> Set[str]:
                 # for pattern in INTERESTING:
                 #     if pattern in line or True:
                 result.add(line)
-    if result:
-        print(path, len(result))
+
+    if "closure" in path:
+        if len(result) != 0:
+            print(path, len(result))
     return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
@@ -183,30 +186,35 @@ def generate_coverage_delta_hist(path: str, data: pd.DataFrame):
 
 
 def generate_corpus_exec_time(path: str, data: pd.DataFrame):
+    # cls = ['#2A587A', '#FABC75', '#83B828', '#F83A25', '#FDD8EB']
+    # # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
+    # palette = sns.color_palette(cls)
+    colors = ['#4C72B0', '#DD8452', '#F83A25', '#FDD8EB']
+    # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
+    sns.set_palette(sns.color_palette(colors), 5, 1)
     bins = 20
-    axis = sns.histplot(data=data, x="time", hue="algorithm", multiple="dodge", bins=bins, log_scale=(False, True),
+    axis = sns.histplot(data=data, x="time", hue="algorithm", multiple="dodge", bins=bins, log_scale=(False, True), alpha=1,
                         hue_order=sorted(data['algorithm'].unique()))
 
-    textures = ['/', '*', 'o']
+    patches = axis.patches
+    colors = [patch.get_facecolor() for patch in patches]
+    print(colors)
+
+    textures = ['\\', '/', 'o']
     for i, bar in enumerate(axis.patches):
         bar.set_hatch(textures[i // bins])
 
-    # leg = axis.legend()
 
-    patch_1 = Patch(label='EI', hatch=textures[2], facecolor=sns_configs.colors[0])
-    patch_2 = Patch(label='Zest', hatch=textures[1], facecolor=sns_configs.colors[1])
-    patch_3 = Patch(label='Zest + EI', hatch=textures[0], facecolor=sns_configs.colors[2])
+    patch_1 = Patch(label='Zest', hatch=textures[0], facecolor=colors[0])
+    patch_2 = Patch(label='$\\textsc{Gex}$', hatch=textures[1], facecolor=colors[-1])
 
     axis.set(xlabel = "Execution Time (ms)", ylabel = "Count")
 
 
-    # leg = axis.legend()
-    # print(leg)
-    # leg_lines = leg.get_lines()
-    # leg_lines[5].set_linestyle(":")
-
     fig = axis.get_figure()
-    axis.legend(handles=[patch_1, patch_2, patch_3], loc='upper right')
+    axis.legend(handles=[patch_2, patch_1], loc='upper right')
+    # axis.legend()
+    plt.show()
     fig.savefig(path, bbox_inches='tight', pad_inches=0.1)
     fig.clf()
     # generate_plot_data_base(path, data, "case", "time", 1)

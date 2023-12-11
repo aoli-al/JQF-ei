@@ -6,14 +6,11 @@ import os
 from typing import Dict, Set
 import pandas as pd
 from table_wriper import TableWriter
-import pytablewriter
 from visualize import *
 from configs import *
 from functools import reduce
-from scipy import stats
-import cliffs_delta
-import json
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from scipy.stats import fisher_exact, mannwhitneyu, rankdata
 
 
@@ -33,20 +30,24 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
     cov_all_table_data = []
     cov_all_avg_data = []
     cov_data = {}
+    all_data = []
     out_folder = os.path.join(paths[0], "processed")
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
     for dataset in DATASET:
+        if "jython" in dataset:
+            continue
         cov_all_union = {}
         cov_all_intersection = {}
         cov_all_table_data.append([dataset])
         cov_all_avg_data.append([dataset])
         cov_data[dataset] = {}
+        baseline = 0
         for algorithm in algorithms:
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 20):
+                for idx in range(0, 10):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
                         continue
@@ -70,22 +71,76 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             if not data:
                 continue
             cov_all_table_data[-1].append(len(set.union(*data)))
+            if "blind" in algorithm:
+                baseline = int(reduce(lambda a, b: a + len(b), data, 0) / len(data))
+            else:
+                for d in data:
+                    all_data.append([dataset + "\n " + str(baseline), map_algorithm(algorithm), (len(d)) - baseline])
             # print(dataset)
             # print(algorithm)
             # for b in data:
             #     print(len(b))
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
-            cov_all_avg_data[-1].append(cov_all_avg_data[-1][-1] - cov_all_avg_data[-1][1])
-    keys = []
-    for algo in algorithms:
-        keys.append(map_algorithm(algo))
-        keys.append("Delta")
-    writer = pytablewriter.MarkdownTableWriter(
-        headers = ["Dataset", *keys],
-        value_matrix =cov_all_avg_data
+            # cov_all_avg_data[-1].append(cov_all_avg_data[-1][-1] - cov_all_avg_data[-1][1])
+    all_data = pd.DataFrame(all_data, columns=["Benchmark", "Algorithm", "Ratio"])
+    # print(set(all_data["Benchmark"].values))
+    # print(all_data[all_data["Benchmark"].str.contains("rhino")])
+    # colors = ['#2A587A', '#83B828', '#FABC75', '#F83A25', '#FDD8EB']
+    colors = ['#4C72B0', '#55A868', '#DD8452', '#FDD8EB']
+    # # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
+    sns.set_palette(sns.color_palette(colors), 5, 1)
+    axis = sns.barplot(
+        data = all_data,
+        x="Benchmark",
+        y="Ratio",
+        hue="Algorithm",
+        hue_order=sorted(all_data["Algorithm"].unique()),
+        saturation=1,
+        alpha=1
     )
-    write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
+
+    patterns = ['/', 'o', '\\']
+    # patterns = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.']
+
+    unique_hues = all_data['Algorithm'].unique()
+    pattern_dict = {hue: patterns[i % len(patterns)] for i, hue in enumerate(unique_hues)}
+    # print(hue_pattern)
+
+    # print(dict(zip(axis.patches, all_data['Algorithm'])))
+    # Apply the hatch pattern based on the hue
+    sorted_patches = sorted(axis.patches, key=lambda patch: patch.get_x())
+    x = 0
+    legend_handles = []
+    for bar in sorted_patches:
+        hue_value = all_data['Algorithm'][x * 10]
+        bar.set_hatch(pattern_dict[hue_value])
+        x += 1
+
+        if hue_value not in [h.get_label() for h in legend_handles]:
+            legend_handles.append(mpatches.Patch(facecolor=bar.get_facecolor(),
+                                             hatch=pattern_dict[hue_value],
+                                             label=hue_value))
+
+
+
+
+    plt.legend(handles=legend_handles)
+
+    axis.set(xlabel = "Benchmark")
+    axis.set(ylabel = "\# Increased Branch Coverage")
+    fig = axis.get_figure()
+    plt.show()
+    fig.savefig("/usr0/home/aoli/repos/ei-paper/figs/cov.pdf", bbox_inches='tight', pad_inches=0.1)
+    fig.clf()
+    # for algo in algorithms:
+    #     keys.append(map_algorithm(algo))
+    #     keys.append("Delta")
+    # writer = pytablewriter.MarkdownTableWriter(
+    #     headers = ["Dataset", *keys],
+    #     value_matrix =cov_all_avg_data
+    # )
+    # write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
     return cov_data
 #
 
@@ -99,13 +154,14 @@ def write_table(writer: TableWriter, path: str):
 
 
 def generate_perf_graph(data_dirs: List[str], algorithms: Set[str], out_folder: str, out_name: str):
-    for dataset in DATASET:
+    for dataset in ['rhino']:
         corpus_based_plot_data = []
         for algorithm in algorithms:
             for idx in range(0, 10):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
+                        print(path)
                         break
                     execution_time_data = load_processing_time_data(path)
                     corpus_based_plot_data.append(execution_time_data)
@@ -148,7 +204,7 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             #     continue
             time_based_data_per_algo = []
             count_based_data_per_algo = []
-            for idx in range(0, 15):
+            for idx in range(0, 5):
                 for base_path in data_dirs:
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(path):
@@ -164,9 +220,9 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                         time_based_data_per_algo.append(time_based_data)
                         count_based_data_per_algo.append(count_based_data)
                     if "zest" in algorithm:
-                        zest_data.append((int(time_based_data[time_based_data["# unix_time"] == 1900]["all_covered_probes"])))
+                        zest_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
                     elif "mix" in algorithm:
-                        mix_data.append((int(time_based_data[time_based_data["# unix_time"] == 1900]["all_covered_probes"])))
+                        mix_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
             time_based_plot_data.extend(time_based_data_per_algo)
             count_based_plot_data.extend(count_based_data_per_algo)
         if not time_based_plot_data:
@@ -247,8 +303,8 @@ def identify_algorithms(paths: List[str]) -> List[str]:
             dir_path = os.path.join(path, subdir)
             if "tmp" in subdir:
                 continue
-            if "no-havoc" in subdir:
-                continue
+            # if "no-havoc" in subdir:
+            #     continue
             if "mix-testWithReversedGenerator" in subdir:
                 continue
             if os.path.isdir(dir_path):

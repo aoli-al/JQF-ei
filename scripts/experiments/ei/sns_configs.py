@@ -8,7 +8,7 @@ plt.rcParams.update({'axes.edgecolor': 'black', 'axes.linewidth': 2, 'axes.grid'
 plt.rcParams['figure.figsize'] = 8, 6
 
 # colors = ['#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5', '#8DD3C7', '#FFFFB3', '#BEBADA']
-colors = ['#2A587A', '#FABC75', '#83B828', '#F83A25', '#FDD8EB']
+colors = ['#2A587A', '#83B828', '#FABC75', '#F83A25', '#FDD8EB']
 # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
 sns.palplot(colors)
 sns.set_palette(sns.color_palette(colors), 5, 1)

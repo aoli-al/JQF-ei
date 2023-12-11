@@ -1,21 +1,27 @@
 # DATASET = ["ant", "bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 DATASET = [
-     "ant",
-    #  "maven",
+      "ant",
+      "maven",
      "rhino",
-    #  "closure",
-    #  "chocopy",
-    #  "gson",
-    #  "jackson",
-    #  "jython",
+      "closure",
+      "chocopy",
+      "gson",
+      "jackson",
+     #  "jython",
 ]
 # DATASET = ["bcel"]
 # DATASET = ["rhino"]
 # DATASET = ["bcel", "rhino", "closure"]
 # DATASET = ["rhino", "closure"]
 #  DATASET = ["chacopy"]
-ALGORITHM = ["zest", "ei", "ei-no-havoc", "blind", "mix"]
+ALGORITHM = [
+    "zest",
+    "ei",
+    "ei-no-havoc",
+    "blind",
+    "mix"
+]
 #  ALGORITHM = ["ei-fast"]
 
 GENERATOR = [
