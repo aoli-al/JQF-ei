@@ -213,7 +213,7 @@ def parse_and_visualize_mutation_data(path: str, saved_only: List[bool], generat
         plt.show()
     # sns.histplot(data_frame,  x="distance")
 
-def process_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str]):
+def process_mutation_data(path: str, saved_only: List[bool], generators: List[str], algorithms: List[str], df_name: str):
     df_dict = {}
     attributes = ['mutation', 'algorithm']
 
@@ -234,7 +234,7 @@ def process_mutation_data(path: str, saved_only: List[bool], generators: List[st
             df_dict['benchmark_name'] = pd.Series([name] * len(df))
     print('creating dataframe...')
     mutation_df = pd.DataFrame(df_dict)
-    mutation_df.to_pickle('./mutation.pkl')  
+    mutation_df.to_pickle('./{}.pkl'.format(df_name))  
 
 def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()
