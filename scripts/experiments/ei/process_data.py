@@ -199,6 +199,9 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
                             data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)
                             data_frame["mutation"] = data_frame["distance"] / data_frame["max_length"]
                             data_frame.drop(columns=["current_len", "parent_len", "saved", "parent", "id"])
+                            data_frame.dropna(subset = ['mutation'], inplace=True)
+                            if not if_saved:
+                                data_frame = data_frame.sample(n=100000, random_state=0)
                             dfs.append(data_frame)
         if dfs:
             dfs = pd.concat(dfs)
@@ -234,7 +237,7 @@ def process_mutation_data(path: str, saved_only: List[bool], generators: List[st
             df_dict['benchmark_name'] = pd.Series([name] * len(df))
     print('creating dataframe...')
     mutation_df = pd.DataFrame(df_dict)
-    mutation_df.to_pickle('./{}.pkl'.format(df_name))  
+    mutation_df.to_pickle('./{}.pkl'.format(df_name))
 
 def identify_algorithms(paths: List[str]) -> List[str]:
     algorithms = set()
