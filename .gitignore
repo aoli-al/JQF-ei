@@ -6,7 +6,6 @@ target/
 .cache/
 .idea/
 .janala/
-*.log
 *_crashes/
 *.swp
 apidocs/

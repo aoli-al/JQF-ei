@@ -1,0 +1,473 @@
+# Covered: (000000000) #<unknown>():0 --> com/pholser/junit/quickcheck/internal/ParameterTypeContext#forParameter(Ljava/lang/reflect/Parameter;Lru/vyarus/java/generics/resolver/context/MethodGenericsContext;)Lcom/pholser/junit/quickcheck/internal/ParameterTypeContext;
+# Covered: (1023414273) com/google/gson/Gson$1#<init>():399 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (1027608577) com/google/gson/Gson$2#<init>():423 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (1035997185) com/google/gson/Gson$4#<init>():477 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (1040191489) com/google/gson/Gson$5#<init>():489 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (-1107288063) edu/berkeley/cs/jqf/examples/gson/JsonTest#testWithGenerator():23 --> com/google/gson/Gson#fromJson(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
+# Covered: (-1107292158) edu/berkeley/cs/jqf/examples/gson/JsonTest#<init>():18 --> com/google/gson/Gson#<init>()V
+# Covered: (-1199407098) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1676 [1]
+# Covered: (-1199407100) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1670 [0]
+# Covered: (-1199407101) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1670 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199407102) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1670 [0]
+# Covered: (-1199407102) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1670 [1]
+# Covered: (-1199407103) com/google/gson/stream/JsonReader#consumeNonExecutePrefix():1667 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199452136) com/google/gson/stream/JsonReader#nextNonWhitespace():1456 [1]
+# Covered: (-1199452140) com/google/gson/stream/JsonReader#nextNonWhitespace():1440 [1]
+# Covered: (-1199452152) com/google/gson/stream/JsonReader#nextNonWhitespace():1405 [1]
+# Covered: (-1199452153) com/google/gson/stream/JsonReader#nextNonWhitespace():1401 [1]
+# Covered: (-1199452154) com/google/gson/stream/JsonReader#nextNonWhitespace():1401 [0]
+# Covered: (-1199452155) com/google/gson/stream/JsonReader#nextNonWhitespace():1401 [0]
+# Covered: (-1199452156) com/google/gson/stream/JsonReader#nextNonWhitespace():1397 [1]
+# Covered: (-1199452157) com/google/gson/stream/JsonReader#nextNonWhitespace():1389 [0]
+# Covered: (-1199452157) com/google/gson/stream/JsonReader#nextNonWhitespace():1389 [1]
+# Covered: (-1199452158) com/google/gson/stream/JsonReader#nextNonWhitespace():1389 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199452159) com/google/gson/stream/JsonReader#nextNonWhitespace():1387 [0]
+# Covered: (-1199452159) com/google/gson/stream/JsonReader#nextNonWhitespace():1387 [1]
+# Covered: (-1199456247) com/google/gson/stream/JsonReader#fillBuffer():1361 [0]
+# Covered: (-1199456248) com/google/gson/stream/JsonReader#fillBuffer():1355 [1]
+# Covered: (-1199456249) com/google/gson/stream/JsonReader#fillBuffer():1355 [0]
+# Covered: (-1199456250) com/google/gson/stream/JsonReader#fillBuffer():1355 [0]
+# Covered: (-1199456250) com/google/gson/stream/JsonReader#fillBuffer():1355 [1]
+# Covered: (-1199456251) com/google/gson/stream/JsonReader#fillBuffer():1355 [0]
+# Covered: (-1199456252) com/google/gson/stream/JsonReader#fillBuffer():1351 [0]
+# Covered: (-1199456252) com/google/gson/stream/JsonReader#fillBuffer():1351 [1]
+# Covered: (-1199456255) com/google/gson/stream/JsonReader#fillBuffer():1342 [0]
+# Covered: (-1199456255) com/google/gson/stream/JsonReader#fillBuffer():1342 [1]
+# Covered: (-1199460351) com/google/gson/stream/JsonReader#push():1325 [1]
+# Covered: (-1199489002) com/google/gson/stream/JsonReader#nextQuotedValue():1043 [1]
+# Covered: (-1199489003) com/google/gson/stream/JsonReader#nextQuotedValue():1043 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199489007) com/google/gson/stream/JsonReader#nextQuotedValue():1037 [0]
+# Covered: (-1199489008) com/google/gson/stream/JsonReader#nextQuotedValue():1031 [1]
+# Covered: (-1199489015) com/google/gson/stream/JsonReader#nextQuotedValue():1019 [1]
+# Covered: (-1199489021) com/google/gson/stream/JsonReader#nextQuotedValue():1013 [0]
+# Covered: (-1199489021) com/google/gson/stream/JsonReader#nextQuotedValue():1013 [1]
+# Covered: (-1199489022) com/google/gson/stream/JsonReader#nextQuotedValue():1010 [0]
+# Covered: (-1199489022) com/google/gson/stream/JsonReader#nextQuotedValue():1010 [1]
+# Covered: (-1199489023) com/google/gson/stream/JsonReader#nextQuotedValue():1007 [0]
+# Covered: (-1199489023) com/google/gson/stream/JsonReader#nextQuotedValue():1007 [1]
+# Covered: (-1199497193) com/google/gson/stream/JsonReader#nextDouble():923 [1]
+# Covered: (-1199497211) com/google/gson/stream/JsonReader#nextDouble():910 [0]
+# Covered: (-1199497213) com/google/gson/stream/JsonReader#nextDouble():904 [0]
+# Covered: (-1199497213) com/google/gson/stream/JsonReader#nextDouble():904 [1]
+# Covered: (-1199497215) com/google/gson/stream/JsonReader#nextDouble():900 [1]
+# Covered: (-1199501309) com/google/gson/stream/JsonReader#nextNull():879 [0]
+# Covered: (-1199501311) com/google/gson/stream/JsonReader#nextNull():876 [1]
+# Covered: (-1199505403) com/google/gson/stream/JsonReader#nextBoolean():859 [0]
+# Covered: (-1199505405) com/google/gson/stream/JsonReader#nextBoolean():855 [0]
+# Covered: (-1199505405) com/google/gson/stream/JsonReader#nextBoolean():855 [1]
+# Covered: (-1199505407) com/google/gson/stream/JsonReader#nextBoolean():852 [1]
+# Covered: (-1199509496) com/google/gson/stream/JsonReader#nextString():826 --> com/google/gson/stream/JsonReader#nextQuotedValue(C)Ljava/lang/String;
+# Covered: (-1199509497) com/google/gson/stream/JsonReader#nextString():825 [0]
+# Covered: (-1199509499) com/google/gson/stream/JsonReader#nextString():823 [1]
+# Covered: (-1199509501) com/google/gson/stream/JsonReader#nextString():821 [1]
+# Covered: (-1199509503) com/google/gson/stream/JsonReader#nextString():817 [1]
+# Covered: (-1199513592) com/google/gson/stream/JsonReader#nextName():798 --> com/google/gson/stream/JsonReader#nextQuotedValue(C)Ljava/lang/String;
+# Covered: (-1199513593) com/google/gson/stream/JsonReader#nextName():797 [0]
+# Covered: (-1199513595) com/google/gson/stream/JsonReader#nextName():795 [1]
+# Covered: (-1199513597) com/google/gson/stream/JsonReader#nextName():793 [1]
+# Covered: (-1199513599) com/google/gson/stream/JsonReader#nextName():789 [1]
+# Covered: (-1199517695) com/google/gson/stream/JsonReader#isLiteral():757 [13]
+# Covered: (-1199517695) com/google/gson/stream/JsonReader#isLiteral():757 [15]
+# Covered: (-1199517695) com/google/gson/stream/JsonReader#isLiteral():757 [6]
+# Covered: (-1199521749) com/google/gson/stream/JsonReader#peekNumber():746 [0]
+# Covered: (-1199521750) com/google/gson/stream/JsonReader#peekNumber():746 [0]
+# Covered: (-1199521750) com/google/gson/stream/JsonReader#peekNumber():746 [1]
+# Covered: (-1199521751) com/google/gson/stream/JsonReader#peekNumber():746 [0]
+# Covered: (-1199521753) com/google/gson/stream/JsonReader#peekNumber():743 [0]
+# Covered: (-1199521753) com/google/gson/stream/JsonReader#peekNumber():743 [1]
+# Covered: (-1199521755) com/google/gson/stream/JsonReader#peekNumber():742 [1]
+# Covered: (-1199521757) com/google/gson/stream/JsonReader#peekNumber():742 [1]
+# Covered: (-1199521758) com/google/gson/stream/JsonReader#peekNumber():742 [0]
+# Covered: (-1199521759) com/google/gson/stream/JsonReader#peekNumber():742 [0]
+# Covered: (-1199521759) com/google/gson/stream/JsonReader#peekNumber():742 [1]
+# Covered: (-1199521760) com/google/gson/stream/JsonReader#peekNumber():733 [0]
+# Covered: (-1199521760) com/google/gson/stream/JsonReader#peekNumber():733 [1]
+# Covered: (-1199521761) com/google/gson/stream/JsonReader#peekNumber():733 [0]
+# Covered: (-1199521762) com/google/gson/stream/JsonReader#peekNumber():731 [0]
+# Covered: (-1199521762) com/google/gson/stream/JsonReader#peekNumber():731 [1]
+# Covered: (-1199521765) com/google/gson/stream/JsonReader#peekNumber():728 [1]
+# Covered: (-1199521767) com/google/gson/stream/JsonReader#peekNumber():724 [1]
+# Covered: (-1199521768) com/google/gson/stream/JsonReader#peekNumber():723 [0]
+# Covered: (-1199521768) com/google/gson/stream/JsonReader#peekNumber():723 [1]
+# Covered: (-1199521769) com/google/gson/stream/JsonReader#peekNumber():720 [0]
+# Covered: (-1199521769) com/google/gson/stream/JsonReader#peekNumber():720 [1]
+# Covered: (-1199521770) com/google/gson/stream/JsonReader#peekNumber():720 [0]
+# Covered: (-1199521770) com/google/gson/stream/JsonReader#peekNumber():720 [1]
+# Covered: (-1199521772) com/google/gson/stream/JsonReader#peekNumber():715 [0]
+# Covered: (-1199521773) com/google/gson/stream/JsonReader#peekNumber():715 --> com/google/gson/stream/JsonReader#isLiteral(C)Z
+# Covered: (-1199521774) com/google/gson/stream/JsonReader#peekNumber():714 [0]
+# Covered: (-1199521774) com/google/gson/stream/JsonReader#peekNumber():714 [1]
+# Covered: (-1199521775) com/google/gson/stream/JsonReader#peekNumber():714 [0]
+# Covered: (-1199521775) com/google/gson/stream/JsonReader#peekNumber():714 [1]
+# Covered: (-1199521777) com/google/gson/stream/JsonReader#peekNumber():707 [0]
+# Covered: (-1199521779) com/google/gson/stream/JsonReader#peekNumber():700 [0]
+# Covered: (-1199521780) com/google/gson/stream/JsonReader#peekNumber():700 [0]
+# Covered: (-1199521784) com/google/gson/stream/JsonReader#peekNumber():685 [0]
+# Covered: (-1199521785) com/google/gson/stream/JsonReader#peekNumber():681 [0]
+# Covered: (-1199521785) com/google/gson/stream/JsonReader#peekNumber():681 [1]
+# Covered: (-1199521786) com/google/gson/stream/JsonReader#peekNumber():679 [-1]
+# Covered: (-1199521786) com/google/gson/stream/JsonReader#peekNumber():679 [1]
+# Covered: (-1199521786) com/google/gson/stream/JsonReader#peekNumber():679 [2]
+# Covered: (-1199521786) com/google/gson/stream/JsonReader#peekNumber():679 [3]
+# Covered: (-1199521787) com/google/gson/stream/JsonReader#peekNumber():671 [1]
+# Covered: (-1199521788) com/google/gson/stream/JsonReader#peekNumber():671 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199521790) com/google/gson/stream/JsonReader#peekNumber():666 [1]
+# Covered: (-1199521791) com/google/gson/stream/JsonReader#peekNumber():665 [0]
+# Covered: (-1199521791) com/google/gson/stream/JsonReader#peekNumber():665 [1]
+# Covered: (-1199525865) com/google/gson/stream/JsonReader#peekKeyword():641 [1]
+# Covered: (-1199525866) com/google/gson/stream/JsonReader#peekKeyword():641 --> com/google/gson/stream/JsonReader#isLiteral(C)Z
+# Covered: (-1199525867) com/google/gson/stream/JsonReader#peekKeyword():640 [0]
+# Covered: (-1199525868) com/google/gson/stream/JsonReader#peekKeyword():640 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199525869) com/google/gson/stream/JsonReader#peekKeyword():640 [0]
+# Covered: (-1199525869) com/google/gson/stream/JsonReader#peekKeyword():640 [1]
+# Covered: (-1199525873) com/google/gson/stream/JsonReader#peekKeyword():635 [1]
+# Covered: (-1199525876) com/google/gson/stream/JsonReader#peekKeyword():631 [1]
+# Covered: (-1199525877) com/google/gson/stream/JsonReader#peekKeyword():631 --> com/google/gson/stream/JsonReader#fillBuffer(I)Z
+# Covered: (-1199525878) com/google/gson/stream/JsonReader#peekKeyword():631 [0]
+# Covered: (-1199525878) com/google/gson/stream/JsonReader#peekKeyword():631 [1]
+# Covered: (-1199525879) com/google/gson/stream/JsonReader#peekKeyword():630 [0]
+# Covered: (-1199525879) com/google/gson/stream/JsonReader#peekKeyword():630 [1]
+# Covered: (-1199525882) com/google/gson/stream/JsonReader#peekKeyword():620 [1]
+# Covered: (-1199525883) com/google/gson/stream/JsonReader#peekKeyword():620 [0]
+# Covered: (-1199525883) com/google/gson/stream/JsonReader#peekKeyword():620 [1]
+# Covered: (-1199525884) com/google/gson/stream/JsonReader#peekKeyword():616 [1]
+# Covered: (-1199525885) com/google/gson/stream/JsonReader#peekKeyword():616 [0]
+# Covered: (-1199525885) com/google/gson/stream/JsonReader#peekKeyword():616 [1]
+# Covered: (-1199525886) com/google/gson/stream/JsonReader#peekKeyword():612 [1]
+# Covered: (-1199525887) com/google/gson/stream/JsonReader#peekKeyword():612 [0]
+# Covered: (-1199525887) com/google/gson/stream/JsonReader#peekKeyword():612 [1]
+# Covered: (-1199529918) com/google/gson/stream/JsonReader#doPeek():594 [0]
+# Covered: (-1199529919) com/google/gson/stream/JsonReader#doPeek():593 --> com/google/gson/stream/JsonReader#peekNumber()I
+# Covered: (-1199529921) com/google/gson/stream/JsonReader#doPeek():589 [0]
+# Covered: (-1199529921) com/google/gson/stream/JsonReader#doPeek():589 [1]
+# Covered: (-1199529922) com/google/gson/stream/JsonReader#doPeek():588 --> com/google/gson/stream/JsonReader#peekKeyword()I
+# Covered: (-1199529934) com/google/gson/stream/JsonReader#doPeek():561 [0]
+# Covered: (-1199529935) com/google/gson/stream/JsonReader#doPeek():559 [0]
+# Covered: (-1199529935) com/google/gson/stream/JsonReader#doPeek():559 [-1]
+# Covered: (-1199529935) com/google/gson/stream/JsonReader#doPeek():559 [4]
+# Covered: (-1199529935) com/google/gson/stream/JsonReader#doPeek():559 [5]
+# Covered: (-1199529935) com/google/gson/stream/JsonReader#doPeek():559 [6]
+# Covered: (-1199529936) com/google/gson/stream/JsonReader#doPeek():558 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529941) com/google/gson/stream/JsonReader#doPeek():548 [0]
+# Covered: (-1199529942) com/google/gson/stream/JsonReader#doPeek():547 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529943) com/google/gson/stream/JsonReader#doPeek():546 [0]
+# Covered: (-1199529944) com/google/gson/stream/JsonReader#doPeek():543 --> com/google/gson/stream/JsonReader#consumeNonExecutePrefix()V
+# Covered: (-1199529945) com/google/gson/stream/JsonReader#doPeek():542 [0]
+# Covered: (-1199529946) com/google/gson/stream/JsonReader#doPeek():541 [0]
+# Covered: (-1199529946) com/google/gson/stream/JsonReader#doPeek():541 [1]
+# Covered: (-1199529953) com/google/gson/stream/JsonReader#doPeek():529 [0]
+# Covered: (-1199529954) com/google/gson/stream/JsonReader#doPeek():528 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529955) com/google/gson/stream/JsonReader#doPeek():525 [0]
+# Covered: (-1199529955) com/google/gson/stream/JsonReader#doPeek():525 [1]
+# Covered: (-1199529963) com/google/gson/stream/JsonReader#doPeek():511 [0]
+# Covered: (-1199529967) com/google/gson/stream/JsonReader#doPeek():504 [0]
+# Covered: (-1199529967) com/google/gson/stream/JsonReader#doPeek():504 [2]
+# Covered: (-1199529968) com/google/gson/stream/JsonReader#doPeek():503 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529972) com/google/gson/stream/JsonReader#doPeek():492 [0]
+# Covered: (-1199529972) com/google/gson/stream/JsonReader#doPeek():492 [2]
+# Covered: (-1199529973) com/google/gson/stream/JsonReader#doPeek():491 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529974) com/google/gson/stream/JsonReader#doPeek():490 [0]
+# Covered: (-1199529974) com/google/gson/stream/JsonReader#doPeek():490 [1]
+# Covered: (-1199529975) com/google/gson/stream/JsonReader#doPeek():487 [0]
+# Covered: (-1199529975) com/google/gson/stream/JsonReader#doPeek():487 [1]
+# Covered: (-1199529976) com/google/gson/stream/JsonReader#doPeek():487 [0]
+# Covered: (-1199529976) com/google/gson/stream/JsonReader#doPeek():487 [1]
+# Covered: (-1199529980) com/google/gson/stream/JsonReader#doPeek():477 [0]
+# Covered: (-1199529980) com/google/gson/stream/JsonReader#doPeek():477 [2]
+# Covered: (-1199529981) com/google/gson/stream/JsonReader#doPeek():476 --> com/google/gson/stream/JsonReader#nextNonWhitespace(Z)I
+# Covered: (-1199529982) com/google/gson/stream/JsonReader#doPeek():474 [0]
+# Covered: (-1199529982) com/google/gson/stream/JsonReader#doPeek():474 [1]
+# Covered: (-1199529983) com/google/gson/stream/JsonReader#doPeek():472 [0]
+# Covered: (-1199529983) com/google/gson/stream/JsonReader#doPeek():472 [1]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [-1]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [1]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [15]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [16]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [3]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [5]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [6]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [7]
+# Covered: (-1199534077) com/google/gson/stream/JsonReader#peek():436 [9]
+# Covered: (-1199534078) com/google/gson/stream/JsonReader#peek():433 --> com/google/gson/stream/JsonReader#doPeek()I
+# Covered: (-1199534079) com/google/gson/stream/JsonReader#peek():432 [0]
+# Covered: (-1199534079) com/google/gson/stream/JsonReader#peek():432 [1]
+# Covered: (-1199538171) com/google/gson/stream/JsonReader#hasNext():424 [0]
+# Covered: (-1199538172) com/google/gson/stream/JsonReader#hasNext():424 [0]
+# Covered: (-1199538172) com/google/gson/stream/JsonReader#hasNext():424 [1]
+# Covered: (-1199538173) com/google/gson/stream/JsonReader#hasNext():424 [0]
+# Covered: (-1199538173) com/google/gson/stream/JsonReader#hasNext():424 [1]
+# Covered: (-1199538174) com/google/gson/stream/JsonReader#hasNext():422 --> com/google/gson/stream/JsonReader#doPeek()I
+# Covered: (-1199538175) com/google/gson/stream/JsonReader#hasNext():421 [0]
+# Covered: (-1199542269) com/google/gson/stream/JsonReader#endObject():406 [0]
+# Covered: (-1199542271) com/google/gson/stream/JsonReader#endObject():403 [1]
+# Covered: (-1199546364) com/google/gson/stream/JsonReader#beginObject():390 --> com/google/gson/stream/JsonReader#push(I)V
+# Covered: (-1199546365) com/google/gson/stream/JsonReader#beginObject():389 [0]
+# Covered: (-1199546367) com/google/gson/stream/JsonReader#beginObject():386 [1]
+# Covered: (-1199550461) com/google/gson/stream/JsonReader#endArray():371 [0]
+# Covered: (-1199550463) com/google/gson/stream/JsonReader#endArray():368 [1]
+# Covered: (-1199554556) com/google/gson/stream/JsonReader#beginArray():354 --> com/google/gson/stream/JsonReader#push(I)V
+# Covered: (-1199554557) com/google/gson/stream/JsonReader#beginArray():353 [0]
+# Covered: (-1199554559) com/google/gson/stream/JsonReader#beginArray():350 [1]
+# Covered: (-1279188991) com/google/gson/reflect/TypeToken#get():321 --> com/google/gson/reflect/TypeToken#<init>(Ljava/lang/reflect/Type;)V
+# Covered: (-1279254524) com/google/gson/reflect/TypeToken#<init>():81 --> com/google/gson/internal/$Gson$Types#getRawType(Ljava/lang/reflect/Type;)Ljava/lang/Class;
+# Covered: (-1279254525) com/google/gson/reflect/TypeToken#<init>():80 --> com/google/gson/internal/$Gson$Types#canonicalize(Ljava/lang/reflect/Type;)Ljava/lang/reflect/Type;
+# Covered: (1484800001) com/google/gson/internal/Primitives#wrap():66 [1]
+# Covered: (1484800003) com/google/gson/internal/Primitives#wrap():67 [1]
+# Covered: (1484800005) com/google/gson/internal/Primitives#wrap():68 [1]
+# Covered: (1484800007) com/google/gson/internal/Primitives#wrap():69 [1]
+# Covered: (1484800009) com/google/gson/internal/Primitives#wrap():70 [1]
+# Covered: (1484800011) com/google/gson/internal/Primitives#wrap():71 [1]
+# Covered: (1484800013) com/google/gson/internal/Primitives#wrap():72 [1]
+# Covered: (1484800015) com/google/gson/internal/Primitives#wrap():73 [1]
+# Covered: (1484800017) com/google/gson/internal/Primitives#wrap():74 [1]
+# Covered: (1635786753) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generate():16 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635790851) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():23 [0]
+# Covered: (1635790851) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():23 [1]
+# Covered: (1635790852) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():24 [0]
+# Covered: (1635790852) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():24 [1]
+# Covered: (1635790854) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():27 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonString(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635790856) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject():28 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635794947) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray():40 [0]
+# Covered: (1635794947) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray():40 [1]
+# Covered: (1635794948) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray():41 [0]
+# Covered: (1635794948) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray():41 [1]
+# Covered: (1635794950) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray():44 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635799043) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonString():57 [0]
+# Covered: (1635799043) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonString():57 [1]
+# Covered: (1635803137) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():69 [0]
+# Covered: (1635803137) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():69 [1]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [0]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [1]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [2]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [3]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [4]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [5]
+# Covered: (1635803139) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():75 [6]
+# Covered: (1635803142) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():80 [0]
+# Covered: (1635803142) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():80 [1]
+# Covered: (1635803150) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():89 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonString(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635803151) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():92 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonArray(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635803152) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonValue():95 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generateJsonObject(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/StringBuilder;
+# Covered: (1635807233) edu/berkeley/cs/jqf/examples/json/JsonGenerator#generate():7 --> edu/berkeley/cs/jqf/examples/json/JsonGenerator#generate(Lcom/pholser/junit/quickcheck/random/SourceOfRandomness;Lcom/pholser/junit/quickcheck/generator/GenerationStatus;)Ljava/lang/String;
+# Covered: (1715478529) com/google/gson/internal/bind/ObjectTypeAdapter$1#create():58 --> com/google/gson/reflect/TypeToken#getRawType()Ljava/lang/Class;
+# Covered: (1715478530) com/google/gson/internal/bind/ObjectTypeAdapter$1#create():58 [0]
+# Covered: (1715478531) com/google/gson/internal/bind/ObjectTypeAdapter$1#create():59 --> com/google/gson/internal/bind/ObjectTypeAdapter#<init>(Lcom/google/gson/Gson;Lcom/google/gson/ToNumberStrategy;Lcom/google/gson/internal/bind/ObjectTypeAdapter$1;)V
+# Covered: (1983909894) com/google/gson/Gson#<init>():234 --> com/google/gson/Gson#<init>(Lcom/google/gson/internal/Excluder;Lcom/google/gson/FieldNamingStrategy;Ljava/util/Map;ZZZZZZZZLcom/google/gson/LongSerializationPolicy;Ljava/lang/String;IILjava/util/List;Ljava/util/List;Ljava/util/List;Lcom/google/gson/ToNumberStrategy;Lcom/google/gson/ToNumberStrategy;Ljava/util/List;)V
+# Covered: (1983913988) com/google/gson/Gson#<init>():259 --> com/google/gson/internal/ConstructorConstructor#<init>(Ljava/util/Map;ZLjava/util/List;)V
+# Covered: (1983913991) com/google/gson/Gson#<init>():282 --> com/google/gson/internal/bind/ObjectTypeAdapter#getFactory(Lcom/google/gson/ToNumberStrategy;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914000) com/google/gson/Gson#<init>():296 --> com/google/gson/Gson#longAdapter(Lcom/google/gson/LongSerializationPolicy;)Lcom/google/gson/TypeAdapter;
+# Covered: (1983914001) com/google/gson/Gson#<init>():297 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914003) com/google/gson/Gson#<init>():299 --> com/google/gson/Gson#doubleAdapter(Z)Lcom/google/gson/TypeAdapter;
+# Covered: (1983914004) com/google/gson/Gson#<init>():298 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914006) com/google/gson/Gson#<init>():301 --> com/google/gson/Gson#floatAdapter(Z)Lcom/google/gson/TypeAdapter;
+# Covered: (1983914007) com/google/gson/Gson#<init>():300 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914009) com/google/gson/Gson#<init>():302 --> com/google/gson/internal/bind/NumberTypeAdapter#getFactory(Lcom/google/gson/ToNumberStrategy;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914013) com/google/gson/Gson#<init>():305 --> com/google/gson/Gson#atomicLongAdapter(Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapter;
+# Covered: (1983914014) com/google/gson/Gson#<init>():305 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914016) com/google/gson/Gson#<init>():306 --> com/google/gson/Gson#atomicLongArrayAdapter(Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapter;
+# Covered: (1983914017) com/google/gson/Gson#<init>():306 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914023) com/google/gson/Gson#<init>():311 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914025) com/google/gson/Gson#<init>():312 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914027) com/google/gson/Gson#<init>():314 --> com/google/gson/internal/bind/TypeAdapters#newFactory(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)Lcom/google/gson/TypeAdapterFactory;
+# Covered: (1983914038) com/google/gson/Gson#<init>():325 [0]
+# Covered: (1983914044) com/google/gson/Gson#<init>():335 --> com/google/gson/internal/bind/CollectionTypeAdapterFactory#<init>(Lcom/google/gson/internal/ConstructorConstructor;)V
+# Covered: (1983914046) com/google/gson/Gson#<init>():336 --> com/google/gson/internal/bind/MapTypeAdapterFactory#<init>(Lcom/google/gson/internal/ConstructorConstructor;Z)V
+# Covered: (1983914048) com/google/gson/Gson#<init>():337 --> com/google/gson/internal/bind/JsonAdapterAnnotationTypeAdapterFactory#<init>(Lcom/google/gson/internal/ConstructorConstructor;)V
+# Covered: (1983914051) com/google/gson/Gson#<init>():340 --> com/google/gson/internal/bind/ReflectiveTypeAdapterFactory#<init>(Lcom/google/gson/internal/ConstructorConstructor;Lcom/google/gson/FieldNamingStrategy;Lcom/google/gson/internal/Excluder;Lcom/google/gson/internal/bind/JsonAdapterAnnotationTypeAdapterFactory;Ljava/util/List;)V
+# Covered: (1983938561) com/google/gson/Gson#doubleAdapter():396 [1]
+# Covered: (1983938563) com/google/gson/Gson#doubleAdapter():399 --> com/google/gson/Gson$1#<init>(Lcom/google/gson/Gson;)V
+# Covered: (1983942657) com/google/gson/Gson#floatAdapter():420 [1]
+# Covered: (1983942659) com/google/gson/Gson#floatAdapter():423 --> com/google/gson/Gson$2#<init>(Lcom/google/gson/Gson;)V
+# Covered: (1983950849) com/google/gson/Gson#longAdapter():455 [0]
+# Covered: (1983954945) com/google/gson/Gson#atomicLongAdapter():477 --> com/google/gson/Gson$4#<init>(Lcom/google/gson/TypeAdapter;)V
+# Covered: (1983954946) com/google/gson/Gson#atomicLongAdapter():485 --> com/google/gson/TypeAdapter#nullSafe()Lcom/google/gson/TypeAdapter;
+# Covered: (1983959041) com/google/gson/Gson#atomicLongArrayAdapter():489 --> com/google/gson/Gson$5#<init>(Lcom/google/gson/TypeAdapter;)V
+# Covered: (1983959042) com/google/gson/Gson#atomicLongArrayAdapter():512 --> com/google/gson/TypeAdapter#nullSafe()Lcom/google/gson/TypeAdapter;
+# Covered: (1983963138) com/google/gson/Gson#getAdapter():528 --> com/google/gson/reflect/TypeToken#hashCode()I
+# Covered: (1983963139) com/google/gson/Gson#getAdapter():529 [1]
+# Covered: (1983963142) com/google/gson/Gson#getAdapter():537 [0]
+# Covered: (1983963148) com/google/gson/Gson#getAdapter():552 --> com/google/gson/Gson$FutureTypeAdapter#<init>()V
+# Covered: (1983963149) com/google/gson/Gson#getAdapter():553 --> com/google/gson/reflect/TypeToken#hashCode()I
+# Covered: (1983963152) com/google/gson/Gson#getAdapter():555 [0]
+# Covered: (1983963154) com/google/gson/Gson#getAdapter():556 --> com/google/gson/internal/bind/TypeAdapters$34#create(Lcom/google/gson/Gson;Lcom/google/gson/reflect/TypeToken;)Lcom/google/gson/TypeAdapter;
+# Covered: (1983963155) com/google/gson/Gson#getAdapter():557 [0]
+# Covered: (1983963155) com/google/gson/Gson#getAdapter():557 [1]
+# Covered: (1983963156) com/google/gson/Gson#getAdapter():558 --> com/google/gson/Gson$FutureTypeAdapter#setDelegate(Lcom/google/gson/TypeAdapter;)V
+# Covered: (1983963157) com/google/gson/Gson#getAdapter():560 --> com/google/gson/reflect/TypeToken#hashCode()I
+# Covered: (1983963158) com/google/gson/Gson#getAdapter():565 [0]
+# Covered: (1983963162) com/google/gson/Gson#getAdapter():570 [1]
+# Covered: (1983963168) com/google/gson/Gson#getAdapter():574 [0]
+# Covered: (1983963169) com/google/gson/Gson#getAdapter():581 --> com/google/gson/reflect/TypeToken#hashCode()I
+# Covered: (1984016385) com/google/gson/Gson#newJsonReader():919 --> com/google/gson/stream/JsonReader#<init>(Ljava/io/Reader;)V
+# Covered: (1984016386) com/google/gson/Gson#newJsonReader():920 --> com/google/gson/stream/JsonReader#setLenient(Z)V
+# Covered: (1984024577) com/google/gson/Gson#fromJson():982 --> com/google/gson/reflect/TypeToken#get(Ljava/lang/Class;)Lcom/google/gson/reflect/TypeToken;
+# Covered: (1984024578) com/google/gson/Gson#fromJson():982 --> com/google/gson/Gson#fromJson(Ljava/lang/String;Lcom/google/gson/reflect/TypeToken;)Ljava/lang/Object;
+# Covered: (1984024579) com/google/gson/Gson#fromJson():983 --> com/google/gson/internal/Primitives#wrap(Ljava/lang/Class;)Ljava/lang/Class;
+# Covered: (1984032769) com/google/gson/Gson#fromJson():1043 [1]
+# Covered: (1984032772) com/google/gson/Gson#fromJson():1047 --> com/google/gson/Gson#fromJson(Ljava/io/Reader;Lcom/google/gson/reflect/TypeToken;)Ljava/lang/Object;
+# Covered: (1984045057) com/google/gson/Gson#fromJson():1136 --> com/google/gson/Gson#newJsonReader(Ljava/io/Reader;)Lcom/google/gson/stream/JsonReader;
+# Covered: (1984045058) com/google/gson/Gson#fromJson():1137 --> com/google/gson/Gson#fromJson(Lcom/google/gson/stream/JsonReader;Lcom/google/gson/reflect/TypeToken;)Ljava/lang/Object;
+# Covered: (1984045059) com/google/gson/Gson#fromJson():1138 --> com/google/gson/Gson#assertFullConsumption(Ljava/lang/Object;Lcom/google/gson/stream/JsonReader;)V
+# Covered: (1984049153) com/google/gson/Gson#assertFullConsumption():1144 [0]
+# Covered: (1984049154) com/google/gson/Gson#assertFullConsumption():1144 --> com/google/gson/stream/JsonReader#peek()Lcom/google/gson/stream/JsonToken;
+# Covered: (1984049155) com/google/gson/Gson#assertFullConsumption():1144 [1]
+# Covered: (1984057345) com/google/gson/Gson#fromJson():1221 --> com/google/gson/stream/JsonReader#isLenient()Z
+# Covered: (1984057346) com/google/gson/Gson#fromJson():1222 --> com/google/gson/stream/JsonReader#setLenient(Z)V
+# Covered: (1984057347) com/google/gson/Gson#fromJson():1224 --> com/google/gson/stream/JsonReader#peek()Lcom/google/gson/stream/JsonToken;
+# Covered: (1984057348) com/google/gson/Gson#fromJson():1226 --> com/google/gson/Gson#getAdapter(Lcom/google/gson/reflect/TypeToken;)Lcom/google/gson/TypeAdapter;
+# Covered: (1984057349) com/google/gson/Gson#fromJson():1227 --> com/google/gson/internal/bind/ObjectTypeAdapter#read(Lcom/google/gson/stream/JsonReader;)Ljava/lang/Object;
+# Covered: (1984057350) com/google/gson/Gson#fromJson():1245 --> com/google/gson/stream/JsonReader#setLenient(Z)V
+# Covered: (-205443066) com/google/gson/internal/LinkedTreeMap#rotateRight():446 [0]
+# Covered: (-205443066) com/google/gson/internal/LinkedTreeMap#rotateRight():446 [1]
+# Covered: (-205443068) com/google/gson/internal/LinkedTreeMap#rotateRight():444 [0]
+# Covered: (-205443068) com/google/gson/internal/LinkedTreeMap#rotateRight():444 [1]
+# Covered: (-205443069) com/google/gson/internal/LinkedTreeMap#rotateRight():443 [0]
+# Covered: (-205443069) com/google/gson/internal/LinkedTreeMap#rotateRight():443 [1]
+# Covered: (-205443070) com/google/gson/internal/LinkedTreeMap#rotateRight():436 --> com/google/gson/internal/LinkedTreeMap#replaceInParent(Lcom/google/gson/internal/LinkedTreeMap$Node;Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205443071) com/google/gson/internal/LinkedTreeMap#rotateRight():432 [0]
+# Covered: (-205443071) com/google/gson/internal/LinkedTreeMap#rotateRight():432 [1]
+# Covered: (-205447162) com/google/gson/internal/LinkedTreeMap#rotateLeft():418 [0]
+# Covered: (-205447162) com/google/gson/internal/LinkedTreeMap#rotateLeft():418 [1]
+# Covered: (-205447164) com/google/gson/internal/LinkedTreeMap#rotateLeft():416 [0]
+# Covered: (-205447164) com/google/gson/internal/LinkedTreeMap#rotateLeft():416 [1]
+# Covered: (-205447165) com/google/gson/internal/LinkedTreeMap#rotateLeft():415 [0]
+# Covered: (-205447165) com/google/gson/internal/LinkedTreeMap#rotateLeft():415 [1]
+# Covered: (-205447166) com/google/gson/internal/LinkedTreeMap#rotateLeft():408 --> com/google/gson/internal/LinkedTreeMap#replaceInParent(Lcom/google/gson/internal/LinkedTreeMap$Node;Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205447167) com/google/gson/internal/LinkedTreeMap#rotateLeft():404 [0]
+# Covered: (-205447167) com/google/gson/internal/LinkedTreeMap#rotateLeft():404 [1]
+# Covered: (-205451227) com/google/gson/internal/LinkedTreeMap#rebalance():386 [1]
+# Covered: (-205451230) com/google/gson/internal/LinkedTreeMap#rebalance():384 [1]
+# Covered: (-205451231) com/google/gson/internal/LinkedTreeMap#rebalance():384 [0]
+# Covered: (-205451231) com/google/gson/internal/LinkedTreeMap#rebalance():384 [1]
+# Covered: (-205451232) com/google/gson/internal/LinkedTreeMap#rebalance():384 [0]
+# Covered: (-205451233) com/google/gson/internal/LinkedTreeMap#rebalance():379 [0]
+# Covered: (-205451234) com/google/gson/internal/LinkedTreeMap#rebalance():377 [0]
+# Covered: (-205451234) com/google/gson/internal/LinkedTreeMap#rebalance():377 [1]
+# Covered: (-205451235) com/google/gson/internal/LinkedTreeMap#rebalance():373 [0]
+# Covered: (-205451236) com/google/gson/internal/LinkedTreeMap#rebalance():371 --> com/google/gson/internal/LinkedTreeMap#rotateRight(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451237) com/google/gson/internal/LinkedTreeMap#rebalance():370 --> com/google/gson/internal/LinkedTreeMap#rotateLeft(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451239) com/google/gson/internal/LinkedTreeMap#rebalance():369 [1]
+# Covered: (-205451240) com/google/gson/internal/LinkedTreeMap#rebalance():369 [0]
+# Covered: (-205451241) com/google/gson/internal/LinkedTreeMap#rebalance():367 --> com/google/gson/internal/LinkedTreeMap#rotateRight(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451243) com/google/gson/internal/LinkedTreeMap#rebalance():366 [1]
+# Covered: (-205451244) com/google/gson/internal/LinkedTreeMap#rebalance():366 [0]
+# Covered: (-205451244) com/google/gson/internal/LinkedTreeMap#rebalance():366 [1]
+# Covered: (-205451245) com/google/gson/internal/LinkedTreeMap#rebalance():363 [0]
+# Covered: (-205451245) com/google/gson/internal/LinkedTreeMap#rebalance():363 [1]
+# Covered: (-205451246) com/google/gson/internal/LinkedTreeMap#rebalance():362 [0]
+# Covered: (-205451246) com/google/gson/internal/LinkedTreeMap#rebalance():362 [1]
+# Covered: (-205451247) com/google/gson/internal/LinkedTreeMap#rebalance():359 [0]
+# Covered: (-205451247) com/google/gson/internal/LinkedTreeMap#rebalance():359 [1]
+# Covered: (-205451248) com/google/gson/internal/LinkedTreeMap#rebalance():355 [0]
+# Covered: (-205451249) com/google/gson/internal/LinkedTreeMap#rebalance():353 --> com/google/gson/internal/LinkedTreeMap#rotateLeft(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451250) com/google/gson/internal/LinkedTreeMap#rebalance():352 --> com/google/gson/internal/LinkedTreeMap#rotateRight(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451252) com/google/gson/internal/LinkedTreeMap#rebalance():351 [1]
+# Covered: (-205451253) com/google/gson/internal/LinkedTreeMap#rebalance():351 [0]
+# Covered: (-205451254) com/google/gson/internal/LinkedTreeMap#rebalance():349 --> com/google/gson/internal/LinkedTreeMap#rotateLeft(Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205451256) com/google/gson/internal/LinkedTreeMap#rebalance():348 [1]
+# Covered: (-205451257) com/google/gson/internal/LinkedTreeMap#rebalance():348 [0]
+# Covered: (-205451257) com/google/gson/internal/LinkedTreeMap#rebalance():348 [1]
+# Covered: (-205451258) com/google/gson/internal/LinkedTreeMap#rebalance():345 [0]
+# Covered: (-205451258) com/google/gson/internal/LinkedTreeMap#rebalance():345 [1]
+# Covered: (-205451259) com/google/gson/internal/LinkedTreeMap#rebalance():344 [0]
+# Covered: (-205451259) com/google/gson/internal/LinkedTreeMap#rebalance():344 [1]
+# Covered: (-205451260) com/google/gson/internal/LinkedTreeMap#rebalance():341 [0]
+# Covered: (-205451260) com/google/gson/internal/LinkedTreeMap#rebalance():341 [1]
+# Covered: (-205451261) com/google/gson/internal/LinkedTreeMap#rebalance():338 [0]
+# Covered: (-205451261) com/google/gson/internal/LinkedTreeMap#rebalance():338 [1]
+# Covered: (-205451262) com/google/gson/internal/LinkedTreeMap#rebalance():337 [0]
+# Covered: (-205451262) com/google/gson/internal/LinkedTreeMap#rebalance():337 [1]
+# Covered: (-205451263) com/google/gson/internal/LinkedTreeMap#rebalance():334 [0]
+# Covered: (-205451263) com/google/gson/internal/LinkedTreeMap#rebalance():334 [1]
+# Covered: (-205455355) com/google/gson/internal/LinkedTreeMap#replaceInParent():318 [1]
+# Covered: (-205455356) com/google/gson/internal/LinkedTreeMap#replaceInParent():318 [0]
+# Covered: (-205455357) com/google/gson/internal/LinkedTreeMap#replaceInParent():315 [0]
+# Covered: (-205455357) com/google/gson/internal/LinkedTreeMap#replaceInParent():315 [1]
+# Covered: (-205455358) com/google/gson/internal/LinkedTreeMap#replaceInParent():314 [0]
+# Covered: (-205455358) com/google/gson/internal/LinkedTreeMap#replaceInParent():314 [1]
+# Covered: (-205455359) com/google/gson/internal/LinkedTreeMap#replaceInParent():310 [0]
+# Covered: (-205479911) com/google/gson/internal/LinkedTreeMap#find():198 --> com/google/gson/internal/LinkedTreeMap#rebalance(Lcom/google/gson/internal/LinkedTreeMap$Node;Z)V
+# Covered: (-205479912) com/google/gson/internal/LinkedTreeMap#find():193 [0]
+# Covered: (-205479912) com/google/gson/internal/LinkedTreeMap#find():193 [1]
+# Covered: (-205479913) com/google/gson/internal/LinkedTreeMap#find():192 --> com/google/gson/internal/LinkedTreeMap$Node#<init>(ZLcom/google/gson/internal/LinkedTreeMap$Node;Ljava/lang/Object;Lcom/google/gson/internal/LinkedTreeMap$Node;Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205479914) com/google/gson/internal/LinkedTreeMap#find():189 --> com/google/gson/internal/LinkedTreeMap$Node#<init>(ZLcom/google/gson/internal/LinkedTreeMap$Node;Ljava/lang/Object;Lcom/google/gson/internal/LinkedTreeMap$Node;Lcom/google/gson/internal/LinkedTreeMap$Node;)V
+# Covered: (-205479922) com/google/gson/internal/LinkedTreeMap#find():186 [1]
+# Covered: (-205479923) com/google/gson/internal/LinkedTreeMap#find():186 [0]
+# Covered: (-205479924) com/google/gson/internal/LinkedTreeMap#find():184 [0]
+# Covered: (-205479924) com/google/gson/internal/LinkedTreeMap#find():184 [1]
+# Covered: (-205479926) com/google/gson/internal/LinkedTreeMap#find():177 [1]
+# Covered: (-205479927) com/google/gson/internal/LinkedTreeMap#find():168 [0]
+# Covered: (-205479927) com/google/gson/internal/LinkedTreeMap#find():168 [1]
+# Covered: (-205479928) com/google/gson/internal/LinkedTreeMap#find():167 [0]
+# Covered: (-205479928) com/google/gson/internal/LinkedTreeMap#find():167 [1]
+# Covered: (-205479930) com/google/gson/internal/LinkedTreeMap#find():162 [0]
+# Covered: (-205479930) com/google/gson/internal/LinkedTreeMap#find():162 [1]
+# Covered: (-205479933) com/google/gson/internal/LinkedTreeMap#find():157 [0]
+# Covered: (-205479934) com/google/gson/internal/LinkedTreeMap#find():152 [0]
+# Covered: (-205479935) com/google/gson/internal/LinkedTreeMap#find():149 [0]
+# Covered: (-205479935) com/google/gson/internal/LinkedTreeMap#find():149 [1]
+# Covered: (-205492218) com/google/gson/internal/LinkedTreeMap#put():117 --> com/google/gson/internal/LinkedTreeMap#find(Ljava/lang/Object;Z)Lcom/google/gson/internal/LinkedTreeMap$Node;
+# Covered: (-205492220) com/google/gson/internal/LinkedTreeMap#put():114 [1]
+# Covered: (-205492221) com/google/gson/internal/LinkedTreeMap#put():114 [0]
+# Covered: (-205492221) com/google/gson/internal/LinkedTreeMap#put():114 [1]
+# Covered: (-205492223) com/google/gson/internal/LinkedTreeMap#put():111 [1]
+# Covered: (-205508605) com/google/gson/internal/LinkedTreeMap#<init>():94 --> com/google/gson/internal/LinkedTreeMap$Node#<init>(Z)V
+# Covered: (-205508606) com/google/gson/internal/LinkedTreeMap#<init>():90 [0]
+# Covered: (-205516799) com/google/gson/internal/LinkedTreeMap#<init>():66 --> com/google/gson/internal/LinkedTreeMap#<init>(Ljava/util/Comparator;Z)V
+# Covered: (-2080362495) com/google/gson/internal/bind/NumberTypeAdapter#getFactory():58 [0]
+# Covered: (-222289917) com/google/gson/internal/bind/TypeAdapters$34#create():998 [0]
+# Covered: (-222289919) com/google/gson/internal/bind/TypeAdapters$34#create():997 --> com/google/gson/reflect/TypeToken#getRawType()Ljava/lang/Class;
+# Covered: (377491457) com/google/gson/internal/bind/ObjectTypeAdapter#<init>():49 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (377499649) com/google/gson/internal/bind/ObjectTypeAdapter#getFactory():67 [0]
+# Covered: (377503746) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():79 [0]
+# Covered: (377503746) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():79 [-1]
+# Covered: (377503746) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():79 [1]
+# Covered: (377503747) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():81 --> com/google/gson/stream/JsonReader#beginArray()V
+# Covered: (377503750) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():84 --> com/google/gson/stream/JsonReader#beginObject()V
+# Covered: (377503751) com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting():85 --> com/google/gson/internal/LinkedTreeMap#<init>()V
+# Covered: (377507842) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():93 [-1]
+# Covered: (377507842) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():93 [3]
+# Covered: (377507843) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():95 --> com/google/gson/stream/JsonReader#nextString()Ljava/lang/String;
+# Covered: (377507845) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():97 --> com/google/gson/ToNumberPolicy$1#readNumber(Lcom/google/gson/stream/JsonReader;)Ljava/lang/Number;
+# Covered: (377507847) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():99 --> com/google/gson/stream/JsonReader#nextBoolean()Z
+# Covered: (377507850) com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal():101 --> com/google/gson/stream/JsonReader#nextNull()V
+# Covered: (377511937) com/google/gson/internal/bind/ObjectTypeAdapter#read():112 --> com/google/gson/stream/JsonReader#peek()Lcom/google/gson/stream/JsonToken;
+# Covered: (377511938) com/google/gson/internal/bind/ObjectTypeAdapter#read():114 --> com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting(Lcom/google/gson/stream/JsonReader;Lcom/google/gson/stream/JsonToken;)Ljava/lang/Object;
+# Covered: (377511939) com/google/gson/internal/bind/ObjectTypeAdapter#read():115 [1]
+# Covered: (377511943) com/google/gson/internal/bind/ObjectTypeAdapter#read():122 --> com/google/gson/stream/JsonReader#hasNext()Z
+# Covered: (377511944) com/google/gson/internal/bind/ObjectTypeAdapter#read():122 [0]
+# Covered: (377511944) com/google/gson/internal/bind/ObjectTypeAdapter#read():122 [1]
+# Covered: (377511945) com/google/gson/internal/bind/ObjectTypeAdapter#read():125 [0]
+# Covered: (377511945) com/google/gson/internal/bind/ObjectTypeAdapter#read():125 [1]
+# Covered: (377511946) com/google/gson/internal/bind/ObjectTypeAdapter#read():126 --> com/google/gson/stream/JsonReader#nextName()Ljava/lang/String;
+# Covered: (377511947) com/google/gson/internal/bind/ObjectTypeAdapter#read():129 --> com/google/gson/stream/JsonReader#peek()Lcom/google/gson/stream/JsonToken;
+# Covered: (377511948) com/google/gson/internal/bind/ObjectTypeAdapter#read():130 --> com/google/gson/internal/bind/ObjectTypeAdapter#tryBeginNesting(Lcom/google/gson/stream/JsonReader;Lcom/google/gson/stream/JsonToken;)Ljava/lang/Object;
+# Covered: (377511949) com/google/gson/internal/bind/ObjectTypeAdapter#read():131 [0]
+# Covered: (377511949) com/google/gson/internal/bind/ObjectTypeAdapter#read():131 [1]
+# Covered: (377511950) com/google/gson/internal/bind/ObjectTypeAdapter#read():133 [0]
+# Covered: (377511950) com/google/gson/internal/bind/ObjectTypeAdapter#read():133 [1]
+# Covered: (377511951) com/google/gson/internal/bind/ObjectTypeAdapter#read():134 --> com/google/gson/internal/bind/ObjectTypeAdapter#readTerminal(Lcom/google/gson/stream/JsonReader;Lcom/google/gson/stream/JsonToken;)Ljava/lang/Object;
+# Covered: (377511952) com/google/gson/internal/bind/ObjectTypeAdapter#read():137 [0]
+# Covered: (377511952) com/google/gson/internal/bind/ObjectTypeAdapter#read():137 [1]
+# Covered: (377511954) com/google/gson/internal/bind/ObjectTypeAdapter#read():144 --> com/google/gson/internal/LinkedTreeMap#put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+# Covered: (377511955) com/google/gson/internal/bind/ObjectTypeAdapter#read():147 [0]
+# Covered: (377511955) com/google/gson/internal/bind/ObjectTypeAdapter#read():147 [1]
+# Covered: (377511957) com/google/gson/internal/bind/ObjectTypeAdapter#read():154 [0]
+# Covered: (377511957) com/google/gson/internal/bind/ObjectTypeAdapter#read():154 [1]
+# Covered: (377511958) com/google/gson/internal/bind/ObjectTypeAdapter#read():155 --> com/google/gson/stream/JsonReader#endArray()V
+# Covered: (377511959) com/google/gson/internal/bind/ObjectTypeAdapter#read():157 --> com/google/gson/stream/JsonReader#endObject()V
+# Covered: (377511961) com/google/gson/internal/bind/ObjectTypeAdapter#read():160 [0]
+# Covered: (377511961) com/google/gson/internal/bind/ObjectTypeAdapter#read():160 [1]
+# Covered: (377520129) com/google/gson/internal/bind/ObjectTypeAdapter#<init>():40 --> com/google/gson/internal/bind/ObjectTypeAdapter#<init>(Lcom/google/gson/Gson;Lcom/google/gson/ToNumberStrategy;)V
+# Covered: (-398454783) com/google/gson/internal/bind/SerializationDelegatingTypeAdapter#<init>():8 --> com/google/gson/TypeAdapter#<init>()V
+# Covered: (-448782335) com/google/gson/Gson$FutureTypeAdapter#setDelegate():1345 [1]
+# Covered: (-448786431) com/google/gson/Gson$FutureTypeAdapter#<init>():1341 --> com/google/gson/internal/bind/SerializationDelegatingTypeAdapter#<init>()V
+# Covered: (-562020351) com/google/gson/internal/bind/TypeAdapters#newFactory():960 --> com/google/gson/internal/bind/TypeAdapters$32#<init>(Ljava/lang/Class;Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)V
+# Covered: (-562024447) com/google/gson/internal/bind/TypeAdapters#newFactory():947 --> com/google/gson/internal/bind/TypeAdapters$31#<init>(Ljava/lang/Class;Lcom/google/gson/TypeAdapter;)V
+# Covered: (612392961) com/google/gson/internal/$Gson$Types#canonicalize():110 [0]
+# Covered: (612392963) com/google/gson/internal/$Gson$Types#canonicalize():112 [1]
+# Covered: (612397057) com/google/gson/internal/$Gson$Types#getRawType():134 [0]
+# Covered: (675291137) com/google/gson/ToNumberPolicy$1#readNumber():41 --> com/google/gson/stream/JsonReader#nextDouble()D
+# Covered: (675295233) com/google/gson/ToNumberPolicy$1#readNumber():39 --> com/google/gson/ToNumberPolicy$1#readNumber(Lcom/google/gson/stream/JsonReader;)Ljava/lang/Double;
+# Covered: (-910151679) com/google/gson/TypeAdapter#nullSafe():191 --> com/google/gson/TypeAdapter$1#<init>(Lcom/google/gson/TypeAdapter;)V
+# Covered: (-914354175) com/google/gson/TypeAdapter$1#<init>():191 --> com/google/gson/TypeAdapter#<init>()V
