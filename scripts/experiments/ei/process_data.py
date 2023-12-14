@@ -26,7 +26,7 @@ def highlight_data(data):
             data[-1][i + 1] = "\\cellgreen{" + str(data[-1][i + 1]) + "}"
 
 
-def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> Dict[str, Dict[str, List[Set[str]]]]:
+def generate_cov_table(paths: str, algorithms: Set[str]) -> Dict[str, Dict[str, List[Set[str]]]]:
     cov_all_table_data = []
     cov_all_avg_data = []
     cov_data = {}
@@ -35,8 +35,6 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
     for dataset in DATASET:
-        if "jython" in dataset:
-            continue
         cov_all_union = {}
         cov_all_intersection = {}
         cov_all_table_data.append([dataset])
@@ -50,6 +48,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                 for idx in range(0, 10):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
+                        print(folder)
                         continue
                     result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
                         process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
@@ -62,10 +61,6 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
                     cov_all_intersection[algorithm] = cov_all_intersection[algorithm].intersection(result)
             if algorithm not in cov_all_union:
                 continue
-            with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-intersection.txt"), "w") as f:
-                f.writelines(sorted(cov_all_intersection[algorithm]))
-            with open(os.path.join(out_folder, f"{dataset}-{algorithm}-cov-all-union.txt"), "w") as f:
-                f.writelines(sorted(cov_all_union[algorithm]))
 
             data = cov_data[dataset][algorithm]
             if not data:
@@ -76,19 +71,11 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
             else:
                 for d in data:
                     all_data.append([dataset + "\n " + str(baseline), map_algorithm(algorithm), (len(d)) - baseline])
-            # print(dataset)
-            # print(algorithm)
-            # for b in data:
-            #     print(len(b))
             cov_all_avg_data[-1].append(int(reduce(lambda a,
                                         b: a + len(b), data, 0) / len(data)))
             # cov_all_avg_data[-1].append(cov_all_avg_data[-1][-1] - cov_all_avg_data[-1][1])
     all_data = pd.DataFrame(all_data, columns=["Benchmark", "Algorithm", "Ratio"])
-    # print(set(all_data["Benchmark"].values))
-    # print(all_data[all_data["Benchmark"].str.contains("rhino")])
-    # colors = ['#2A587A', '#83B828', '#FABC75', '#F83A25', '#FDD8EB']
     colors = ['#4C72B0', '#55A868', '#DD8452', '#FDD8EB']
-    # # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
     sns.set_palette(sns.color_palette(colors), 5, 1)
     axis = sns.barplot(
         data = all_data,
@@ -101,14 +88,9 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
     )
 
     patterns = ['/', 'o', '\\']
-    # patterns = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.']
 
     unique_hues = all_data['Algorithm'].unique()
     pattern_dict = {hue: patterns[i % len(patterns)] for i, hue in enumerate(unique_hues)}
-    # print(hue_pattern)
-
-    # print(dict(zip(axis.patches, all_data['Algorithm'])))
-    # Apply the hatch pattern based on the hue
     sorted_patches = sorted(axis.patches, key=lambda patch: patch.get_x())
     x = 0
     legend_handles = []
@@ -129,18 +111,7 @@ def generate_cov_table(paths: str, algorithms: Set[str], output_folder: str) -> 
 
     axis.set(xlabel = "Benchmark")
     axis.set(ylabel = "\# Increased Branch Coverage")
-    fig = axis.get_figure()
     plt.show()
-    fig.savefig("/usr0/home/aoli/repos/ei-paper/figs/cov.pdf", bbox_inches='tight', pad_inches=0.1)
-    fig.clf()
-    # for algo in algorithms:
-    #     keys.append(map_algorithm(algo))
-    #     keys.append("Delta")
-    # writer = pytablewriter.MarkdownTableWriter(
-    #     headers = ["Dataset", *keys],
-    #     value_matrix =cov_all_avg_data
-    # )
-    # write_table(writer, os.path.join(output_folder, "cov-avg-table.tex"))
     return cov_data
 #
 
@@ -273,7 +244,7 @@ def parse_mutation_distance_data(path: str, saved_only: List[bool], generators: 
                         if os.path.exists(data_path):
                             data_frame = pd.read_csv(data_path, sep=",", names=["current_len", "parent_len", "distance", "saved", "parent", "id", "file"], na_values=-1)
                             data_frame["algorithm"] = algorithm + "-" + generator + ("-saved_only" if if_saved else "")
-                            data_frame = data_frame[data_frame["distance"] != 0]
+                            # data_frame = data_frame[data_frame["distance"] != 0]
                             if if_saved:
                                 data_frame = data_frame[data_frame["saved"]]
                             data_frame["max_length"] = np.maximum.reduce(data_frame[['current_len', 'parent_len']].values, axis=1)

@@ -67,7 +67,7 @@ def build_cov_data_over_time(path: str, indices) -> pd.DataFrame:
 
 def map_algorithm(algo: str) -> str:
     if "mix-testWithGenerator" in algo:
-        return "$\\textsc{gex}_m$"
+        return "$\\textsc{Gex}_m$"
     if "mix-testWithReversedGenerator" in algo:
         return "Mix-Rev"
     if algo == "zest-fast" or algo == "zest-testWithGenerator":
@@ -133,10 +133,6 @@ def process_cov_data(path: str) -> Set[str]:
                 # for pattern in INTERESTING:
                 #     if pattern in line or True:
                 result.add(line)
-
-    if "closure" in path:
-        if len(result) != 0:
-            print(path, len(result))
     return result
 
 def generate_plot_data_base(path: str, data: pd.DataFrame, x_axis: str, y_axis: str, step=1, x_label: str = None, y_label: str = None):
