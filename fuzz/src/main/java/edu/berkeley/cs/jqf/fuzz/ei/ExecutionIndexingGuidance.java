@@ -693,7 +693,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Derive new input from this object as source
             MappedInput newInput = new MappedInput(this);
 
-            // FIXIT(leo): fix this after experiment.
             if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
                 // Maybe try splicing
                 boolean splicingDone = false;
