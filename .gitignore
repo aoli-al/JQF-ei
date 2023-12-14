@@ -7,11 +7,7 @@ target/
 .idea/
 .janala/
 *.log
-results-*/
 *_crashes/
 *.swp
 apidocs/
-experiments/*-results-*
-*-results/
 .java-version
-*.pkl
