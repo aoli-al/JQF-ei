@@ -181,20 +181,14 @@ def generate_coverage_delta_hist(path: str, data: pd.DataFrame):
     fig.clf()
 
 
-def generate_corpus_exec_time(path: str, data: pd.DataFrame):
-    # cls = ['#2A587A', '#FABC75', '#83B828', '#F83A25', '#FDD8EB']
-    # # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
-    # palette = sns.color_palette(cls)
+def generate_corpus_exec_time(data: pd.DataFrame):
     colors = ['#4C72B0', '#DD8452', '#F83A25', '#FDD8EB']
-    # colors = ['#648FFF', '#FFB000', '#DC267F','#FE6100', '#785EF0']
     sns.set_palette(sns.color_palette(colors), 5, 1)
     bins = 20
     axis = sns.histplot(data=data, x="time", hue="algorithm", multiple="dodge", bins=bins, log_scale=(False, True), alpha=1,
                         hue_order=sorted(data['algorithm'].unique()))
-
     patches = axis.patches
     colors = [patch.get_facecolor() for patch in patches]
-    print(colors)
 
     textures = ['\\', '/', 'o']
     for i, bar in enumerate(axis.patches):
@@ -205,15 +199,8 @@ def generate_corpus_exec_time(path: str, data: pd.DataFrame):
     patch_2 = Patch(label='$\\textsc{Gex}$', hatch=textures[1], facecolor=colors[-1])
 
     axis.set(xlabel = "Execution Time (ms)", ylabel = "Count")
-
-
-    fig = axis.get_figure()
     axis.legend(handles=[patch_2, patch_1], loc='upper right')
-    # axis.legend()
     plt.show()
-    fig.savefig(path, bbox_inches='tight', pad_inches=0.1)
-    fig.clf()
-    # generate_plot_data_base(path, data, "case", "time", 1)
 
 def show_values_on_bars(axs):
     def _show_on_single_plot(ax):
