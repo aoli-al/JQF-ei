@@ -41,8 +41,6 @@ import java.util.Arrays;
  * <p>The execution index is a basically a wrapper around an integer array
  * of even length, in which every pair of elements represents an IID of a
  * call site and its associated count.</p>
- *
- * @author Rohan Padhye
  */
 public class ExecutionIndex implements Comparable<ExecutionIndex> {
 

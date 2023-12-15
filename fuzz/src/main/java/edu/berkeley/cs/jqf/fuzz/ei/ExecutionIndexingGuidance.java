@@ -59,8 +59,6 @@ import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 /**
  * A guidance that represents inputs as maps from
  * execution indexes to parameters.
- *
- * @author Rohan Padhye
  */
 public class ExecutionIndexingGuidance extends ZestGuidance {
 

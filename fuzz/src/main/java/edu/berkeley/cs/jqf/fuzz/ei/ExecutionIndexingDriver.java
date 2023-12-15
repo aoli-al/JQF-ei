@@ -36,8 +36,6 @@ import edu.berkeley.cs.jqf.fuzz.util.IOUtils;
 
 /**
  * Entry point for fuzzing with Execution Indexing.
- *
- * @author Rohan Padhye
  */
 public class ExecutionIndexingDriver {
 

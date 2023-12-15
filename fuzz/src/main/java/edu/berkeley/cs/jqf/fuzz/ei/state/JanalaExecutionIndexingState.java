@@ -41,8 +41,6 @@ import edu.berkeley.cs.jqf.instrument.tracing.events.TraceEventVisitor;
  * instrumentation framework.
  *
  * @see ExecutionIndex
- *
- * @author Rohan Padhye
  */
 public class JanalaExecutionIndexingState extends AbstractExecutionIndexingState implements TraceEventVisitor {
     public JanalaExecutionIndexingState() {

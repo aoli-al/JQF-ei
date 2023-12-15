@@ -16,8 +16,6 @@ import java.util.Arrays;
  * used to compute light-weight execution indexes.
  *
  * @see ExecutionIndex
- *
- * @author Rohan Padhye
  */
 public abstract class AbstractExecutionIndexingState {
     private final int COUNTER_SIZE = 6151;

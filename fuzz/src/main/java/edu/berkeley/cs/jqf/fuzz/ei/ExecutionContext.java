@@ -33,8 +33,6 @@ import java.util.Arrays;
 /**
  * A representation of an execution index sans the counts, equivalent to
  * a call stack.
- *
- * @author Rohan Padhye
  */
 public class ExecutionContext {
 
