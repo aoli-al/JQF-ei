@@ -137,8 +137,12 @@ def generate_perf_graph(data_dirs: List[str], algorithms: Set[str], out_folder: 
                     execution_time_data = load_processing_time_data(path)
                     corpus_based_plot_data.append(execution_time_data)
         corpus_based_plot_data = pd.concat(corpus_based_plot_data, ignore_index=True, sort=False)
-        generate_corpus_exec_time(os.path.join(
-            out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
+        print(corpus_based_plot_data)
+        corpus_based_plot_data.drop(columns=["case", "result", "class", "cov"])
+        corpus_based_plot_data.to_pickle("/data/aoli/perf.pkl")
+        # print(corpus_based_plot_data)
+        # generate_corpus_exec_time(os.path.join(
+        #     out_folder, f"{dataset}-{out_name}.pdf"), corpus_based_plot_data)
 
 
 def mann_whitney_u_test(sample1, sample2, alternative='two-sided', verbose=True):
