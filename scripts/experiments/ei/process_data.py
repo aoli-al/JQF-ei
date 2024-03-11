@@ -189,15 +189,15 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
                         time_based_data["# unix_time"] += 1920
                     time_based_data_per_algo.append(time_based_data)
                     count_based_data_per_algo.append(count_based_data)
-                    if "mix" in path:
-                        path += "-tmp"
-                        time_based_data, count_based_data = process_plot_data(path)
-                        time_based_data_per_algo.append(time_based_data)
-                        count_based_data_per_algo.append(count_based_data)
-                    if "zest" in algorithm:
-                        zest_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
-                    elif "mix" in algorithm:
-                        mix_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
+                    # if "mix" in path:
+                    #     path += "-tmp"
+                    #     time_based_data, count_based_data = process_plot_data(path)
+                    #     time_based_data_per_algo.append(time_based_data)
+                    #     count_based_data_per_algo.append(count_based_data)
+                    # if "zest" in algorithm:
+                    #     zest_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
+                    # elif "mix" in algorithm:
+                    #     mix_data.append((int(time_based_data[time_based_data["# unix_time"] == 1910]["all_covered_probes"])))
             time_based_plot_data.extend(time_based_data_per_algo)
             count_based_plot_data.extend(count_based_data_per_algo)
         if not time_based_plot_data:
@@ -206,9 +206,9 @@ def generate_graph(data_dirs: List[str], algorithms: Set[str], output_dir: str):
             os.mkdir(output_dir)
         time_based_plot_data = pd.concat(
             time_based_plot_data, ignore_index=True, sort=False)
-        print(zest_data)
-        print(mix_data)
-        mann_whitney_u_test(zest_data, mix_data)
+        # print(zest_data)
+        # print(mix_data)
+        # mann_whitney_u_test(zest_data, mix_data)
         generate_total_inputs_over_time(os.path.join(
             output_dir, f"{dataset}-total_inputs.pdf"), time_based_plot_data)
         generate_all_coverage_over_time(os.path.join(output_dir, f"{dataset}-all-cov-time.pdf"), time_based_plot_data)
@@ -302,8 +302,8 @@ def identify_algorithms(paths: List[str]) -> List[str]:
             dir_path = os.path.join(path, subdir)
             if "tmp" in subdir:
                 continue
-            # if "no-havoc" in subdir:
-            #     continue
+            if "mix" in subdir:
+                continue
             if "mix-testWithReversedGenerator" in subdir:
                 continue
             if os.path.isdir(dir_path):
