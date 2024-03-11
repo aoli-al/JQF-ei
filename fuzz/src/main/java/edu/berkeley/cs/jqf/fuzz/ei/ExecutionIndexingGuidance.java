@@ -104,7 +104,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             System.getProperty("jqf.ei.HAVOC_PROBABILITY", "0.5"));
 
     /** Whether to splice only in the same sub-tree */
-    protected final boolean SPLICE_SUBTREE = Boolean.getBoolean("jqf.ei.SPLICE_SUBTREE");
+    protected final boolean SPLICE_SUBTREE = true;
 
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
     protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
@@ -693,23 +693,13 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Derive new input from this object as source
             MappedInput newInput = new MappedInput(this);
 
+            boolean splicingDone = false;
             if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
-                // Maybe try splicing
-                boolean splicingDone = false;
-
-                // Only splice if we have been provided the ecToInputLoc
-                if (ecToInputLoc != null && random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
-                    splicingDone = fuzzInputSplice(newInput);
-                }
-
-                // Maybe do random mutations
-                if (splicingDone == false || random.nextBoolean()) {
-                    fuzzInputRandom(newInput);
-                }
-            } else {
+                splicingDone = fuzzInputSplice(newInput);
+            }
+            if (!splicingDone){
                 fuzzInputHavoc(newInput);
             }
-
             return newInput;
 
         }
@@ -761,16 +751,22 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             boolean splicingDone = false;
             int targetAttempts = MIN_TARGET_ATTEMPTS;
 
-            outer: for (int targetAttempt = 1; targetAttempt < targetAttempts; targetAttempt++) {
+            for (int targetAttempt = 1; targetAttempt < targetAttempts; targetAttempt++) {
 
                 // Choose an execution context at which to splice at
                 // Note: We get EI and value from `this` rather than `newInput`
                 // because `this` has already been executed
                 int targetOffset = random.nextInt(newInput.valuesMap.size());
-                ExecutionIndex targetEi = this.getKeyAtOffset(targetOffset);
+                ExecutionIndex targetEi = (ExecutionIndex) newInput.valuesMap.keySet().toArray()[targetOffset];
+                if (targetEi.ei.length / 2 < 4) {
+                    // Do not splice at the root of the tree
+                    // Try to increase the loop bound a little bit to get another chance
+                    targetAttempts = Math.min(targetAttempts+1, MAX_TARGET_ATTEMPTS);
+                    continue;
+                }
 
                 ExecutionContext targetEc = new ExecutionContext(targetEi);
-                int valueAtTarget = this.getValueAtOffset(targetOffset);
+//                int valueAtTarget = this.getValueAtOffset(targetOffset);
 
                 // Find a suitable input location to splice from and ignore locations from the same source
                 List<InputLocation> inputLocations = ecToInputLoc
@@ -800,67 +796,48 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                         continue;
                     }
 
-                    // Do not splice if the first value is the same in source and target
-                    if (sourceInput.getValueAtOffset(sourceOffset) == valueAtTarget) {
-                        continue;
-                    }
-
                     int splicedBytes = 0;
-                    if (SPLICE_SUBTREE) {
-                        // Do not splice if there is no common suffix between EI of source and target
-                        ExecutionIndex sourceEi = sourceInput.getKeyAtOffset(sourceOffset);
-                        Suffix suffix = targetEi.getCommonSuffix(sourceEi);
-                        if (suffix.size() == 0) {
-                            continue;
+                    // We want to skip root nodes and leave nodes.
+                    int spliceOffset = random.nextInt(targetEi.ei.length / 2 - 3) + 2;
+
+                    // Do not splice if there is no common suffix between EI of source and target
+                    ExecutionIndex sourceEi = sourceInput.getKeyAtOffset(sourceOffset);
+
+//                    Suffix suffix = targetEi.getCommonSuffix(sourceEi);
+//                    if (suffix.size() == 0) {
+//                        continue;
+//                    }
+
+                    // Extract the source and target prefixes
+                    Prefix sourcePrefix = new Prefix(sourceEi, spliceOffset * 2);
+                    Prefix targetPrefix = new Prefix(targetEi, spliceOffset * 2);
+//                    Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
+//                    assert (sourcePrefix.size() == targetPrefix.size());
+//                    demandDrivenSpliceMap.add(
+//                            new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
+
+                    // OK, this looks good. Let's splice!
+                    int srcIdx = sourceOffset;
+                    while (srcIdx < sourceInput.size()) {
+                        ExecutionIndex candidateEi = sourceInput.getKeyAtOffset(srcIdx);
+                        if (!candidateEi.hasPrefix(sourcePrefix)) {
+                            // We are no more in the same sub-tree as sourceEi
+                            break;
                         }
+                        Suffix spliceSuffix = candidateEi.getSuffixOfPrefix(sourcePrefix);
+                        ExecutionIndex spliceEi = new ExecutionIndex(targetPrefix, spliceSuffix);
+                        newInput.valuesMap.put(spliceEi, sourceInput.valuesMap.get(candidateEi));
 
-                        // Extract the source and target prefixes
-                        Prefix sourcePrefix = sourceEi.getPrefixOfSuffix(suffix);
-                        Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
-                        assert (sourcePrefix.size() == targetPrefix.size());
-                        demandDrivenSpliceMap.add(
-                                new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
-
-                        // OK, this looks good. Let's splice!
-                        int srcIdx = sourceOffset;
-                        while (srcIdx < sourceInput.size()) {
-                            ExecutionIndex candidateEi = sourceInput.getKeyAtOffset(srcIdx);
-                            if (candidateEi.hasPrefix(sourcePrefix) == false) {
-                                // We are no more in the same sub-tree as sourceEi
-                                break;
-                            }
-                            Suffix spliceSuffix = candidateEi.getSuffixOfPrefix(sourcePrefix);
-                            ExecutionIndex spliceEi = new ExecutionIndex(targetPrefix, spliceSuffix);
-                            newInput.valuesMap.put(spliceEi, sourceInput.valuesMap.get(candidateEi));
-
-                            srcIdx++;
-                        }
-                        splicedBytes = srcIdx - sourceOffset;
-                    } else {
-
-                        int spliceSize = 1 + random.nextInt(MAX_SPLICE_SIZE);
-                        int src = sourceOffset;
-                        int tgt = targetOffset;
-                        int srcSize = sourceInput.size();
-                        int tgtSize = newInput.size();
-                        while (splicedBytes < spliceSize && src < srcSize && tgt < tgtSize) {
-                            int val = sourceInput.getValueAtOffset(src);
-                            ExecutionIndex key = this.getKeyAtOffset(tgt);
-                            newInput.setValueAtKey(key, val);
-
-                            splicedBytes++;
-                            src++;
-                            tgt++;
-                        }
+                        srcIdx++;
                     }
+                    splicedBytes = srcIdx - sourceOffset;
 
                     // Complete splicing
                     splicingDone = true;
                     newInput.desc += String.format(",splice:%06d:%d@%d->%d", sourceInput.id, splicedBytes,
                             sourceOffset, targetOffset);
 
-                    break outer; // Stop more splicing attempts!
-
+                    break;
                 }
             }
             return splicingDone;
