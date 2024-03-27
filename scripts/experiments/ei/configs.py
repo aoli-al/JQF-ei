@@ -8,8 +8,8 @@ DATASET = [
       "jackson",
 ]
 ALGORITHM = [
-    "zest",
-    "ei-no-havoc",
+    #  "zest",
+    "ei",
     "blind",
     "mix"
 ]
