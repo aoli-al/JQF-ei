@@ -269,7 +269,7 @@ public class JavaScriptCodeGenerator extends Generator<String> {
     }
 
     private String generateReturnNode(SourceOfRandomness random) {
-        return "return " + generateExpression(random);
+        return random.nextBoolean() ? "return" : "return " + generateExpression(random);
     }
 
     private String generateSwitchNode(SourceOfRandomness random) {

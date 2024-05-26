@@ -97,7 +97,7 @@ public class CompilerTest {
         debugWithString("x <<= Infinity");
     }
 
-    @Fuzz
+    @Fuzz(repro = "/Users/aoli/Downloads/campaigns/682/tmp/gen/id0.txt")
     public void testWithInputStream(InputStream in) throws IOException {
         SourceFile input = SourceFile.fromInputStream("input", in, StandardCharsets.UTF_8);
         doCompile(input);
