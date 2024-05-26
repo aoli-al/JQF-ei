@@ -28,6 +28,8 @@
  */
 package edu.berkeley.cs.jqf.examples.closure;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,48 +62,43 @@ public class CompilerTest {
         LogManager.getLogManager().reset();
     }
 
-    private Compiler compiler = new Compiler(new PrintStream(new ByteArrayOutputStream(), false));
-    private CompilerOptions options = new CompilerOptions();
-    private SourceFile externs = SourceFile.fromCode("externs", "");
-
-    @Before
-    public void initCompiler() {
-        // Don't use threads
+    @Fuzz
+    public void testWithInputStream(InputStream in) throws IOException {
+        Compiler compiler = new Compiler(new PrintStream(new ByteArrayOutputStream(), false));
+        CompilerOptions options = new CompilerOptions();
         compiler.disableThreads();
-        // Don't print things
         options.setPrintConfig(false);
-        // Enable all safe optimizations
         CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    }
-
-    private void doCompile(SourceFile input) {
-        Result result = compiler.compile(externs, input, options);
+        SourceFile input = SourceFile.fromCode("input", readStream(in));
+        Result result = compiler.compile(SourceFile.fromCode("externs", ""), input, options);
         Assume.assumeTrue(result.success);
     }
 
+    static String readStream(InputStream in) throws IOException {
+        in = new BufferedInputStream(in);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        for (int result = in.read(); result != -1; result = in.read()) {
+            buffer.write((byte) result);
+        }
+        return buffer.toString(StandardCharsets.UTF_8.name());
+    }
+
+
     @Fuzz
-    public void testWithString(@From(AsciiStringGenerator.class) String code) {
-        SourceFile input = SourceFile.fromCode("input", code);
-        doCompile(input);
+    public void testWithString(@From(AsciiStringGenerator.class) String code) throws IOException {
+        testWithInputStream(new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Fuzz
-    public void debugWithString(@From(AsciiStringGenerator.class) String code) {
-        System.out.println("\nInput:  " + code);
+    public void debugWithString(@From(AsciiStringGenerator.class) String code) throws IOException {
         testWithString(code);
-        System.out.println("Output: " + compiler.toSource());
     }
 
     @Test
-    public void smallTest() {
+    public void smallTest() throws IOException {
         debugWithString("x <<= Infinity");
     }
 
-    @Fuzz(repro = "/Users/aoli/Downloads/campaigns/682/tmp/gen/id0.txt")
-    public void testWithInputStream(InputStream in) throws IOException {
-        SourceFile input = SourceFile.fromInputStream("input", in, StandardCharsets.UTF_8);
-        doCompile(input);
-    }
 
     @Fuzz
     public void debugWithInputStream(InputStream in) throws IOException {
@@ -110,17 +107,17 @@ public class CompilerTest {
     }
 
     @Fuzz
-    public void testWithGenerator(@From(JavaScriptCodeGenerator.class) String code) {
+    public void testWithGenerator(@From(JavaScriptCodeGenerator.class) String code) throws IOException {
         testWithString(code);
     }
 
     @Fuzz
-    public void testWithReversedGenerator(@From(ReversedJSCodeGenerator.class) String code) {
+    public void testWithReversedGenerator(@From(ReversedJSCodeGenerator.class) String code) throws IOException {
         testWithString(code);
     }
 
     @Fuzz
-    public void debugWithGenerator(@From(JavaScriptCodeGenerator.class) String code) {
+    public void debugWithGenerator(@From(JavaScriptCodeGenerator.class) String code) throws IOException {
         debugWithString(code);
     }
 }
