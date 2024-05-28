@@ -92,6 +92,7 @@ public class ReproGuidance implements Guidance {
 
     private boolean stopOnFailure = false;
     private boolean observedFailure = false;
+    private boolean shouldLogCoverage = false;
 
     /**
      * Constructs an instance of ReproGuidance with a list of
@@ -225,12 +226,13 @@ public class ReproGuidance implements Guidance {
     @Override
     public void run(TestClass testClass, FrameworkMethod method, Object[] args) throws Throwable {
         long start = System.currentTimeMillis();
+        shouldLogCoverage = true;
         try {
             Guidance.super.run(testClass, method, args);
         } finally {
             elapsed = System.currentTimeMillis() - start;
         }
-
+        shouldLogCoverage = false;
     }
 
     /**
@@ -316,6 +318,9 @@ public class ReproGuidance implements Guidance {
     public Consumer<TraceEvent> generateCallBack(Thread thread) {
         if (branchesCoveredInCurrentRun != null) {
             return (e) -> {
+                if (!shouldLogCoverage) {
+                    return;
+                }
                 coverage.handleEvent(e);
                 if (e instanceof BranchEvent) {
                     BranchEvent b = (BranchEvent) e;
