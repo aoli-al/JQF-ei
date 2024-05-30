@@ -106,7 +106,7 @@ public class CompilerTest {
         debugWithString(input);
     }
 
-    @Fuzz
+    @Fuzz(repro = "/Users/aoli/tmp/closure-ei-no-havoc-testWithGenerator-results-0/corpus/id_000001")
     public void testWithGenerator(@From(JavaScriptCodeGenerator.class) String code) throws IOException {
         testWithString(code);
     }
