@@ -30,6 +30,8 @@
 package edu.berkeley.cs.jqf.fuzz.junit.quickcheck;
 
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +75,10 @@ public class FuzzStatement extends Statement {
     private final List<Class<?>> expectedExceptions;
     private final List<Throwable> failures = new ArrayList<>();
     private final Guidance guidance;
+    private final String outputPath = System.getProperty("replay.directory");
+    private int outputIndex = 0;
     private boolean skipExceptionSwallow;
+
 
     public FuzzStatement(FrameworkMethod method, TestClass testClass,
                          GeneratorRepository generatorRepository, Guidance fuzzGuidance) {
@@ -120,6 +125,16 @@ public class FuzzStatement extends Statement {
                         args = generators.stream()
                                 .map(g -> g.generate(random, genStatus))
                                 .toArray();
+                        if (outputPath != null) {
+                            File folder = new File(outputPath + "/gen");
+                            if (!folder.exists()) {
+                                folder.mkdirs();
+                            }
+                            try (FileWriter f = new FileWriter(outputPath + "/gen/" + "id" + outputIndex++ + ".txt")) {
+                                System.out.println("saving: " + outputPath);
+                                f.write(args[0].toString());
+                            }
+                        }
 
                         // Let guidance observe the generated input args
                         guidance.observeGeneratedArgs(args);
