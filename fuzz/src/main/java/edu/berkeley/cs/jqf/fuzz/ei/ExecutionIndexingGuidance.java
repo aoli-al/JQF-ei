@@ -695,7 +695,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
             boolean splicingDone = false;
             if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
-                splicingDone = fuzzInputSplice(newInput);
+                splicingDone = fuzzInputRandom(newInput);
             }
             if (!splicingDone){
                 fuzzInputHavoc(newInput);
@@ -710,7 +710,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             newInput.linearInput = (LinearInput) newInput.linearInput.fuzz(random);
         }
 
-        private void fuzzInputRandom(MappedInput newInput) {
+        private boolean fuzzInputRandom(MappedInput newInput) {
             // Stack a bunch of mutations
             int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
             newInput.desc += ",random:"+numMutations;
@@ -742,6 +742,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                     newInput.valuesMap.put(ei, mutatedValue);
                 }
             }
+            return true;
         }
 
         private boolean fuzzInputSplice(MappedInput newInput) {
