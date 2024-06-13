@@ -231,8 +231,8 @@ public class ReproGuidance implements Guidance {
             Guidance.super.run(testClass, method, args);
         } finally {
             elapsed = System.currentTimeMillis() - start;
+            shouldLogCoverage = false;
         }
-        shouldLogCoverage = false;
     }
 
     /**
