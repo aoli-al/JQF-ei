@@ -297,7 +297,7 @@ public class ZestGuidance implements Guidance {
         this.random = sourceOfRandomness;
         this.testName = testName;
         this.maxDurationMillis = duration != null ? duration.toMillis() : Long.MAX_VALUE;
-        this.maxTrials = 10000;
+        this.maxTrials = 1000000;
         this.outputDirectory = outputDirectory;
         this.blind = Boolean.getBoolean("jqf.ei.TOTALLY_RANDOM");
         this.validityFuzzing = !Boolean.getBoolean("jqf.ei.DISABLE_VALIDITY_FUZZING");
