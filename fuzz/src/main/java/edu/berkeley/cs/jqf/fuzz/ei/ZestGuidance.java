@@ -297,7 +297,7 @@ public class ZestGuidance implements Guidance {
         this.random = sourceOfRandomness;
         this.testName = testName;
         this.maxDurationMillis = duration != null ? duration.toMillis() : Long.MAX_VALUE;
-        this.maxTrials = trials != null ? trials : Long.MAX_VALUE;
+        this.maxTrials = 10000;
         this.outputDirectory = outputDirectory;
         this.blind = Boolean.getBoolean("jqf.ei.TOTALLY_RANDOM");
         this.validityFuzzing = !Boolean.getBoolean("jqf.ei.DISABLE_VALIDITY_FUZZING");
@@ -1425,16 +1425,16 @@ public class ZestGuidance implements Guidance {
             LinearInput newInput = new LinearInput(this);
 
             // Stack a bunch of mutations
-            int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            int numMutations = 1;
             newInput.desc += ",havoc:"+numMutations;
 
-            boolean setToZero = random.nextDouble() < 0.1; // one out of 10 times
+//            boolean setToZero = random.nextDouble() < 0.1; // one out of 10 times
 
             for (int mutation = 1; mutation <= numMutations; mutation++) {
 
                 // Select a random offset and size
                 int offset = random.nextInt(newInput.values.size());
-                int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
+                int mutationSize = 1;
 
                 // desc += String.format(":%d@%d", mutationSize, idx);
 
@@ -1446,7 +1446,7 @@ public class ZestGuidance implements Guidance {
                     }
 
                     // Otherwise, apply a random mutation
-                    int mutatedValue = setToZero ? 0 : random.nextInt(256);
+                    int mutatedValue = random.nextInt(256);
                     newInput.values.set(i, mutatedValue);
                 }
             }

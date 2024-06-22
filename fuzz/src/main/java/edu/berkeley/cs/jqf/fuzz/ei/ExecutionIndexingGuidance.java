@@ -712,7 +712,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
         private boolean fuzzInputRandom(MappedInput newInput) {
             // Stack a bunch of mutations
-            int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            int numMutations = 1;
             newInput.desc += ",random:"+numMutations;
 
             for (int mutation = 1; mutation <= numMutations; mutation++) {
@@ -721,15 +721,10 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 // from parent input's orderedKeys because the list for the new input
                 // is not constructed.
                 int offset = random.nextInt(orderedKeys.size());
-                int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
+                int mutationSize = 1;
                 // infoLog("[%d] Mutating %d bytes at offset %d", mutation, mutationSize, offset);
 
                 newInput.desc += String.format("(%d@%d)", mutationSize, offset);
-
-                boolean setToZero = random.nextDouble() < MUTATION_ZERO_PROBABILITY; // one out of 10 times
-                if (setToZero) {
-                    newInput.desc += "=0";
-                }
 
                 // Iterate over all entries in the value map
                 for (int i = offset; i < offset + mutationSize; i++) {
@@ -738,7 +733,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                     }
                     ExecutionIndex ei = orderedKeys.get(i);
                     int originValue = newInput.valuesMap.get(ei);
-                    int mutatedValue = setToZero && originValue != 0 ? 0 : random.nextInt(256);
+                    int mutatedValue = random.nextInt(256);
                     newInput.valuesMap.put(ei, mutatedValue);
                 }
             }
