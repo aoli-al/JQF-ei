@@ -45,10 +45,9 @@ def generate_cov_table(paths: str, algorithms: Set[str]) -> Dict[str, Dict[str, 
             cov_data[dataset][algorithm] = []
             for base_path in paths:
                 all_avg = []
-                for idx in range(0, 10):
+                for idx in range(0, 20):
                     folder = os.path.join(base_path, f"{dataset}-{algorithm}-results-{idx}")
                     if not os.path.exists(folder):
-                        print(folder)
                         continue
                     result = process_cov_data(os.path.join(folder, "cov-all.log")).union(
                         process_cov_data(os.path.join(folder + "-tmp", "cov-all.log")))
@@ -75,6 +74,8 @@ def generate_cov_table(paths: str, algorithms: Set[str]) -> Dict[str, Dict[str, 
                                         b: a + len(b), data, 0) / len(data)))
             # cov_all_avg_data[-1].append(cov_all_avg_data[-1][-1] - cov_all_avg_data[-1][1])
     all_data = pd.DataFrame(all_data, columns=["Benchmark", "Algorithm", "Ratio"])
+    mean_df = all_data.groupby(['Benchmark', 'Algorithm']).mean().reset_index()
+    return all_data, mean_df
     colors = ['#4C72B0', '#55A868', '#DD8452', '#FDD8EB']
     sns.set_palette(sns.color_palette(colors), 5, 1)
     axis = sns.barplot(

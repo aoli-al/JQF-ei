@@ -8,10 +8,14 @@ DATASET = [
       "jackson",
 ]
 ALGORITHM = [
-    #  "zest",
+    "zest",
     "ei",
     "blind",
-    "mix"
+    "mix",
+    "zeugma-linked",
+    "zeugma-none",
+    "bedivfuzz-structure",
+    "bedivfuzz-simple",
 ]
 
 GENERATOR = [

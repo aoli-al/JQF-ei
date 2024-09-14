@@ -85,7 +85,7 @@ def map_algorithm(algo: str) -> str:
     if "blind" in algo:
         return "Blind"
     print(algo)
-    return "?"
+    return algo
 
 def color_mapping(algo: str) -> str:
     pass

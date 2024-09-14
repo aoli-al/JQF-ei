@@ -11,11 +11,9 @@ from multiprocessing import Pool
 EXAMPLES_DIR = os.path.join(Path(__file__).resolve().parent, "../../../examples")
 
 def call(args: List[str]):
-    print(args)
-    if isinstance(args, str):
-        subprocess.check_call(args, cwd=EXAMPLES_DIR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
-    else:
-        subprocess.check_call(args, cwd=EXAMPLES_DIR)
+    for command in args:
+        print(command)
+        subprocess.check_call(command[0], cwd=command[1], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 def run(path: str, task: str):
     cpu = 1 if task == "perf" else 20
@@ -39,14 +37,32 @@ def generate_tasks(base_path: str, mode: str):
                                 f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
                                 f"{corpus_dir} 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
                     path = os.path.join(base_path, f"{dataset}-{algorithm}-{generator}-results-{idx}")
-                    print(path)
                     if not os.path.exists(path):
                         continue
-                    corpus_dir = os.path.join(path, "corpus")
-                    yield f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
+                    commands = []
+                    if "zeugma" in path:
+                        commands.append(
+                            (f"mvn -pl :zeugma-evaluation-tools meringue:analyze -P{dataset},{algorithm} -Dmeringue.outputDirectory={path} -Dmeringue.duration=P2DT0H0M", "/usr0/home/aoli/repos/zeugma")
+                        )
+                        corpus_dir = os.path.join(path, "campaign", "gen")
+                        cov_generator = "testWithInputStream"
+                    elif "bedivfuzz" in path:
+                        commands.append(
+                            (f"mvn -pl :zeugma-evaluation-tools meringue:analyze -P{dataset},{algorithm} -Dmeringue.outputDirectory={path} -Dmeringue.duration=P2DT0H0M", "/usr0/home/aoli/repos/zeugma")
+                        )
+                        corpus_dir = os.path.join(path, "gen")
+                        cov_generator = "testWithInputStream"
+                    else:
+                        corpus_dir = os.path.join(path, "corpus")
+                        cov_generator = generator
+                    commands.append(
+                        (f"JVM_OPTS=\"-Djqf.repro.logUniqueBranches=true -Djqf.repro.traceDir={path}\" " + \
                             f"{EXAMPLES_DIR}/../bin/jqf-repro -i -c $({EXAMPLES_DIR}/../scripts/experiments/../../scripts/examples_classpath.sh) " + \
-                            f"{DATASET_TEST_CLASS_MAPPING[dataset]} {generator} " + \
-                            f"{corpus_dir} 2> /dev/null | grep \"^# Cov\" | sort | uniq > {path}/cov-all.log"
+                            f"{DATASET_TEST_CLASS_MAPPING[dataset]} {cov_generator} " + \
+                            f"{corpus_dir} 2> /dev/null | grep -a \"^# Cov\" | sort | uniq > {path}/cov-all.log", EXAMPLES_DIR
+                         )
+                    )
+                    yield commands
                     #  yield "-Djqf.repro.logUniqueBranches=true"
                     #  yield ["mvn", "jqf:repro", "-Dengine=repro",
                             #  f"-Dclass={DATASET_TEST_CLASS_MAPPING[dataset]}",
