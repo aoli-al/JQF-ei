@@ -28,20 +28,22 @@ def fisher_exact_test(contingency_table, alternative='two-sided', CI_level=0.95,
 """
 The Mann-Whitney U Test
 
-Return: the p value, the Vargha and Delaney's A12 statistics, , CI, U1, U2, the rank sum of sample1, and the rank sum of sample2
+Return: the p value, the Vargha and Delaney's A12 statistics, , CI, U1, U2, the rank sum of treatment, and the rank sum of control
 """
 
 
-def mann_whitney_u_test(sample1, sample2, alternative='two-sided', verbose=True):
-    n = len(sample1)
-    m = len(sample2)
-    U1, p = mannwhitneyu(sample1, sample2, alternative=alternative, method='exact')
+def mann_whitney_u_test(treatment, control, alternative='two-sided', verbose=True):
+    m = len(treatment)
+    n = len(control)
+    assert m == n
+
+    U1, p = mannwhitneyu(treatment, control, alternative=alternative, method='exact')
     U2 = n * m - U1
 
     # Effective size: A12
-    rank_results = rankdata(sample1 + sample2)
-    r1 = sum(rank_results[0:n])
-    r2 = sum(rank_results[n:n + m])
+    rank_results = rankdata(treatment + control)
+    r1 = sum(rank_results[0:m])
+    r2 = sum(rank_results[m:m+n])
     # A = (r1/m - (m+1)/2)/n # formula (14) in Vargha and Delaney, 2000
     # equivalent formula to avoid accuracy errors
     A_12 = (2 * r1 - m * (m + 1)) / (2 * n * m)
