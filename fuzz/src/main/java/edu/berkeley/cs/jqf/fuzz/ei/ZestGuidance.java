@@ -784,6 +784,41 @@ public class ZestGuidance implements Guidance {
         Guidance.super.run(testClass, method, args);
     }
 
+    private int getLevenshteinDistFromLinearInput(LinearInput first, LinearInput second) {
+
+        int m = first.values.size();
+        int n = second.values.size();
+
+        // Create a matrix to store distances
+        int[][] dp = new int[m + 1][n + 1];
+
+        // Initialize first row and column
+        for (int i = 0; i <= m; i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = j;
+        }
+
+        // Fill the matrix
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (first.values.get(i - 1).equals(second.values.get(j - 1))) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = 1 + Math.min(
+                            Math.min(dp[i - 1][j],    // deletion
+                                    dp[i][j - 1]),    // insertion
+                            dp[i - 1][j - 1]          // substitution
+                    );
+                }
+            }
+        }
+
+        return dp[m][n];
+
+    }
+
     private int getLevenshteinDistFromString(String s1, String s2) {
         if (s1.equals(s2)) {
             return 0;
@@ -817,11 +852,16 @@ public class ZestGuidance implements Guidance {
     }
 
     private void logMutation(boolean saved) {
-        String parentRaw =savedInputs.get(currentParentInputIdx).raw;
+        int parametricDistance = -1;
+        Input parentInput = savedInputs.get(currentParentInputIdx);
+        String parentRaw = parentInput.raw;
         if (currentRaw != null && parentRaw != null) {
+            if (currentInput instanceof LinearInput && parentInput instanceof LinearInput) {
+                parametricDistance = getLevenshteinDistFromLinearInput((LinearInput) currentInput, (LinearInput) parentInput);
+            }
             int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
-            String text =  currentRaw.length() + "," +  parentRaw.length() + "," +
-                    distance + "," + saved + "," + currentParentInputIdx + ",";
+            String text = currentRaw.length() + "," +  parentRaw.length() + "," +
+                    parametricDistance + "," + distance + "," + saved + "," + currentParentInputIdx + ",";
             if (saved) {
                 text += Integer.toString(currentInput.id);
             } else {
