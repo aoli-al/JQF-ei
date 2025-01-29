@@ -784,7 +784,23 @@ public class ZestGuidance implements Guidance {
         Guidance.super.run(testClass, method, args);
     }
 
-    private int getLevenshteinDistFromLinearInput(LinearInput first, LinearInput second) {
+    private int getLevenshteinDistFromInput(Input<?> firstInput, Input<?> secondInput) {
+        LinearInput first;
+        LinearInput second;
+        if (firstInput instanceof LinearInput) {
+            first = (LinearInput) firstInput;
+        } else if (firstInput instanceof ExecutionIndexingGuidance.MappedInput) {
+            first = ((ExecutionIndexingGuidance.MappedInput) firstInput).linearInput;
+        } else {
+            return -1;
+        }
+        if (secondInput instanceof LinearInput) {
+            second = (LinearInput) secondInput;
+        } else if (secondInput instanceof ExecutionIndexingGuidance.MappedInput) {
+            second = ((ExecutionIndexingGuidance.MappedInput) secondInput).linearInput;
+        } else {
+            return -1;
+        }
 
         int m = first.values.size();
         int n = second.values.size();
@@ -856,9 +872,7 @@ public class ZestGuidance implements Guidance {
         Input parentInput = savedInputs.get(currentParentInputIdx);
         String parentRaw = parentInput.raw;
         if (currentRaw != null && parentRaw != null) {
-            if (currentInput instanceof LinearInput && parentInput instanceof LinearInput) {
-                parametricDistance = getLevenshteinDistFromLinearInput((LinearInput) currentInput, (LinearInput) parentInput);
-            }
+            parametricDistance = getLevenshteinDistFromInput(currentInput, parentInput);
             int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
             String text = currentRaw.length() + "," +  parentRaw.length() + "," +
                     parametricDistance + "," + distance + "," + saved + "," + currentParentInputIdx + ",";
