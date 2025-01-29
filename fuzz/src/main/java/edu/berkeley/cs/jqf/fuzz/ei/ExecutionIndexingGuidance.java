@@ -109,9 +109,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
     /** Probability of splicing in {@link MappedInput#fuzz(Random, Map)} */
     protected final double STANDARD_SPLICING_PROBABILITY = 0.5;
 
-    /** Probability of splicing in {@link MappedInput#getOrGenerateFresh(ExecutionIndex, Random)}  */
-    protected final double DEMAND_DRIVEN_SPLICING_PROBABILITY = 0.0;
-
     /**
      * Constructs a new EI guidance instance with optional duration,
      * optional trial limit, and possibly deterministic PRNG.
@@ -435,7 +432,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
 
         /** A map from execution indexes to the byte (0-255) to be returned at that index. */
         protected LinkedHashMap<ExecutionIndex, Integer> valuesMap;
-//        protected IntIntHashMap valuesMap;
 
         protected LinearInput linearInput;
 
@@ -449,9 +445,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
          *
          */
         protected ArrayList<ExecutionIndex> orderedKeys = new ArrayList<>();
-
-
-        private List<InputPrefixMapping> demandDrivenSpliceMap = new ArrayList<>();
 
         /**
          * Create an empty input map.
@@ -525,15 +518,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             return orderedKeys.get(offset);
         }
 
-        private InputPrefixMapping getInputPrefixMapping(ExecutionIndex ei) {
-            for (InputPrefixMapping ipm : demandDrivenSpliceMap) {
-                if (ei.hasPrefix(ipm.targetPrefix)) {
-                    return ipm;
-                }
-            }
-            return null;
-        }
-
 
         /**
          * Retrieve a value for an execution index if mapped, else generate
@@ -552,8 +536,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             }
 
             // If we reached a limit, then just return EOF
-
-
             if (orderedKeys.size() >= MAX_INPUT_SIZE) {
                 return -1;
             }
@@ -567,16 +549,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             }
             else {
                 InputPrefixMapping ipm;
-
-//                // If we have an input prefix mapping for this execution index,
-//                // then splice from the source input
-//                if ((ipm = getInputPrefixMapping(key)) != null) {
-//                    Prefix sourcePrefix = ipm.sourcePrefix;
-//                    Suffix sourceSuffix = ipm.sourcePrefix.getEi().getSuffixOfPrefix(sourcePrefix);
-//                    ExecutionIndex sourceEi = new ExecutionIndex(sourcePrefix, sourceSuffix);
-//                    // The value can be taken from the source
-//                    val = ipm.sourceInput.getValueAtKey(sourceEi);
-//                }
 
                 // If we could not splice or were unsuccessful, try to generate a new input
                 if (GENERATE_EOF_WHEN_OUT) {
@@ -645,8 +617,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             }
             linearInput.gc();
             valuesMap = newMap;
-//            assert valuesMap.size() == orderedKeys.size() : "valuesMap and orderedKeys must be of same size";
-
             // Set the `executed` flag
             executed = true;
         }
@@ -693,12 +663,16 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             // Derive new input from this object as source
             MappedInput newInput = new MappedInput(this);
 
-            boolean splicingDone = false;
-            if (random.nextDouble() < 1 - HAVOC_PROBABILITY) {
-                splicingDone = fuzzInputRandom(newInput);
-            }
-            if (!splicingDone){
+            if (random.nextDouble() < HAVOC_PROBABILITY) {
                 fuzzInputHavoc(newInput);
+                return newInput;
+            }
+            boolean splicingDone = false;
+            if (random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
+               splicingDone = fuzzInputSplice(newInput);
+            }
+            if (!splicingDone || random.nextBoolean()){
+                fuzzInputRandom(newInput);
             }
             return newInput;
 
@@ -749,7 +723,6 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
             final int MIN_TARGET_ATTEMPTS = 3;
             final int MAX_TARGET_ATTEMPTS = 6;
 
-            boolean splicingDone = false;
             int targetAttempts = MIN_TARGET_ATTEMPTS;
 
             for (int targetAttempt = 1; targetAttempt < targetAttempts; targetAttempt++) {
@@ -767,7 +740,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 }
 
                 ExecutionContext targetEc = new ExecutionContext(targetEi);
-//                int valueAtTarget = this.getValueAtOffset(targetOffset);
+                int valueAtTarget = this.getValueAtOffset(targetOffset);
 
                 // Find a suitable input location to splice from and ignore locations from the same source
                 List<InputLocation> inputLocations = ecToInputLoc
@@ -797,6 +770,11 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                         continue;
                     }
 
+                    // Do not splice if the first value is the same in source and target
+                    if (sourceInput.getValueAtOffset(sourceOffset) == valueAtTarget) {
+                        continue;
+                    }
+
                     int splicedBytes = 0;
                     // We want to skip root nodes and leave nodes.
                     int spliceOffset = random.nextInt(targetEi.ei.length / 2 - 3) + 2;
@@ -804,18 +782,15 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                     // Do not splice if there is no common suffix between EI of source and target
                     ExecutionIndex sourceEi = sourceInput.getKeyAtOffset(sourceOffset);
 
-//                    Suffix suffix = targetEi.getCommonSuffix(sourceEi);
-//                    if (suffix.size() == 0) {
-//                        continue;
-//                    }
+                    Suffix suffix = targetEi.getCommonSuffix(sourceEi);
+                    if (suffix.size() == 0) {
+                        continue;
+                    }
 
                     // Extract the source and target prefixes
                     Prefix sourcePrefix = new Prefix(sourceEi, spliceOffset * 2);
                     Prefix targetPrefix = new Prefix(targetEi, spliceOffset * 2);
-//                    Prefix targetPrefix = targetEi.getPrefixOfSuffix(suffix);
-//                    assert (sourcePrefix.size() == targetPrefix.size());
-//                    demandDrivenSpliceMap.add(
-//                            new InputPrefixMapping(sourceInput, sourcePrefix, targetPrefix));
+                    assert (sourcePrefix.size() == targetPrefix.size());
 
                     // OK, this looks good. Let's splice!
                     int srcIdx = sourceOffset;
@@ -834,14 +809,12 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                     splicedBytes = srcIdx - sourceOffset;
 
                     // Complete splicing
-                    splicingDone = true;
                     newInput.desc += String.format(",splice:%06d:%d@%d->%d", sourceInput.id, splicedBytes,
                             sourceOffset, targetOffset);
-
-                    break;
+                    return true;
                 }
             }
-            return splicingDone;
+            return false;
         }
 
         @Override
