@@ -875,6 +875,7 @@ public class ZestGuidance implements Guidance {
             parametricDistance = getLevenshteinDistFromInput(currentInput, parentInput);
             int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
             String text = currentRaw.length() + "," +  parentRaw.length() + "," +
+                    currentInput.size() + "," + parentInput.size() + "," +
                     parametricDistance + "," + distance + "," + saved + "," + result + ","
                     + currentParentInputIdx + ",";
             if (saved) {
