@@ -867,12 +867,10 @@ public class ZestGuidance implements Guidance {
         return v0[n];
     }
 
-    private void logMutation(boolean saved, Result result) {
-        int parametricDistance = -1;
+    private void logMutation(boolean saved, Result result, int parametricDistance) {
         Input parentInput = savedInputs.get(currentParentInputIdx);
         String parentRaw = parentInput.raw;
         if (currentRaw != null && parentRaw != null) {
-            parametricDistance = getLevenshteinDistFromInput(currentInput, parentInput);
             int distance = getLevenshteinDistFromString(currentRaw, parentRaw);
             String text = currentRaw.length() + "," +  parentRaw.length() + "," +
                     currentInput.size() + "," + parentInput.size() + "," +
@@ -915,6 +913,11 @@ public class ZestGuidance implements Guidance {
 
             boolean valid = result == Result.SUCCESS;
             boolean toSave = false;
+            int parametricDistance = 0;
+            if (OBSERVE_MUTATION_DISTANCE && !savedInputs.isEmpty()) {
+                Input parentInput = savedInputs.get(currentParentInputIdx);
+                parametricDistance = getLevenshteinDistFromInput(currentInput, parentInput);
+            }
 
             if (valid) {
                 // Increment valid counter
@@ -1009,7 +1012,7 @@ public class ZestGuidance implements Guidance {
             }
 
             if (OBSERVE_MUTATION_DISTANCE && !savedInputs.isEmpty()) {
-                logMutation(toSave, result);
+                logMutation(toSave, result, parametricDistance);
             }
 
 
