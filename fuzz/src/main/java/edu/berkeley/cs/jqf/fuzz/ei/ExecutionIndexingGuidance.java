@@ -668,6 +668,7 @@ public class ExecutionIndexingGuidance extends ZestGuidance {
                 return newInput;
             }
             boolean splicingDone = false;
+            newInput.linearInput = new LinearInput();
             if (random.nextDouble() < STANDARD_SPLICING_PROBABILITY) {
                splicingDone = fuzzInputSplice(newInput);
             }

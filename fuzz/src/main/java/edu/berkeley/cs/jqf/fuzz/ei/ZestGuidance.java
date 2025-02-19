@@ -40,6 +40,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
@@ -898,6 +899,7 @@ public class ZestGuidance implements Guidance {
         }
     }
 
+    static long largeMutationIndex = 0;
 
     @Override
     public void handleResult(Result result, Throwable error) throws GuidanceException {
@@ -915,8 +917,28 @@ public class ZestGuidance implements Guidance {
             boolean toSave = false;
             int parametricDistance = 0;
             if (OBSERVE_MUTATION_DISTANCE && !savedInputs.isEmpty()) {
-                Input parentInput = savedInputs.get(currentParentInputIdx);
+                Input<?> parentInput = savedInputs.get(currentParentInputIdx);
                 parametricDistance = getLevenshteinDistFromInput(currentInput, parentInput);
+//                if (parametricDistance == Math.max(parentInput.size(), currentInput.size())) {
+//                    try (Writer out = new FileWriter("/tmp/largeMutationIndex/large_mutation_" + largeMutationIndex)) {
+//                        for (Integer b : currentInput) {
+//                            assert (b >= 0 && b < 256);
+//                            out.write(b.toString());
+//                            out.write(" ");
+//                        }
+//                        out.write("\n============\n");
+//                        for (Integer b : parentInput) {
+//                            assert (b >= 0 && b < 256);
+//                            out.write(b.toString());
+//                            out.write(" ");
+//                        }
+//                        largeMutationIndex += 1;
+//                    } catch (FileNotFoundException e) {
+//                        throw new RuntimeException(e);
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
             }
 
             if (valid) {
