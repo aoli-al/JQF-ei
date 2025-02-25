@@ -176,6 +176,8 @@ public class ZestGuidance implements Guidance {
     /** save crash to specific location (should be used with EXIT_ON_CRASH) **/
     protected final String EXACT_CRASH_PATH = System.getProperty("jqf.ei.EXACT_CRASH_PATH");
 
+    private Integer customMutationSize = 0;
+
     // ---------- LOGGING / STATS OUTPUT ------------
 
     /** Whether to print log statements to stderr (debug option; manually edit). */
@@ -264,8 +266,8 @@ public class ZestGuidance implements Guidance {
     /** Multiplication factor for number of children to produce for favored inputs. */
     protected final int NUM_CHILDREN_MULTIPLIER_FAVORED = 20;
 
-    /** Mean number of mutations to perform in each round. */
-    protected final double MEAN_MUTATION_COUNT = 8.0;
+    /** Mean number of mutations to perform in each round. Parses */
+    protected final double MEAN_MUTATION_COUNT = Double.parseDouble(System.getProperty("jqf.ei.MEAN_MUTATION_COUNT", "8.0"));
 
     /** Mean number of contiguous bytes to mutate in each mutation. */
     protected final double MEAN_MUTATION_SIZE = 4.0; // Bytes
@@ -302,6 +304,7 @@ public class ZestGuidance implements Guidance {
         this.outputDirectory = outputDirectory;
         this.blind = Boolean.getBoolean("jqf.ei.TOTALLY_RANDOM");
         this.validityFuzzing = !Boolean.getBoolean("jqf.ei.DISABLE_VALIDITY_FUZZING");
+//        this.customMutationSize = Integer.parseInt(System.getProperty("jqf.ei.ZEST_MUTATION_SIZE"));
         prepareOutputDirectory();
 
         // Try to parse the single-run timeout
@@ -445,6 +448,7 @@ public class ZestGuidance implements Guidance {
         statsFile.delete();
         logFile.delete();
         mutationLog.delete();
+        appendLineToFile(mutationLog, getMutationStatNames());
         coverageFile.delete();
         for (File file : savedCorpusDirectory.listFiles()) {
             file.delete();
@@ -459,6 +463,11 @@ public class ZestGuidance implements Guidance {
     protected String getStatNames() {
         return "# unix_time, cycles_done, cur_path, paths_total, pending_total, " +
             "pending_favs, map_size, unique_crashes, unique_hangs, max_depth, execs_per_sec, valid_inputs, invalid_inputs, valid_cov, all_covered_probes, valid_covered_probes";
+    }
+
+    protected String getMutationStatNames() {
+        return "current_len, parent_len, byte_current_len, byte_parent_len, " +
+                "byte_distance, distance, saved, result, parent_id, id, file";
     }
 
     /* Writes a line of text to a given log file. */
@@ -738,7 +747,11 @@ public class ZestGuidance implements Guidance {
 
                 // Fuzz it to get a new input
                 // infoLog("Mutating input: %s", parent.desc);
-                currentInput = parent.fuzz(random);
+                if (!blind) {
+                    currentInput = parent.fuzz(random);
+                } else {
+                    currentInput = createFreshInput();
+                }
                 numChildrenGeneratedForCurrentParentInput++;
 
                 // Write it to disk for debugging
@@ -1173,10 +1186,10 @@ public class ZestGuidance implements Guidance {
         writeCurrentInputToFile(saveFile);
         infoLog("Saved - %s %s %s", saveFile.getPath(), how, why);
 
-        // If not using guidance, do nothing else
-        if (blind) {
-            return;
-        }
+//        // If not using guidance, do nothing else
+//        if (blind) {
+//            return;
+//        }
 
         // Second, save to queue
         savedInputs.add(currentInput);
@@ -1506,7 +1519,10 @@ public class ZestGuidance implements Guidance {
             LinearInput newInput = new LinearInput(this);
 
             // Stack a bunch of mutations
-            int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            int numMutations = 1;
+            if (MEAN_MUTATION_COUNT != 1) {
+                numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            }
             newInput.desc += ",havoc:"+numMutations;
 
             boolean setToZero = random.nextDouble() < 0.1; // one out of 10 times
