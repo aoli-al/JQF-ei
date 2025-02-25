@@ -176,8 +176,6 @@ public class ZestGuidance implements Guidance {
     /** save crash to specific location (should be used with EXIT_ON_CRASH) **/
     protected final String EXACT_CRASH_PATH = System.getProperty("jqf.ei.EXACT_CRASH_PATH");
 
-    private Integer customMutationSize = 0;
-
     // ---------- LOGGING / STATS OUTPUT ------------
 
     /** Whether to print log statements to stderr (debug option; manually edit). */
@@ -266,7 +264,7 @@ public class ZestGuidance implements Guidance {
     /** Multiplication factor for number of children to produce for favored inputs. */
     protected final int NUM_CHILDREN_MULTIPLIER_FAVORED = 20;
 
-    /** Mean number of mutations to perform in each round. Parses */
+    /** Mean number of mutations to perform in each round. */
     protected final double MEAN_MUTATION_COUNT = Double.parseDouble(System.getProperty("jqf.ei.MEAN_MUTATION_COUNT", "8.0"));
 
     /** Mean number of contiguous bytes to mutate in each mutation. */
@@ -304,7 +302,6 @@ public class ZestGuidance implements Guidance {
         this.outputDirectory = outputDirectory;
         this.blind = Boolean.getBoolean("jqf.ei.TOTALLY_RANDOM");
         this.validityFuzzing = !Boolean.getBoolean("jqf.ei.DISABLE_VALIDITY_FUZZING");
-//        this.customMutationSize = Integer.parseInt(System.getProperty("jqf.ei.ZEST_MUTATION_SIZE"));
         prepareOutputDirectory();
 
         // Try to parse the single-run timeout
