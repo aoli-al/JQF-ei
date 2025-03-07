@@ -886,7 +886,7 @@ public class ZestGuidance implements Guidance {
             String text = currentRaw.length() + "," +  parentRaw.length() + "," +
                     currentInput.size() + "," + parentInput.size() + "," +
                     parametricDistance + "," + distance + "," + saved + "," + result + ","
-                    + currentParentInputIdx + ",";
+                    + parentInput.id + ",";
             if (saved) {
                 text += Integer.toString(currentInput.id);
             } else {
